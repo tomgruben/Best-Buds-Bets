@@ -344,11 +344,80 @@
     <div class="subtitle">Football Betting Pool</div>
   </div>
 </header>
-
-<nav>
-  <button class="nav-button active" onclick="showPage('standings', this)">
-    🏆 Standings
+<div id="auth-area" style="max-width:1200px;margin:auto;padding:10px 24px;text-align:right;">
+  <button
+    id="login-button"
+    class="primary-button"
+    onclick="showLogin()"
+    style="margin-top:0;">
+    🔐 Admin Login
   </button>
+
+  <button
+    id="logout-button"
+    class="primary-button"
+    onclick="logout()"
+    style="display:none;margin-top:0;">
+    Logout
+  </button>
+</div>
+
+<div
+  id="login-modal"
+  style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.75);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+  ">
+
+  <div
+    class="card"
+    style="width:min(400px,90%);">
+
+    <h2>Admin Login</h2>
+
+    <div id="login-message" class="message"></div>
+
+    <label>Email</label>
+    <input
+      id="login-email"
+      type="email"
+      placeholder="Your email">
+
+    <br><br>
+
+    <label>Password</label>
+    <input
+      id="login-password"
+      type="password"
+      placeholder="Password">
+
+    <button
+      class="primary-button"
+      onclick="login()">
+      Login
+    </button>
+
+    <button
+      class="back-button"
+      onclick="hideLogin()">
+      Cancel
+    </button>
+
+  </div>
+</div>
+<nav>
+<button
+  id="enter-bets-nav"
+  class="nav-button"
+  onclick="showPage('bets', this)"
+  style="display:none;">
+  📝 Enter Bets
+</button>
 
   <button class="nav-button" onclick="showPage('bets', this)">
     📝 Enter Bets
@@ -765,7 +834,166 @@
 
   let players = [];
   let currentSeason = null;
+let isAdmin = false;
 
+
+/*
+ * ==========================================================
+ * AUTHENTICATION
+ * ==========================================================
+ */
+
+async function checkAuth() {
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    setAdminMode(false);
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+  if (error) {
+    console.error(error);
+    setAdminMode(false);
+    return;
+  }
+
+  setAdminMode(!!data);
+}
+
+
+function setAdminMode(admin) {
+
+  isAdmin = admin;
+
+  const loginButton =
+    document.getElementById("login-button");
+
+  const logoutButton =
+    document.getElementById("logout-button");
+
+  const enterBets =
+    document.getElementById("enter-bets-nav");
+
+  if (admin) {
+
+    loginButton.style.display = "none";
+    logoutButton.style.display = "inline-block";
+    enterBets.style.display = "inline-block";
+
+  } else {
+
+    loginButton.style.display = "inline-block";
+    logoutButton.style.display = "none";
+    enterBets.style.display = "none";
+
+    /*
+     * If a user logs out while viewing Enter Bets,
+     * return them to standings.
+     */
+
+    if (
+      document.getElementById("bets").classList.contains("active")
+    ) {
+      showPage("standings");
+    }
+  }
+}
+
+
+function showLogin() {
+
+  document.getElementById("login-modal")
+    .style.display = "flex";
+
+}
+
+
+function hideLogin() {
+
+  document.getElementById("login-modal")
+    .style.display = "none";
+
+}
+
+
+async function login() {
+
+  const email =
+    document.getElementById("login-email").value.trim();
+
+  const password =
+    document.getElementById("login-password").value;
+
+
+  if (!email || !password) {
+
+    showMessage(
+      "login-message",
+      "Please enter your email and password.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+
+  if (error) {
+
+    showMessage(
+      "login-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  await checkAuth();
+
+  hideLogin();
+
+  document.getElementById("login-email").value = "";
+  document.getElementById("login-password").value = "";
+
+}
+
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  setAdminMode(false);
+
+}
+
+
+/*
+ * Automatically react to login/logout.
+ */
+
+supabaseClient.auth.onAuthStateChange(
+  async (_event, _session) => {
+    await checkAuth();
+  }
+);
 
   /*
    * ==========================================================
@@ -961,10 +1189,7 @@
 
       const tr = document.createElement("tr");
 
-      const unitsClass =
-        Number(row.units) >= 0
-          ? "positive"
-          : "negative";
+const unitClass = unitsClass(row.units);
 
       tr.innerHTML = `
         <td class="rank">
@@ -984,7 +1209,7 @@
         <td>${row.pushes}</td>
         <td>${row.win_percentage.toFixed(1)}%</td>
 
-        <td class="${unitsClass}">
+<td class="${unitClass}">
           ${formatUnits(row.units)}
         </td>
       `;
@@ -1705,7 +1930,30 @@
    * ==========================================================
    */
 
-  function formatUnits(value) {
+ function formatUnits(value) {
+
+  const number = Number(value || 0);
+
+  return (
+    number >= 0 ? "+" : ""
+  ) + number.toFixed(2) + "u";
+}
+
+
+function unitsClass(value) {
+
+  const number = Number(value || 0);
+
+  if (number > 0) {
+    return "positive";
+  }
+
+  if (number < 0) {
+    return "negative";
+  }
+
+  return "";
+}
 
     const number =
       Number(value || 0);
@@ -1770,7 +2018,9 @@
    * ==========================================================
    */
 
+checkAuth().then(() => {
   initialize();
+});
 
 </script>
 
