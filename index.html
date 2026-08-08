@@ -1905,16 +1905,6 @@ async function saveWeeklyTdPicks() {
   await loadStandings();
 
 }
-async function saveWeeklyStandardPicks() {
-
-  if (!currentSeason) {
-    showMessage(
-      "bet-message",
-      "No active season is selected.",
-      "error"
-    );
-    return;
-  }
 
 async function loadWeeklyStandardPicks() {
 
