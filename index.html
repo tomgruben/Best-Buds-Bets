@@ -1923,7 +1923,168 @@ async function saveWeeklyStandardPicks() {
     );
     return;
   }
+async function loadWeeklyStandardPicks() {
 
+  if (!currentSeason) return;
+
+
+  const weekNumber =
+    Number(
+      document.getElementById("weekly-week").value
+    );
+
+
+  if (!weekNumber) return;
+
+
+  /*
+   * Find the database week.
+   */
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("id")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+    return;
+  }
+
+
+  /*
+   * Get all picks for this season/week.
+   */
+
+  const { data: picks, error } =
+    await supabaseClient
+      .from("picks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", week.id);
+
+
+  if (error) {
+
+    console.error(
+      "Error loading weekly picks:",
+      error
+    );
+
+    return;
+  }
+
+
+  /*
+   * Clear the form first.
+   */
+
+  const players = [
+    "andy",
+    "bach",
+    "joe",
+    "tom"
+  ];
+
+
+  players.forEach(player => {
+
+    document.getElementById(
+      `sat-pick-${player}`
+    ).value = "";
+
+    document.getElementById(
+      `sat-odds-${player}`
+    ).value = "";
+
+    document.getElementById(
+      `sat-result-${player}`
+    ).value = "pending";
+
+
+    document.getElementById(
+      `sun-pick-${player}`
+    ).value = "";
+
+    document.getElementById(
+      `sun-odds-${player}`
+    ).value = "";
+
+    document.getElementById(
+      `sun-result-${player}`
+    ).value = "pending";
+
+  });
+
+
+  /*
+   * Put existing wagers back into the form.
+   */
+
+  (picks || []).forEach(pick => {
+
+    const playerNames = {
+      1: "andy",
+      2: "bach",
+      3: "joe",
+      4: "tom"
+    };
+
+
+    const playerKey =
+      playerNames[pick.player_id];
+
+
+    if (!playerKey) return;
+
+
+    const dayKey =
+      pick.day === "Saturday"
+        ? "sat"
+        : "sun";
+
+
+    const pickInput =
+      document.getElementById(
+        `${dayKey}-pick-${playerKey}`
+      );
+
+
+    const oddsInput =
+      document.getElementById(
+        `${dayKey}-odds-${playerKey}`
+      );
+
+
+    const resultInput =
+      document.getElementById(
+        `${dayKey}-result-${playerKey}`
+      );
+
+
+    if (pickInput) {
+      pickInput.value =
+        pick.pick || "";
+    }
+
+
+    if (oddsInput) {
+      oddsInput.value =
+        pick.odds ?? "";
+    }
+
+
+    if (resultInput) {
+      resultInput.value =
+        pick.result || "pending";
+    }
+
+  });
+
+}
 
   const weekNumber =
     Number(document.getElementById("weekly-week").value);
