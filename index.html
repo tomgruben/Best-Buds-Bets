@@ -1235,45 +1235,121 @@ const unitClass = unitsClass(row.units);
    * ==========================================================
    */
 
-  async function saveStandardBet() {
+ async function saveStandardBet() {
 
-    if (!currentSeason) return;
+  if (!currentSeason) return;
 
-    const playerId =
-      Number(document.getElementById("bet-player").value);
+  const playerId =
+    Number(document.getElementById("bet-player").value);
 
-    const weekNumber =
-      Number(document.getElementById("bet-week").value);
+  const weekNumber =
+    Number(document.getElementById("bet-week").value);
 
-    const day =
-      document.getElementById("bet-day").value;
+  const day =
+    document.getElementById("bet-day").value;
 
-    const sport =
-      document.getElementById("bet-sport").value;
+  const sport =
+    document.getElementById("bet-sport").value;
 
-    const game =
-      document.getElementById("bet-game").value.trim();
+  const pick =
+    document.getElementById("bet-pick").value.trim();
 
-    const pick =
-      document.getElementById("bet-pick").value.trim();
+  const oddsValue =
+    document.getElementById("bet-odds").value;
 
-    const oddsValue =
-      document.getElementById("bet-odds").value;
-
-    const result =
-      document.getElementById("bet-result").value;
+  const result =
+    document.getElementById("bet-result").value || "pending";
 
 
-    if (!game || !pick) {
+  if (!pick) {
 
-      showMessage(
-        "bet-message",
-        "Please enter the game and pick.",
-        "error"
-      );
+    showMessage(
+      "bet-message",
+      "Please enter the pick.",
+      "error"
+    );
 
-      return;
-    }
+    return;
+  }
+
+
+  /*
+   * Find the week.
+   */
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .upsert({
+
+        player_id: playerId,
+        season_id: currentSeason.id,
+        week_id: week.id,
+
+        day: day,
+        sport: sport,
+
+        game: null,
+        pick: pick,
+
+        odds:
+          oddsValue === ""
+            ? null
+            : Number(oddsValue),
+
+        result: result
+
+      }, {
+
+        onConflict:
+          "player_id,week_id,day"
+
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    "Standard pick saved successfully.",
+    "success"
+  );
+
+  clearStandardForm();
+
+  await loadStandings();
+}
 
 
     /*
