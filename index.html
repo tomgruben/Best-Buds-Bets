@@ -2097,7 +2097,184 @@ async function loadWeeklyStandardPicks() {
   });
 
 }
+async function loadWeeklyTdPicks() {
 
+  if (!currentSeason) return;
+
+
+  const weekInput =
+    document.getElementById("weekly-week");
+
+  if (!weekInput) return;
+
+
+  const weekNumber =
+    Number(weekInput.value);
+
+  if (!weekNumber) return;
+
+
+  /*
+   * Find the database week.
+   */
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("id")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    console.error(
+      "Could not find week:",
+      weekError
+    );
+
+    return;
+  }
+
+
+  /*
+   * Get existing TD picks.
+   */
+
+  const { data: tdPicks, error } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", week.id);
+
+
+  if (error) {
+
+    console.error(
+      "Error loading TD picks:",
+      error
+    );
+
+    return;
+  }
+
+
+  /*
+   * Clear the TD form.
+   */
+
+  const players = [
+    "andy",
+    "bach",
+    "joe",
+    "tom"
+  ];
+
+
+  players.forEach(player => {
+
+    const pickInput =
+      document.getElementById(
+        `td-pick-${player}`
+      );
+
+    const oddsInput =
+      document.getElementById(
+        `td-odds-${player}`
+      );
+
+    const resultInput =
+      document.getElementById(
+        `td-result-${player}`
+      );
+
+
+    if (pickInput) {
+      pickInput.value = "";
+    }
+
+
+    if (oddsInput) {
+      oddsInput.value = "";
+    }
+
+
+    if (resultInput) {
+      resultInput.value = "pending";
+    }
+
+  });
+
+
+  /*
+   * Map database player IDs.
+   */
+
+  const playerNames = {
+    1: "andy",
+    2: "bach",
+    3: "joe",
+    4: "tom"
+  };
+
+
+  /*
+   * Put existing TD picks into the form.
+   */
+
+  (tdPicks || []).forEach(pick => {
+
+    const playerKey =
+      playerNames[pick.player_id];
+
+
+    if (!playerKey) return;
+
+
+    const pickInput =
+      document.getElementById(
+        `td-pick-${playerKey}`
+      );
+
+    const oddsInput =
+      document.getElementById(
+        `td-odds-${playerKey}`
+      );
+
+    const resultInput =
+      document.getElementById(
+        `td-result-${playerKey}`
+      );
+
+
+    if (pickInput) {
+
+      pickInput.value =
+        pick.player_pick || "";
+
+    }
+
+
+    if (oddsInput) {
+
+      oddsInput.value =
+        pick.odds ?? "";
+
+    }
+
+
+    if (resultInput) {
+
+      resultInput.value =
+        pick.result || "pending";
+
+    }
+
+  });
+
+}
 
 /*
  * ==========================================================
