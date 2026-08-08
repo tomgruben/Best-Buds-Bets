@@ -1265,10 +1265,13 @@ supabaseClient.auth.onAuthStateChange(
     button.classList.add("active");
   }
 
-
 if (pageId === "bets") {
+
+  console.log("ENTER BETS PAGE LOADED");
+
   loadWeeklyStandardPicks();
 }
+
   if (pageId === "standings") {
     loadStandings();
   }
