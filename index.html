@@ -1346,43 +1346,24 @@ if (pageId === "enter-bets") {
    * ==========================================================
    */
 
-  async function loadPlayersForForms() {
+async function loadPlayersForForms() {
 
-    const { data, error } =
-      await supabaseClient
-        .from("players")
-        .select("*")
-        .order("id");
+  /*
+   * The old betting form used player dropdowns.
+   *
+   * The new weekly console has fixed rows for:
+   * Andy, Bach, Joe, and Tom.
+   *
+   * Therefore, there is no longer anything
+   * for this function to populate.
+   *
+   * We keep the function because initialize()
+   * still calls it.
+   */
 
-    if (error) throw error;
+  return;
 
-    players = data || [];
-
-    document.getElementById("player-count").textContent =
-      players.length;
-
-    const selects = [
-      document.getElementById("bet-player"),
-      document.getElementById("td-player")
-    ];
-
-    selects.forEach(select => {
-
-      select.innerHTML = "";
-
-      players.forEach(player => {
-
-        const option = document.createElement("option");
-
-        option.value = player.id;
-        option.textContent = player.name;
-
-        select.appendChild(option);
-
-      });
-
-    });
-  }
+}
 
 
   /*
