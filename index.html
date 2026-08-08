@@ -527,64 +527,221 @@
 
     <div class="card">
 
-      <h3>Standard Pick</h3>
+<div class="card">
 
-      <div class="form-grid">
+  <h3>Weekly Standard Picks</h3>
 
-        <div>
-          <label>Player</label>
-          <select id="bet-player"></select>
-        </div>
+  <div class="form-grid">
 
-        <div>
-          <label>Week</label>
-          <input id="bet-week" type="number" min="1" max="18" value="1">
-        </div>
-
-        <div>
-          <label>Day</label>
-          <select id="bet-day">
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Sport</label>
-          <select id="bet-sport">
-            <option value="College Football">College Football</option>
-            <option value="NFL">NFL</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Pick</label>
-          <input id="bet-pick" placeholder="Example: Ohio State -7">
-        </div>
-
-        <div>
-          <label>Odds</label>
-          <input id="bet-odds" type="number" placeholder="-110">
-        </div>
-
-        <div>
-          <label>Result</label>
-          <select id="bet-result">
-            <option value="pending">Pending</option>
-            <option value="win">Win</option>
-            <option value="loss">Loss</option>
-            <option value="push">Push</option>
-          </select>
-        </div>
-
-      </div>
-
-      <button class="primary-button" onclick="saveStandardBet()">
-        Save Standard Pick
-      </button>
-
+    <div>
+      <label>Week</label>
+      <input
+        id="weekly-week"
+        type="number"
+        min="1"
+        max="18"
+        value="1">
     </div>
 
+  </div>
+
+  <h4>Saturday — College Football</h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td><strong>Andy</strong></td>
+          <td>
+            <input id="sat-pick-andy" type="text">
+          </td>
+          <td>
+            <input id="sat-odds-andy" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sat-result-andy">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Bach</strong></td>
+          <td>
+            <input id="sat-pick-bach" type="text">
+          </td>
+          <td>
+            <input id="sat-odds-bach" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sat-result-bach">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Joe</strong></td>
+          <td>
+            <input id="sat-pick-joe" type="text">
+          </td>
+          <td>
+            <input id="sat-odds-joe" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sat-result-joe">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Tom</strong></td>
+          <td>
+            <input id="sat-pick-tom" type="text">
+          </td>
+          <td>
+            <input id="sat-odds-tom" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sat-result-tom">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <h4>Sunday — NFL</h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td><strong>Andy</strong></td>
+          <td>
+            <input id="sun-pick-andy" type="text">
+          </td>
+          <td>
+            <input id="sun-odds-andy" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sun-result-andy">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Bach</strong></td>
+          <td>
+            <input id="sun-pick-bach" type="text">
+          </td>
+          <td>
+            <input id="sun-odds-bach" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sun-result-bach">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Joe</strong></td>
+          <td>
+            <input id="sun-pick-joe" type="text">
+          </td>
+          <td>
+            <input id="sun-odds-joe" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sun-result-joe">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong>Tom</strong></td>
+          <td>
+            <input id="sun-pick-tom" type="text">
+          </td>
+          <td>
+            <input id="sun-odds-tom" type="number" placeholder="-110">
+          </td>
+          <td>
+            <select id="sun-result-tom">
+              <option value="pending">Pending</option>
+              <option value="win">Win</option>
+              <option value="loss">Loss</option>
+              <option value="push">Push</option>
+            </select>
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <button
+    class="primary-button"
+    onclick="saveWeeklyStandardPicks()">
+    Save Standard Picks
+  </button>
+
+</div>
 
     <div class="card">
 
