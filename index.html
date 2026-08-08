@@ -1234,8 +1234,7 @@ const unitClass = unitsClass(row.units);
    * SAVE STANDARD BET
    * ==========================================================
    */
-
- async function saveStandardBet() {
+async function saveStandardBet() {
 
   if (!currentSeason) return;
 
@@ -1272,7 +1271,81 @@ const unitClass = unitsClass(row.units);
     return;
   }
 
-   
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .upsert({
+
+        player_id: playerId,
+        season_id: currentSeason.id,
+        week_id: week.id,
+
+        day: day,
+        sport: sport,
+
+        game: null,
+        pick: pick,
+
+        odds:
+          oddsValue === ""
+            ? null
+            : Number(oddsValue),
+
+        result: result
+
+      }, {
+
+        onConflict:
+          "player_id,week_id,day"
+
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    "Standard pick saved successfully.",
+    "success"
+  );
+
+  clearStandardForm();
+
+  await loadStandings();
+}
+ 
   /*
    * ==========================================================
    * SAVE TD BET
