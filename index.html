@@ -1437,103 +1437,106 @@ const unitClass = unitsClass(row.units);
    * ==========================================================
    */
 
-  async function saveTdBet() {
+async function saveTdBet() {
 
-    if (!currentSeason) return;
+  if (!currentSeason) return;
 
-    const playerId =
-      Number(document.getElementById("td-player").value);
+  const playerId =
+    Number(document.getElementById("td-player").value);
 
-    const weekNumber =
-      Number(document.getElementById("td-week").value);
+  const weekNumber =
+    Number(document.getElementById("td-week").value);
 
-    const playerPick =
-      document.getElementById("td-pick").value.trim();
+  const playerPick =
+    document.getElementById("td-pick").value.trim();
 
-    const odds =
-      Number(document.getElementById("td-odds").value);
+  const oddsValue =
+    document.getElementById("td-odds").value;
 
-    const result =
-      document.getElementById("td-result").value;
-
-
-    if (!playerPick || !odds) {
-
-      showMessage(
-        "bet-message",
-        "Please enter the NFL player and odds.",
-        "error"
-      );
-
-      return;
-    }
+  const result =
+    document.getElementById("td-result").value || "pending";
 
 
-    const { data: week, error: weekError } =
-      await supabaseClient
-        .from("weeks")
-        .select("*")
-        .eq("season_id", currentSeason.id)
-        .eq("week_number", weekNumber)
-        .single();
-
-
-    if (weekError || !week) {
-
-      showMessage(
-        "bet-message",
-        "That week has not been created in the database yet.",
-        "error"
-      );
-
-      return;
-    }
-
-
-    const { error } =
-      await supabaseClient
-        .from("touchdown_picks")
-        .upsert({
-
-          player_id: playerId,
-          season_id: currentSeason.id,
-          week_id: week.id,
-
-          player_pick: playerPick,
-          odds: odds,
-
-          result: result
-
-        }, {
-
-          onConflict:
-            "player_id,week_id"
-
-        });
-
-
-    if (error) {
-
-      showMessage(
-        "bet-message",
-        error.message,
-        "error"
-      );
-
-      return;
-    }
-
+  if (!playerPick || oddsValue === "") {
 
     showMessage(
       "bet-message",
-      "TD pick saved successfully.",
-      "success"
+      "Please enter the NFL player and odds.",
+      "error"
     );
 
-    clearTdForm();
-
-    await loadStandings();
+    return;
   }
+
+
+  const odds = Number(oddsValue);
+
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .upsert({
+
+        player_id: playerId,
+        season_id: currentSeason.id,
+        week_id: week.id,
+
+        player_pick: playerPick,
+        odds: odds,
+
+        result: result
+
+      }, {
+
+        onConflict:
+          "player_id,week_id"
+
+      });
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    "TD pick saved successfully.",
+    "success"
+  );
+
+  clearTdForm();
+
+  await loadStandings();
+}
 
 
   /*
