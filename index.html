@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Best Buds Bets</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121c2e;
+      --card-light: #18243a;
+      --border: #26354e;
+      --text: #f4f7fb;
+      --muted: #91a0b8;
+      --green: #32d583;
+      --red: #ff5c69;
+      --gold: #f5c451;
+      --blue: #4d9cff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, #101c31, #172844);
+      border-bottom: 1px solid var(--border);
+      padding: 24px;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    nav {
+      max-width: 1200px;
+      margin: auto;
+      padding: 14px 24px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    nav button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    nav button:hover,
+    nav button.active {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rank {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .player-button {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: inherit;
+      cursor: pointer;
+      padding: 0;
+      font-weight: bold;
+    }
+
+    .positive {
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    .negative {
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    .gold {
+      color: var(--gold);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #0d1728;
+      color: var(--text);
+    }
+
+    .primary-button {
+      background: var(--blue);
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .primary-button:hover {
+      opacity: 0.9;
+    }
+
+    .back-button {
+      background: var(--card-light);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 9px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-bottom: 18px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(255, 92, 105, 0.12);
+      color: var(--red);
+      border: 1px solid rgba(255, 92, 105, 0.3);
+    }
+
+    .message.success {
+      display: block;
+      background: rgba(50, 213, 131, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(50, 213, 131, 0.3);
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 20px 0;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .profile-name {
+      font-size: 32px;
+      margin: 0;
+    }
+
+    .record {
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .chart {
+      height: 260px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 20px 5px 5px;
+      overflow-x: auto;
+    }
+
+    .bar-container {
+      min-width: 35px;
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .bar {
+      width: 25px;
+      background: var(--green);
+      border-radius: 5px 5px 0 0;
+      min-height: 2px;
+    }
+
+    .bar.negative {
+      background: var(--red);
+    }
+
+    .bar-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 450px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>🏈 Best Buds Bets</h1>
+    <div class="subtitle">Football Betting Pool</div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-button active" onclick="showPage('standings', this)">
+    🏆 Standings
+  </button>
+
+  <button class="nav-button" onclick="showPage('bets', this)">
+    📝 Enter Bets
+  </button>
+
+  <button class="nav-button" onclick="showPage('history', this)">
+    📚 History
+  </button>
+
+  <button class="nav-button" onclick="showPage('players', this)">
+    👤 Players
+  </button>
+
+  <button class="nav-button" onclick="showPage('seasons', this)">
+    🗄️ Seasons
+  </button>
+</nav>
+
+<main>
+
+  <!-- ======================================================
+       STANDINGS
+       ====================================================== -->
+
+  <section id="standings" class="page active">
+
+    <div id="standings-message" class="message"></div>
+
+    <h2 class="section-title">2026 Season Standings</h2>
+
+    <div class="stats-grid">
+
+      <div class="stat">
+        <div class="stat-label">Season</div>
+        <div class="stat-value">2026</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Players</div>
+        <div class="stat-value" id="player-count">4</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Current Leader</div>
+        <div class="stat-value" id="leader-name">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">Status</div>
+        <div class="stat-value positive">Active</div>
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>W</th>
+              <th>L</th>
+              <th>P</th>
+              <th>Win %</th>
+              <th>TD Units</th>
+            </tr>
+          </thead>
+
+          <tbody id="standings-body">
+            <tr>
+              <td colspan="7">Loading standings...</td>
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       ENTER BETS
+       ====================================================== -->
+
+  <section id="bets" class="page">
+
+    <h2 class="section-title">Enter Bets</h2>
+
+    <div id="bet-message" class="message"></div>
+
+    <div class="card">
+
+      <h3>Standard Pick</h3>
+
+      <div class="form-grid">
+
+        <div>
+          <label>Player</label>
+          <select id="bet-player"></select>
+        </div>
+
+        <div>
+          <label>Week</label>
+          <input id="bet-week" type="number" min="1" max="18" value="1">
+        </div>
+
+        <div>
+          <label>Day</label>
+          <select id="bet-day">
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Sport</label>
+          <select id="bet-sport">
+            <option value="College Football">College Football</option>
+            <option value="NFL">NFL</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Game</label>
+          <input id="bet-game" placeholder="Example: Ohio State vs Michigan">
+        </div>
+
+        <div>
+          <label>Pick</label>
+          <input id="bet-pick" placeholder="Example: Ohio State -7">
+        </div>
+
+        <div>
+          <label>Odds</label>
+          <input id="bet-odds" type="number" placeholder="-110">
+        </div>
+
+        <div>
+          <label>Result</label>
+          <select id="bet-result">
+            <option value="pending">Pending</option>
+            <option value="win">Win</option>
+            <option value="loss">Loss</option>
+            <option value="push">Push</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button class="primary-button" onclick="saveStandardBet()">
+        Save Standard Pick
+      </button>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Sunday TD Pick</h3>
+
+      <div class="form-grid">
+
+        <div>
+          <label>Player</label>
+          <select id="td-player"></select>
+        </div>
+
+        <div>
+          <label>Week</label>
+          <input id="td-week" type="number" min="1" max="18" value="1">
+        </div>
+
+        <div>
+          <label>NFL Player</label>
+          <input id="td-pick" placeholder="Example: Josh Allen">
+        </div>
+
+        <div>
+          <label>Odds</label>
+          <input id="td-odds" type="number" placeholder="+175">
+        </div>
+
+        <div>
+          <label>Result</label>
+          <select id="td-result">
+            <option value="pending">Pending</option>
+            <option value="win">Win</option>
+            <option value="loss">Loss</option>
+            <option value="push">Push</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button class="primary-button" onclick="saveTdBet()">
+        Save TD Pick
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       HISTORY
+       ====================================================== -->
+
+  <section id="history" class="page">
+
+    <h2 class="section-title">Betting History</h2>
+
+    <div class="card">
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Week</th>
+              <th>Day</th>
+              <th>Sport</th>
+              <th>Game</th>
+              <th>Pick</th>
+              <th>Odds</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+
+          <tbody id="history-body">
+            <tr>
+              <td colspan="8">Loading...</td>
+            </tr>
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       PLAYERS
+       ====================================================== -->
+
+  <section id="players" class="page">
+
+    <div id="player-list">
+
+      <h2 class="section-title">Players</h2>
+
+      <div class="card">
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Record</th>
+                <th>Win %</th>
+                <th>TD Units</th>
+              </tr>
+            </thead>
+
+            <tbody id="players-body">
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="player-profile" style="display:none;">
+
+      <button class="back-button" onclick="showPlayerList()">
+        ← Back to Players
+      </button>
+
+      <div class="card">
+
+        <div class="profile-header">
+
+          <div>
+            <h2 class="profile-name" id="profile-name">Player</h2>
+            <div class="record" id="profile-record"></div>
+          </div>
+
+          <div>
+            <strong id="profile-units">0.00u</strong>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>TD Units by Week</h3>
+
+        <div id="units-chart" class="chart"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>Historical Picks</h3>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Day</th>
+                <th>Type</th>
+                <th>Pick</th>
+                <th>Odds</th>
+                <th>Result</th>
+                <th>Units</th>
+              </tr>
+            </thead>
+
+            <tbody id="profile-picks-body">
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ======================================================
+       SEASONS
+       ====================================================== -->
+
+  <section id="seasons" class="page">
+
+    <h2 class="section-title">Season History</h2>
+
+    <div class="card">
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Season</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="seasons-body">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+  /*
+   * ==========================================================
+   * SUPABASE CONFIGURATION
+   * ==========================================================
+   *
+   * Replace the two values below with the information
+   * from your Supabase project.
+   */
+
+  const SUPABASE_URL = "https://zndhwlrblevcffrzzwxm.supabase.co/rest/v1/";
+
+  const SUPABASE_KEY = "sb_publishable_Nk-aRgkHw7cmWXaJRHZxcg_EPlXw7ec";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  let players = [];
+  let currentSeason = null;
+
+
+  /*
+   * ==========================================================
+   * PAGE NAVIGATION
+   * ==========================================================
+   */
+
+  function showPage(pageId, button) {
+
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
+
+    document.getElementById(pageId).classList.add("active");
+
+    document.querySelectorAll(".nav-button").forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+    if (button) {
+      button.classList.add("active");
+    }
+
+    if (pageId === "standings") {
+      loadStandings();
+    }
+
+    if (pageId === "history") {
+      loadHistory();
+    }
+
+    if (pageId === "players") {
+      loadPlayers();
+    }
+
+    if (pageId === "seasons") {
+      loadSeasons();
+    }
+  }
+
+
+  /*
+   * ==========================================================
+   * INITIAL LOAD
+   * ==========================================================
+   */
+
+  async function initialize() {
+
+    try {
+
+      const { data: seasons, error } =
+        await supabaseClient
+          .from("seasons")
+          .select("*")
+          .eq("status", "active")
+          .order("year", { ascending: false })
+          .limit(1);
+
+      if (error) throw error;
+
+      if (!seasons || seasons.length === 0) {
+        showMessage(
+          "standings-message",
+          "No active season found.",
+          "error"
+        );
+        return;
+      }
+
+      currentSeason = seasons[0];
+
+      document.querySelector(".section-title").textContent =
+        `${currentSeason.year} Season Standings`;
+
+      await loadPlayersForForms();
+      await loadStandings();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        "standings-message",
+        "Unable to connect to Supabase. Check your Project URL and Publishable/anon key.",
+        "error"
+      );
+    }
+  }
+
+
+  /*
+   * ==========================================================
+   * LOAD PLAYERS
+   * ==========================================================
+   */
+
+  async function loadPlayersForForms() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("players")
+        .select("*")
+        .order("id");
+
+    if (error) throw error;
+
+    players = data || [];
+
+    document.getElementById("player-count").textContent =
+      players.length;
+
+    const selects = [
+      document.getElementById("bet-player"),
+      document.getElementById("td-player")
+    ];
+
+    selects.forEach(select => {
+
+      select.innerHTML = "";
+
+      players.forEach(player => {
+
+        const option = document.createElement("option");
+
+        option.value = player.id;
+        option.textContent = player.name;
+
+        select.appendChild(option);
+
+      });
+
+    });
+  }
+
+
+  /*
+   * ==========================================================
+   * STANDINGS
+   * ==========================================================
+   */
+
+  async function loadStandings() {
+
+    if (!currentSeason) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("season_standings")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .order("win_percentage", {
+          ascending: false
+        });
+
+    if (error) {
+
+      console.error(error);
+
+      showMessage(
+        "standings-message",
+        error.message,
+        "error"
+      );
+
+      return;
+    }
+
+    const body =
+      document.getElementById("standings-body");
+
+    body.innerHTML = "";
+
+    if (!data || data.length === 0) {
+
+      body.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty">
+            No picks have been entered yet.
+          </td>
+        </tr>
+      `;
+
+      document.getElementById("leader-name").textContent = "—";
+
+      return;
+    }
+
+    document.getElementById("leader-name").textContent =
+      data[0].player_name;
+
+    data.forEach(row => {
+
+      const tr = document.createElement("tr");
+
+      const unitsClass =
+        Number(row.units) >= 0
+          ? "positive"
+          : "negative";
+
+      tr.innerHTML = `
+        <td class="rank">
+          ${row.rank}
+        </td>
+
+        <td>
+          <button
+            class="player-button"
+            onclick="openPlayerProfile(${row.player_id})">
+            ${row.player_name}
+          </button>
+        </td>
+
+        <td>${row.wins}</td>
+        <td>${row.losses}</td>
+        <td>${row.pushes}</td>
+        <td>${row.win_percentage.toFixed(1)}%</td>
+
+        <td class="${unitsClass}">
+          ${formatUnits(row.units)}
+        </td>
+      `;
+
+      body.appendChild(tr);
+    });
+  }
+
+
+  /*
+   * ==========================================================
+   * SAVE STANDARD BET
+   * ==========================================================
+   */
+
+  async function saveStandardBet() {
+
+    if (!currentSeason) return;
+
+    const playerId =
+      Number(document.getElementById("bet-player").value);
+
+    const weekNumber =
+      Number(document.getElementById("bet-week").value);
+
+    const day =
+      document.getElementById("bet-day").value;
+
+    const sport =
+      document.getElementById("bet-sport").value;
+
+    const game =
+      document.getElementById("bet-game").value.trim();
+
+    const pick =
+      document.getElementById("bet-pick").value.trim();
+
+    const oddsValue =
+      document.getElementById("bet-odds").value;
+
+    const result =
+      document.getElementById("bet-result").value;
+
+
+    if (!game || !pick) {
+
+      showMessage(
+        "bet-message",
+        "Please enter the game and pick.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    /*
+     * Find the week.
+     */
+
+    const { data: week, error: weekError } =
+      await supabaseClient
+        .from("weeks")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .eq("week_number", weekNumber)
+        .single();
+
+
+    if (weekError || !week) {
+
+      showMessage(
+        "bet-message",
+        "That week has not been created in the database yet.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("picks")
+        .upsert({
+
+          player_id: playerId,
+          season_id: currentSeason.id,
+          week_id: week.id,
+
+          day: day,
+          sport: sport,
+
+          game: game,
+          pick: pick,
+
+          odds:
+            oddsValue === ""
+              ? null
+              : Number(oddsValue),
+
+          result: result
+
+        }, {
+
+          onConflict:
+            "player_id,week_id,day"
+
+        });
+
+
+    if (error) {
+
+      showMessage(
+        "bet-message",
+        error.message,
+        "error"
+      );
+
+      return;
+    }
+
+
+    showMessage(
+      "bet-message",
+      "Standard pick saved successfully.",
+      "success"
+    );
+
+    clearStandardForm();
+
+    await loadStandings();
+  }
+
+
+  /*
+   * ==========================================================
+   * SAVE TD BET
+   * ==========================================================
+   */
+
+  async function saveTdBet() {
+
+    if (!currentSeason) return;
+
+    const playerId =
+      Number(document.getElementById("td-player").value);
+
+    const weekNumber =
+      Number(document.getElementById("td-week").value);
+
+    const playerPick =
+      document.getElementById("td-pick").value.trim();
+
+    const odds =
+      Number(document.getElementById("td-odds").value);
+
+    const result =
+      document.getElementById("td-result").value;
+
+
+    if (!playerPick || !odds) {
+
+      showMessage(
+        "bet-message",
+        "Please enter the NFL player and odds.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const { data: week, error: weekError } =
+      await supabaseClient
+        .from("weeks")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .eq("week_number", weekNumber)
+        .single();
+
+
+    if (weekError || !week) {
+
+      showMessage(
+        "bet-message",
+        "That week has not been created in the database yet.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("touchdown_picks")
+        .upsert({
+
+          player_id: playerId,
+          season_id: currentSeason.id,
+          week_id: week.id,
+
+          player_pick: playerPick,
+          odds: odds,
+
+          result: result
+
+        }, {
+
+          onConflict:
+            "player_id,week_id"
+
+        });
+
+
+    if (error) {
+
+      showMessage(
+        "bet-message",
+        error.message,
+        "error"
+      );
+
+      return;
+    }
+
+
+    showMessage(
+      "bet-message",
+      "TD pick saved successfully.",
+      "success"
+    );
+
+    clearTdForm();
+
+    await loadStandings();
+  }
+
+
+  /*
+   * ==========================================================
+   * HISTORY
+   * ==========================================================
+   */
+
+  async function loadHistory() {
+
+    if (!currentSeason) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("picks")
+        .select(`
+          *,
+          players(name),
+          weeks(week_number)
+        `)
+        .eq("season_id", currentSeason.id)
+        .order("week_id", { ascending: true });
+
+
+    if (error) {
+
+      console.error(error);
+      return;
+    }
+
+
+    const body =
+      document.getElementById("history-body");
+
+    body.innerHTML = "";
+
+
+    if (!data || data.length === 0) {
+
+      body.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty">
+            No picks have been entered.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    data.forEach(row => {
+
+      const tr =
+        document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${row.players?.name || ""}</td>
+        <td>${row.weeks?.week_number || ""}</td>
+        <td>${row.day}</td>
+        <td>${row.sport}</td>
+        <td>${row.game}</td>
+        <td>${row.pick}</td>
+        <td>${row.odds ?? "—"}</td>
+        <td>${formatResult(row.result)}</td>
+      `;
+
+      body.appendChild(tr);
+
+    });
+  }
+
+
+  /*
+   * ==========================================================
+   * PLAYER LIST
+   * ==========================================================
+   */
+
+  async function loadPlayers() {
+
+    if (!currentSeason) return;
+
+    const { data, error } =
+      await supabaseClient
+        .from("season_standings")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .order("win_percentage", {
+          ascending: false
+        });
+
+
+    if (error) {
+
+      console.error(error);
+      return;
+    }
+
+
+    const body =
+      document.getElementById("players-body");
+
+    body.innerHTML = "";
+
+
+    data.forEach(row => {
+
+      const tr =
+        document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>
+          <button
+            class="player-button"
+            onclick="openPlayerProfile(${row.player_id})">
+            ${row.player_name}
+          </button>
+        </td>
+
+        <td>
+          ${row.wins}-${row.losses}-${row.pushes}
+        </td>
+
+        <td>
+          ${row.win_percentage.toFixed(1)}%
+        </td>
+
+        <td class="${
+          Number(row.units) >= 0
+            ? "positive"
+            : "negative"
+        }">
+          ${formatUnits(row.units)}
+        </td>
+      `;
+
+      body.appendChild(tr);
+
+    });
+  }
+
+
+  /*
+   * ==========================================================
+   * PLAYER PROFILE
+   * ==========================================================
+   */
+
+  async function openPlayerProfile(playerId) {
+
+    document.getElementById("player-list")
+      .style.display = "none";
+
+    document.getElementById("player-profile")
+      .style.display = "block";
+
+
+    const player =
+      players.find(p => p.id === playerId);
+
+
+    if (!player) return;
+
+
+    document.getElementById("profile-name")
+      .textContent = player.name;
+
+
+    const { data: stats } =
+      await supabaseClient
+        .from("season_standings")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .eq("player_id", playerId)
+        .single();
+
+
+    if (stats) {
+
+      document.getElementById("profile-record")
+        .textContent =
+          `${stats.wins}-${stats.losses}-${stats.pushes} • ${stats.win_percentage.toFixed(1)}%`;
+
+      document.getElementById("profile-units")
+        .textContent =
+          formatUnits(stats.units);
+
+    }
+
+
+    await loadPlayerUnits(playerId);
+
+    await loadPlayerPicks(playerId);
+  }
+
+
+  function showPlayerList() {
+
+    document.getElementById("player-profile")
+      .style.display = "none";
+
+    document.getElementById("player-list")
+      .style.display = "block";
+
+    loadPlayers();
+  }
+
+
+  /*
+   * ==========================================================
+   * PLAYER UNITS CHART
+   * ==========================================================
+   */
+
+  async function loadPlayerUnits(playerId) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("player_weekly_stats")
+        .select("*")
+        .eq("season_id", currentSeason.id)
+        .eq("player_id", playerId)
+        .order("week_number");
+
+
+    if (error) {
+
+      console.error(error);
+      return;
+    }
+
+
+    const chart =
+      document.getElementById("units-chart");
+
+    chart.innerHTML = "";
+
+
+    if (!data || data.length === 0) {
+
+      chart.innerHTML =
+        `<div class="empty">No weekly data yet.</div>`;
+
+      return;
+    }
+
+
+    /*
+     * Calculate cumulative units.
+     */
+
+    let cumulative = 0;
+
+    const values = data.map(row => {
+
+      cumulative += Number(row.units);
+
+      return {
+        week: row.week_number,
+        units: cumulative
+      };
+
+    });
+
+
+    const maxAbs =
+      Math.max(
+        ...values.map(v => Math.abs(v.units)),
+        1
+      );
+
+
+    values.forEach(value => {
+
+      const container =
+        document.createElement("div");
+
+      container.className =
+        "bar-container";
+
+
+      const bar =
+        document.createElement("div");
+
+      bar.className =
+        "bar";
+
+
+      if (value.units < 0) {
+
+        bar.classList.add("negative");
+
+      }
+
+
+      const height =
+        Math.max(
+          4,
+          (Math.abs(value.units) / maxAbs) * 180
+        );
+
+
+      bar.style.height =
+        `${height}px`;
+
+
+      const label =
+        document.createElement("div");
+
+      label.className =
+        "bar-label";
+
+      label.textContent =
+        `W${value.week}`;
+
+
+      container.appendChild(bar);
+      container.appendChild(label);
+
+      chart.appendChild(container);
+
+    });
+  }
+
+
+  /*
+   * ==========================================================
+   * PLAYER PICKS
+   * ==========================================================
+   */
+
+  async function loadPlayerPicks(playerId) {
+
+    const body =
+      document.getElementById("profile-picks-body");
+
+    body.innerHTML = "";
+
+
+    const { data: picks, error } =
+      await supabaseClient
+        .from("picks")
+        .select(`
+          *,
+          weeks(week_number)
+        `)
+        .eq("player_id", playerId)
+        .eq("season_id", currentSeason.id)
+        .order("week_id");
+
+
+    if (error) {
+
+      console.error(error);
+      return;
+    }
+
+
+    picks.forEach(row => {
+
+      const tr =
+        document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${row.weeks?.week_number || ""}</td>
+        <td>${row.day}</td>
+        <td>${row.sport}</td>
+        <td>${row.pick}</td>
+        <td>${row.odds ?? "—"}</td>
+        <td>${formatResult(row.result)}</td>
+        <td>—</td>
+      `;
+
+      body.appendChild(tr);
+
+    });
+
+
+    const { data: tdPicks } =
+      await supabaseClient
+        .from("touchdown_picks")
+        .select(`
+          *,
+          weeks(week_number)
+        `)
+        .eq("player_id", playerId)
+        .eq("season_id", currentSeason.id)
+        .order("week_id");
+
+
+    if (tdPicks) {
+
+      tdPicks.forEach(row => {
+
+        const tr =
+          document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${row.weeks?.week_number || ""}</td>
+          <td>Sunday</td>
+          <td>TD</td>
+          <td>${row.player_pick}</td>
+          <td>${row.odds}</td>
+          <td>${formatResult(row.result)}</td>
+          <td class="${
+            Number(row.units) >= 0
+              ? "positive"
+              : "negative"
+          }">
+            ${formatUnits(row.units)}
+          </td>
+        `;
+
+        body.appendChild(tr);
+
+      });
+
+    }
+
+  }
+
+
+  /*
+   * ==========================================================
+   * SEASONS
+   * ==========================================================
+   */
+
+  async function loadSeasons() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("seasons")
+        .select("*")
+        .order("year", {
+          ascending: false
+        });
+
+
+    if (error) {
+
+      console.error(error);
+      return;
+    }
+
+
+    const body =
+      document.getElementById("seasons-body");
+
+    body.innerHTML = "";
+
+
+    data.forEach(season => {
+
+      const tr =
+        document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${season.year}</td>
+        <td>
+          ${
+            season.status === "active"
+              ? "🟢 Active"
+              : "📦 Archived"
+          }
+        </td>
+      `;
+
+      body.appendChild(tr);
+
+    });
+
+  }
+
+
+  /*
+   * ==========================================================
+   * HELPERS
+   * ==========================================================
+   */
+
+  function formatUnits(value) {
+
+    const number =
+      Number(value || 0);
+
+    return (
+      number >= 0 ? "+" : ""
+    ) +
+      number.toFixed(2) +
+      "u";
+  }
+
+
+  function formatResult(result) {
+
+    if (result === "win") return "🟢 W";
+    if (result === "loss") return "🔴 L";
+    if (result === "push") return "🟡 P";
+
+    return "⏳ Pending";
+  }
+
+
+  function showMessage(elementId, text, type) {
+
+    const element =
+      document.getElementById(elementId);
+
+    element.textContent = text;
+
+    element.className =
+      `message ${type}`;
+
+    setTimeout(() => {
+
+      element.className = "message";
+
+    }, 5000);
+
+  }
+
+
+  function clearStandardForm() {
+
+    document.getElementById("bet-game").value = "";
+    document.getElementById("bet-pick").value = "";
+    document.getElementById("bet-odds").value = "";
+
+  }
+
+
+  function clearTdForm() {
+
+    document.getElementById("td-pick").value = "";
+    document.getElementById("td-odds").value = "";
+
+  }
+
+
+  /*
+   * ==========================================================
+   * START APPLICATION
+   * ==========================================================
+   */
+
+  initialize();
+
+</script>
+
+</body>
+</html>
