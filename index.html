@@ -1915,16 +1915,18 @@ async function saveWeeklyStandardPicks() {
     );
     return;
   }
+
 async function loadWeeklyStandardPicks() {
 
   if (!currentSeason) return;
 
+  const weekInput =
+    document.getElementById("weekly-week");
+
+  if (!weekInput) return;
 
   const weekNumber =
-    Number(
-      document.getElementById("weekly-week").value
-    );
-
+    Number(weekInput.value);
 
   if (!weekNumber) return;
 
@@ -1943,12 +1945,18 @@ async function loadWeeklyStandardPicks() {
 
 
   if (weekError || !week) {
+
+    console.error(
+      "Could not find week:",
+      weekError
+    );
+
     return;
   }
 
 
   /*
-   * Get all picks for this season/week.
+   * Get existing picks.
    */
 
   const { data: picks, error } =
@@ -1971,7 +1979,7 @@ async function loadWeeklyStandardPicks() {
 
 
   /*
-   * Clear the form first.
+   * Clear existing form values.
    */
 
   const players = [
@@ -1984,51 +1992,69 @@ async function loadWeeklyStandardPicks() {
 
   players.forEach(player => {
 
-    document.getElementById(
-      `sat-pick-${player}`
-    ).value = "";
+    const satPick =
+      document.getElementById(
+        `sat-pick-${player}`
+      );
 
-    document.getElementById(
-      `sat-odds-${player}`
-    ).value = "";
+    const satOdds =
+      document.getElementById(
+        `sat-odds-${player}`
+      );
 
-    document.getElementById(
-      `sat-result-${player}`
-    ).value = "pending";
+    const satResult =
+      document.getElementById(
+        `sat-result-${player}`
+      );
 
 
-    document.getElementById(
-      `sun-pick-${player}`
-    ).value = "";
+    const sunPick =
+      document.getElementById(
+        `sun-pick-${player}`
+      );
 
-    document.getElementById(
-      `sun-odds-${player}`
-    ).value = "";
+    const sunOdds =
+      document.getElementById(
+        `sun-odds-${player}`
+      );
 
-    document.getElementById(
-      `sun-result-${player}`
-    ).value = "pending";
+    const sunResult =
+      document.getElementById(
+        `sun-result-${player}`
+      );
+
+
+    if (satPick) satPick.value = "";
+    if (satOdds) satOdds.value = "";
+    if (satResult) satResult.value = "pending";
+
+    if (sunPick) sunPick.value = "";
+    if (sunOdds) sunOdds.value = "";
+    if (sunResult) sunResult.value = "pending";
 
   });
 
 
   /*
-   * Put existing wagers back into the form.
+   * Map database player IDs.
+   */
+
+  const playerNames = {
+    1: "andy",
+    2: "bach",
+    3: "joe",
+    4: "tom"
+  };
+
+
+  /*
+   * Put existing picks back into the form.
    */
 
   (picks || []).forEach(pick => {
 
-    const playerNames = {
-      1: "andy",
-      2: "bach",
-      3: "joe",
-      4: "tom"
-    };
-
-
     const playerKey =
       playerNames[pick.player_id];
-
 
     if (!playerKey) return;
 
@@ -2044,12 +2070,10 @@ async function loadWeeklyStandardPicks() {
         `${dayKey}-pick-${playerKey}`
       );
 
-
     const oddsInput =
       document.getElementById(
         `${dayKey}-odds-${playerKey}`
       );
-
 
     const resultInput =
       document.getElementById(
@@ -2058,28 +2082,48 @@ async function loadWeeklyStandardPicks() {
 
 
     if (pickInput) {
+
       pickInput.value =
         pick.pick || "";
+
     }
 
 
     if (oddsInput) {
+
       oddsInput.value =
         pick.odds ?? "";
+
     }
 
 
     if (resultInput) {
+
       resultInput.value =
         pick.result || "pending";
+
     }
 
   });
 
 }
 
+
+/*
+ * ==========================================================
+ * SAVE WEEKLY STANDARD PICKS
+ * ==========================================================
+ */
+
+async function saveWeeklyStandardPicks() {
+
+  if (!currentSeason) return;
+
+
   const weekNumber =
-    Number(document.getElementById("weekly-week").value);
+    Number(
+      document.getElementById("weekly-week").value
+    );
 
 
   if (!weekNumber) {
@@ -2093,10 +2137,6 @@ async function loadWeeklyStandardPicks() {
     return;
   }
 
-
-  /*
-   * Find the database week.
-   */
 
   const { data: week, error: weekError } =
     await supabaseClient
@@ -2119,12 +2159,6 @@ async function loadWeeklyStandardPicks() {
   }
 
 
-  /*
-   * Database player IDs.
-   *
-   * We look these up by name rather than hard-coding IDs.
-   */
-
   const { data: playerRows, error: playerError } =
     await supabaseClient
       .from("players")
@@ -2146,7 +2180,11 @@ async function loadWeeklyStandardPicks() {
   const playerMap = {};
 
   playerRows.forEach(player => {
-    playerMap[player.name.toLowerCase()] = player.id;
+
+    playerMap[
+      player.name.toLowerCase()
+    ] = player.id;
+
   });
 
 
@@ -2158,26 +2196,26 @@ async function loadWeeklyStandardPicks() {
   ];
 
 
-  /*
-   * Build the eight weekly wagers.
-   */
-
   const wagers = [];
 
 
   for (const player of players) {
 
-    const key = player.toLowerCase();
+    const key =
+      player.toLowerCase();
+
 
     const saturdayPick =
       document.getElementById(
         `sat-pick-${key}`
       ).value.trim();
 
+
     const saturdayOdds =
       document.getElementById(
         `sat-odds-${key}`
       ).value;
+
 
     const saturdayResult =
       document.getElementById(
@@ -2190,10 +2228,12 @@ async function loadWeeklyStandardPicks() {
         `sun-pick-${key}`
       ).value.trim();
 
+
     const sundayOdds =
       document.getElementById(
         `sun-odds-${key}`
       ).value;
+
 
     const sundayResult =
       document.getElementById(
@@ -2201,31 +2241,38 @@ async function loadWeeklyStandardPicks() {
       ).value || "pending";
 
 
-    /*
-     * Only create a database record when
-     * a pick has actually been entered.
-     */
-
     if (saturdayPick) {
 
       wagers.push({
 
-        player_id: playerMap[key],
-        season_id: currentSeason.id,
-        week_id: week.id,
+        player_id:
+          playerMap[key],
 
-        day: "Saturday",
-        sport: "College Football",
+        season_id:
+          currentSeason.id,
 
-        game: null,
-        pick: saturdayPick,
+        week_id:
+          week.id,
+
+        day:
+          "Saturday",
+
+        sport:
+          "College Football",
+
+        game:
+          null,
+
+        pick:
+          saturdayPick,
 
         odds:
           saturdayOdds === ""
             ? null
             : Number(saturdayOdds),
 
-        result: saturdayResult
+        result:
+          saturdayResult
 
       });
 
@@ -2236,22 +2283,34 @@ async function loadWeeklyStandardPicks() {
 
       wagers.push({
 
-        player_id: playerMap[key],
-        season_id: currentSeason.id,
-        week_id: week.id,
+        player_id:
+          playerMap[key],
 
-        day: "Sunday",
-        sport: "NFL",
+        season_id:
+          currentSeason.id,
 
-        game: null,
-        pick: sundayPick,
+        week_id:
+          week.id,
+
+        day:
+          "Sunday",
+
+        sport:
+          "NFL",
+
+        game:
+          null,
+
+        pick:
+          sundayPick,
 
         odds:
           sundayOdds === ""
             ? null
             : Number(sundayOdds),
 
-        result: sundayResult
+        result:
+          sundayResult
 
       });
 
@@ -2271,10 +2330,6 @@ async function loadWeeklyStandardPicks() {
     return;
   }
 
-
-  /*
-   * Save all wagers at once.
-   */
 
   const { error } =
     await supabaseClient
