@@ -1266,12 +1266,9 @@ supabaseClient.auth.onAuthStateChange(
   }
 
 
-  if (pageId === "enter-bets") {
-    loadWeeklyStandardPicks();
-    loadWeeklyTdPicks();
-  }
-
-
+if (pageId === "enter-bets") {
+  loadWeeklyStandardPicks();
+}
   if (pageId === "standings") {
     loadStandings();
   }
