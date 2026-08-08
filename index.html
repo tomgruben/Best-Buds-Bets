@@ -1604,7 +1604,250 @@ async function saveTdBet() {
 
   await loadStandings();
 }
+async function saveWeeklyStandardPicks() {
 
+  if (!currentSeason) {
+    showMessage(
+      "bet-message",
+      "No active season is selected.",
+      "error"
+    );
+    return;
+  }
+
+
+  const weekNumber =
+    Number(document.getElementById("weekly-week").value);
+
+
+  if (!weekNumber) {
+
+    showMessage(
+      "bet-message",
+      "Please enter a week number.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  /*
+   * Find the database week.
+   */
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  /*
+   * Database player IDs.
+   *
+   * We look these up by name rather than hard-coding IDs.
+   */
+
+  const { data: playerRows, error: playerError } =
+    await supabaseClient
+      .from("players")
+      .select("id,name");
+
+
+  if (playerError) {
+
+    showMessage(
+      "bet-message",
+      playerError.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  const playerMap = {};
+
+  playerRows.forEach(player => {
+    playerMap[player.name.toLowerCase()] = player.id;
+  });
+
+
+  const players = [
+    "Andy",
+    "Bach",
+    "Joe",
+    "Tom"
+  ];
+
+
+  /*
+   * Build the eight weekly wagers.
+   */
+
+  const wagers = [];
+
+
+  for (const player of players) {
+
+    const key = player.toLowerCase();
+
+    const saturdayPick =
+      document.getElementById(
+        `sat-pick-${key}`
+      ).value.trim();
+
+    const saturdayOdds =
+      document.getElementById(
+        `sat-odds-${key}`
+      ).value;
+
+    const saturdayResult =
+      document.getElementById(
+        `sat-result-${key}`
+      ).value || "pending";
+
+
+    const sundayPick =
+      document.getElementById(
+        `sun-pick-${key}`
+      ).value.trim();
+
+    const sundayOdds =
+      document.getElementById(
+        `sun-odds-${key}`
+      ).value;
+
+    const sundayResult =
+      document.getElementById(
+        `sun-result-${key}`
+      ).value || "pending";
+
+
+    /*
+     * Only create a database record when
+     * a pick has actually been entered.
+     */
+
+    if (saturdayPick) {
+
+      wagers.push({
+
+        player_id: playerMap[key],
+        season_id: currentSeason.id,
+        week_id: week.id,
+
+        day: "Saturday",
+        sport: "College Football",
+
+        game: null,
+        pick: saturdayPick,
+
+        odds:
+          saturdayOdds === ""
+            ? null
+            : Number(saturdayOdds),
+
+        result: saturdayResult
+
+      });
+
+    }
+
+
+    if (sundayPick) {
+
+      wagers.push({
+
+        player_id: playerMap[key],
+        season_id: currentSeason.id,
+        week_id: week.id,
+
+        day: "Sunday",
+        sport: "NFL",
+
+        game: null,
+        pick: sundayPick,
+
+        odds:
+          sundayOdds === ""
+            ? null
+            : Number(sundayOdds),
+
+        result: sundayResult
+
+      });
+
+    }
+
+  }
+
+
+  if (wagers.length === 0) {
+
+    showMessage(
+      "bet-message",
+      "Please enter at least one pick.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  /*
+   * Save all wagers at once.
+   */
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .upsert(
+        wagers,
+        {
+          onConflict:
+            "player_id,week_id,day"
+        }
+      );
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    `${wagers.length} standard pick${wagers.length === 1 ? "" : "s"} saved successfully.`,
+    "success"
+  );
+
+
+  await loadStandings();
+
+}
 
   /*
    * ==========================================================
