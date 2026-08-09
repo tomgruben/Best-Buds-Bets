@@ -2565,6 +2565,9 @@ async function loadHistory() {
   const body =
     document.getElementById("history-body");
 
+  console.log("HISTORY BODY:", body);
+  console.log("CURRENT SEASON:", currentSeason);
+
   body.innerHTML = "";
 
   if (!data || data.length === 0) {
