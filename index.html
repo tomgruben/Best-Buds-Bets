@@ -2668,200 +2668,353 @@ async function saveWeeklyStandardPicks() {
 async function loadHistory() {
 
   const seasonFilter =
-  document.getElementById("history-season");
+    document.getElementById("history-season");
 
-const selectedSeason =
-  seasonFilter?.value || "all";
+  const selectedSeason =
+    seasonFilter?.value || "all";
 
- const playerFilter =
-  document.getElementById("history-player");
 
-const selectedPlayer =
-  playerFilter?.value || "all"; 
+  const playerFilter =
+    document.getElementById("history-player");
 
-const resultFilter =
-  document.getElementById("history-result");
+  const selectedPlayer =
+    playerFilter?.value || "all";
 
-const selectedResult =
-  resultFilter?.value || "all";  
-  
-let picksQuery =
-  supabaseClient
-    .from("picks")
-    .select(`
-      *,
-      players(name),
-      weeks(week_number)
-    `);
 
-if (selectedSeason !== "all") {
-  picksQuery =
-    picksQuery.eq("season_id", selectedSeason);
-}
+  const resultFilter =
+    document.getElementById("history-result");
+
+  const selectedResult =
+    resultFilter?.value || "all";
+
+
+  /*
+   * Get standard picks.
+   */
+
+  let picksQuery =
+    supabaseClient
+      .from("picks")
+      .select(`
+        *,
+        players(name),
+        weeks(week_number)
+      `);
+
+
+  if (selectedSeason !== "all") {
+
+    picksQuery =
+      picksQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+  }
+
 
   if (selectedPlayer !== "all") {
-  picksQuery =
-    picksQuery.eq("player_id", selectedPlayer);
-}
+
+    picksQuery =
+      picksQuery.eq(
+        "player_id",
+        selectedPlayer
+      );
+
+  }
+
 
   if (selectedResult !== "all") {
-  picksQuery =
-    picksQuery.eq("result", selectedResult);
-}
-  
-const { data, error } =
-  await picksQuery
-    .order("week_id", { ascending: true });
+
+    picksQuery =
+      picksQuery.eq(
+        "result",
+        selectedResult
+      );
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await picksQuery
+      .order(
+        "week_id",
+        { ascending: true }
+      );
+
 
   if (error) {
 
-    console.error(error);
+    console.error(
+      "History picks error:",
+      error
+    );
+
     return;
   }
 
-let tdQuery =
-  supabaseClient
-    .from("touchdown_picks")
-    .select(`
-      *,
-      players(name),
-      weeks(week_number)
-    `);
 
-if (selectedSeason !== "all") {
-  tdQuery =
-    tdQuery.eq("season_id", selectedSeason);
-}
-  
-if (selectedPlayer !== "all") {
-  tdQuery =
-    tdQuery.eq("player_id", selectedPlayer);
-}
+  /*
+   * Get TD picks.
+   */
 
- if (selectedResult !== "all") {
-  tdQuery =
-    tdQuery.eq("result", selectedResult);
-}
-  
-const { data: tdPicks, error: tdError } =
-  await tdQuery;
+  let tdQuery =
+    supabaseClient
+      .from("touchdown_picks")
+      .select(`
+        *,
+        players(name),
+        weeks(week_number)
+      `);
 
- console.log("TD FILTER VALUES:", {
-  season: selectedSeason,
-  player: selectedPlayer,
-  result: selectedResult
-});
 
-console.log("TD FILTERED DATA:", tdPicks);
-console.log("TD FILTER ERROR:", tdError);
-  
+  if (selectedSeason !== "all") {
+
+    tdQuery =
+      tdQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+  }
+
+
+  if (selectedPlayer !== "all") {
+
+    tdQuery =
+      tdQuery.eq(
+        "player_id",
+        selectedPlayer
+      );
+
+  }
+
+
+  if (selectedResult !== "all") {
+
+    tdQuery =
+      tdQuery.eq(
+        "result",
+        selectedResult
+      );
+
+  }
+
+
+  const {
+    data: tdPicks,
+    error: tdError
+  } =
+    await tdQuery;
+
+
+  if (tdError) {
+
+    console.error(
+      "History TD error:",
+      tdError
+    );
+
+    return;
+  }
+
+
+  /*
+   * History table.
+   */
+
   const body =
-    document.getElementById("history-body");
+    document.getElementById(
+      "history-body"
+    );
 
   body.innerHTML = "";
 
-  data.forEach(row => {
 
-  const tr =
-    document.createElement("tr");
+  /*
+   * Render standard picks.
+   */
 
-  let units = 0;
+  (data || []).forEach(row => {
 
-  if (row.result === "loss") {
-    units = -1;
-  }
+    const tr =
+      document.createElement("tr");
 
-  else if (row.result === "push") {
-    units = 0;
-  }
 
-  else if (row.result === "win") {
+    let units = 0;
 
-    const odds = Number(row.odds);
 
-    if (odds < 0) {
-      units = 100 / Math.abs(odds);
+    if (row.result === "loss") {
+
+      units = -1;
+
     }
 
-    else if (odds > 0) {
-      units = odds / 100;
+    else if (row.result === "push") {
+
+      units = 0;
+
     }
+
+    else if (row.result === "win") {
+
+      const odds =
+        Number(row.odds);
+
+
+      if (odds < 0) {
+
+        units =
+          100 / Math.abs(odds);
+
+      }
+
+      else if (odds > 0) {
+
+        units =
+          odds / 100;
+
+      }
+
+    }
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.players?.name || ""}
+      </td>
+
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
+
+      <td>
+        ${row.day || ""}
+      </td>
+
+      <td>
+        ${row.sport || ""}
+      </td>
+
+      <td>
+        ${row.game || "—"}
+      </td>
+
+      <td>
+        ${row.pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+
+  /*
+   * Render TD picks.
+   */
+
+  (tdPicks || []).forEach(row => {
+
+    const tr =
+      document.createElement("tr");
+
+
+    const units =
+      Number(row.units || 0);
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.players?.name || ""}
+      </td>
+
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
+
+      <td>
+        Sunday
+      </td>
+
+      <td>
+        NFL
+      </td>
+
+      <td>
+        TD Scorer
+      </td>
+
+      <td>
+        ${row.player_pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+
+  /*
+   * Show empty message only if BOTH
+   * standard picks and TD picks are empty.
+   */
+
+  if (
+    (!data || data.length === 0) &&
+    (!tdPicks || tdPicks.length === 0)
+  ) {
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="empty"
+        >
+          No picks have been entered.
+        </td>
+
+      </tr>
+
+    `;
+
   }
 
-  tr.innerHTML = `
-
-    <td>
-      ${row.players?.name || ""}
-    </td>
-
-    <td>
-      ${row.weeks?.week_number || ""}
-    </td>
-
-    <td>
-      ${row.day}
-    </td>
-
-    <td>
-      ${row.sport}
-    </td>
-
-    <td>
-      ${row.game || "—"}
-    </td>
-
-    <td>
-      ${row.pick}
-    </td>
-
-    <td>
-      ${row.odds ?? "—"}
-    </td>
-
-    <td>
-      ${formatResult(row.result)}
-    </td>
-
-    <td class="${unitsClass(units)}">
-      ${formatUnits(units)}
-    </td>
-
-  `;
-
-  body.appendChild(tr);
-
-});
-
-(tdPicks || []).forEach(row => {
-
-  const tr =
-    document.createElement("tr");
-
-  const units =
-  Number(row.units || 0);
-
-  tr.innerHTML = `
-    <td>${row.players?.name || ""}</td>
-    <td>${row.weeks?.week_number || ""}</td>
-    <td>Sunday</td>
-    <td>NFL</td>
-    <td>TD Scorer</td>
-    <td>${row.player_pick || ""}</td>
-    <td>${row.odds ?? "—"}</td>
-    <td>${formatResult(row.result)}</td>
-    <td class="${unitsClass(units)}">${formatUnits(units)}</td>
-  `;
-
-  body.appendChild(tr);
-
-  console.log("TD ROW ADDED:", tr.innerHTML);
-
-  console.log(
-  "ROWS AFTER TD APPEND:",
-  body.innerHTML
-);
-});
-  
 }
   
   /*
