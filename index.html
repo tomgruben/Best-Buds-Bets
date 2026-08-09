@@ -2711,7 +2711,12 @@ if (selectedSeason !== "all") {
   tdQuery =
     tdQuery.eq("season_id", selectedSeason);
 }
-
+  
+if (selectedPlayer !== "all") {
+  tdQuery =
+    tdQuery.eq("player_id", selectedPlayer);
+}
+  
 const { data: tdPicks, error: tdError } =
   await tdQuery;
 
