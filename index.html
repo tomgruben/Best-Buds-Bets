@@ -2565,6 +2565,15 @@ async function loadHistory() {
     return;
   }
 
+  const { data: tdPicks, error: tdError } =
+  await supabaseClient
+    .from("touchdown_picks")
+    .select("*")
+    .eq("season_id", currentSeason.id);
+
+  console.log("TD TEST:", tdPicks);
+  console.log("TD TEST ERROR:", tdError);
+  
   const body =
     document.getElementById("history-body");
 
