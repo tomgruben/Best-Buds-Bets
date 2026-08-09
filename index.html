@@ -3402,7 +3402,28 @@ async function loadPlayerUnits(playerId) {
 
     body.innerHTML = "";
 
+const seasonFilter =
+  document.getElementById("history-season");
 
+if (seasonFilter) {
+
+  seasonFilter.innerHTML =
+    `<option value="all">All</option>`;
+
+  data.forEach(season => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = season.id;
+    option.textContent = season.year;
+
+    seasonFilter.appendChild(option);
+
+  });
+
+}
+    
     data.forEach(season => {
 
       const tr =
