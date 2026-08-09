@@ -3139,7 +3139,7 @@ async function loadPlayerPicks(playerId) {
         ${formatResult(row.result)}
       </td>
 
-      <td class="${unitsClass(units)}">
+      <td class="${units >= 0 ? "positive" : "negative"}">
         ${formatUnits(units)}
       </td>
 
