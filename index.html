@@ -1441,6 +1441,52 @@ async function loadPlayersForForms() {
     document.getElementById("leader-name").textContent =
       data[0].player_name;
 
+    // Calculate combined team statistics
+const combinedWins = data.reduce(
+  (total, row) => total + Number(row.wins || 0),
+  0
+);
+
+const combinedLosses = data.reduce(
+  (total, row) => total + Number(row.losses || 0),
+  0
+);
+
+const combinedPushes = data.reduce(
+  (total, row) => total + Number(row.pushes || 0),
+  0
+);
+
+const combinedUnits = data.reduce(
+  (total, row) => total + Number(row.units || 0),
+  0
+);
+
+const totalDecisions =
+  combinedWins + combinedLosses;
+
+const combinedWinPercentage =
+  totalDecisions > 0
+    ? (combinedWins / totalDecisions) * 100
+    : 0;
+
+
+// Display combined statistics
+document.getElementById("combined-record").textContent =
+  `${combinedWins}-${combinedLosses}-${combinedPushes}`;
+
+document.getElementById("combined-win-percentage").textContent =
+  `${combinedWinPercentage.toFixed(1)}%`;
+
+const combinedUnitsElement =
+  document.getElementById("combined-units");
+
+combinedUnitsElement.textContent =
+  formatUnits(combinedUnits);
+
+combinedUnitsElement.className =
+  `stat-value ${unitsClass(combinedUnits)}`;
+    
     data.forEach(row => {
 
       const tr = document.createElement("tr");
