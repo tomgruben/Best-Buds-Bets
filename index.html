@@ -3366,74 +3366,151 @@ async function loadPlayerUnits(playerId) {
    * ==========================================================
    */
 
-  async function loadSeasons() {
+ async function loadSeasons() {
 
-    const { data, error } =
-      await supabaseClient
-        .from("seasons")
-        .select("*")
-        .order("year", {
-          ascending: false
-        });
-
-
-    if (error) {
-
-      console.error(error);
-      return;
-    }
+  const { data, error } =
+    await supabaseClient
+      .from("seasons")
+      .select("*")
+      .order("year", {
+        ascending: false
+      });
 
 
-    const body =
-      document.getElementById("seasons-body");
+  if (error) {
 
-    body.innerHTML = "";
+    console.error(error);
+    return;
+  }
 
-const seasonFilter =
-  document.getElementById("history-season");
 
-if (seasonFilter) {
+  const body =
+    document.getElementById("seasons-body");
 
-  seasonFilter.innerHTML =
-    '<option value="all">All</option>';
+  body.innerHTML = "";
 
-  data.forEach(season => {
 
-    const option =
-      document.createElement("option");
+  /*
+   * Populate History Season filter.
+   */
+  const seasonFilter =
+    document.getElementById("history-season");
 
-    option.value = season.id;
-    option.textContent = season.year;
 
-    seasonFilter.appendChild(option);
+  if (seasonFilter) {
 
-  });
+    seasonFilter.innerHTML =
+      '<option value="all">All</option>';
 
-}
-    
+
     data.forEach(season => {
 
-      const tr =
-        document.createElement("tr");
+      const option =
+        document.createElement("option");
 
-      tr.innerHTML = `
-        <td>${season.year}</td>
-        <td>
-          ${
-            season.status === "active"
-              ? "🟢 Active"
-              : "📦 Archived"
-          }
-        </td>
-      `;
 
-      body.appendChild(tr);
+      option.value =
+        season.id;
+
+
+      option.textContent =
+        season.year;
+
+
+      seasonFilter.appendChild(option);
 
     });
 
   }
 
 
+  /*
+   * Populate History Player filter.
+   */
+  const playerFilter =
+    document.getElementById("history-player");
+
+
+  if (playerFilter) {
+
+    const {
+      data: players,
+      error: playersError
+    } =
+      await supabaseClient
+        .from("players")
+        .select("id, name")
+        .order("name", {
+          ascending: true
+        });
+
+
+    if (playersError) {
+
+      console.error(
+        "History player filter:",
+        playersError
+      );
+
+    }
+
+    else {
+
+      playerFilter.innerHTML =
+        '<option value="all">All</option>';
+
+
+      (players || []).forEach(player => {
+
+        const option =
+          document.createElement("option");
+
+
+        option.value =
+          player.id;
+
+
+        option.textContent =
+          player.name;
+
+
+        playerFilter.appendChild(option);
+
+      });
+
+    }
+
+  }
+
+
+  /*
+   * Render Seasons table.
+   */
+  data.forEach(season => {
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+      <td>${season.year}</td>
+
+      <td>
+        ${
+          season.status === "active"
+            ? "🟢 Active"
+            : "📦 Archived"
+        }
+      </td>
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+}
+  
   /*
    * ==========================================================
    * HELPERS
