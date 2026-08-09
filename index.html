@@ -2611,7 +2611,25 @@ console.log("TD HISTORY ERROR:", tdError);
     body.appendChild(tr);
 
   });
+(tdPicks || []).forEach(row => {
 
+  const tr =
+    document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${row.player_id}</td>
+    <td>${row.week_id}</td>
+    <td>Sunday</td>
+    <td>NFL</td>
+    <td>TD Scorer</td>
+    <td>${row.player_pick || ""}</td>
+    <td>${row.odds ?? "—"}</td>
+    <td>${formatResult(row.result)}</td>
+  `;
+
+  body.appendChild(tr);
+
+});
 }
   /*
    * ==========================================================
