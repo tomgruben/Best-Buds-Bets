@@ -106,12 +106,12 @@
       margin-bottom: 20px;
     }
 
-    ```css
-.stats-grid {
+   .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .stat {
@@ -119,16 +119,13 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  min-width: 0;
 }
 
 .stat-label {
   color: var(--muted);
   font-size: 13px;
-  margin-bottom: 0;
+  margin-bottom: 8px;
   white-space: nowrap;
 }
 
@@ -137,8 +134,6 @@
   font-weight: bold;
   white-space: nowrap;
 }
-```
-
    
     .table-wrap {
       overflow-x: auto;
