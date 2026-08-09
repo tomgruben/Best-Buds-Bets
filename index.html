@@ -2746,8 +2746,14 @@ if (selectedPlayer !== "all") {
 const { data: tdPicks, error: tdError } =
   await tdQuery;
 
-  console.log("TD TEST:", tdPicks);
-  console.log("TD TEST ERROR:", tdError);
+ console.log("TD FILTER VALUES:", {
+  season: selectedSeason,
+  player: selectedPlayer,
+  result: selectedResult
+});
+
+console.log("TD FILTERED DATA:", tdPicks);
+console.log("TD FILTER ERROR:", tdError);
   
   const body =
     document.getElementById("history-body");
