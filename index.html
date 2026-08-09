@@ -2737,6 +2737,11 @@ if (selectedPlayer !== "all") {
   tdQuery =
     tdQuery.eq("player_id", selectedPlayer);
 }
+
+ if (selectedResult !== "all") {
+  tdQuery =
+    tdQuery.eq("result", selectedResult);
+}
   
 const { data: tdPicks, error: tdError } =
   await tdQuery;
