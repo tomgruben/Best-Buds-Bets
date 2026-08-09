@@ -2761,9 +2761,18 @@ const { data: tdPicks, error: tdError } =
         .textContent =
           `${stats.wins}-${stats.losses}-${stats.pushes} • ${stats.win_percentage.toFixed(1)}%`;
 
-      document.getElementById("profile-units")
-        .textContent =
-          formatUnits(stats.units);
+const profileUnits =
+  document.getElementById("profile-units");
+
+profileUnits.textContent =
+  formatUnits(stats.units);
+
+profileUnits.className =
+  Number(stats.units) > 0
+    ? "positive"
+    : Number(stats.units) < 0
+      ? "negative"
+      : "";
 
     }
 
