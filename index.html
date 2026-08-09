@@ -2800,11 +2800,9 @@ const { data: tdPicks, error: tdError } =
    * ==========================================================
    */
 
- ```javascript
 async function loadPlayerUnits(playerId) {
 
-  const chart =
-    document.getElementById("units-chart");
+  const chart = document.getElementById("units-chart");
 
   chart.innerHTML = "";
 
@@ -2820,9 +2818,14 @@ async function loadPlayerUnits(playerId) {
       .order("week_id", { ascending: true });
 
   if (picksError) {
-    console.error("Player units - standard picks:", picksError);
+    console.error(
+      "Player units - standard picks:",
+      picksError
+    );
+
     chart.innerHTML =
       `<div class="empty">Unable to load weekly units.</div>`;
+
     return;
   }
 
@@ -2838,9 +2841,14 @@ async function loadPlayerUnits(playerId) {
       .order("week_id", { ascending: true });
 
   if (tdError) {
-    console.error("Player units - TD picks:", tdError);
+    console.error(
+      "Player units - TD picks:",
+      tdError
+    );
+
     chart.innerHTML =
       `<div class="empty">Unable to load weekly units.</div>`;
+
     return;
   }
 
@@ -2881,6 +2889,7 @@ async function loadPlayerUnits(playerId) {
     }
 
     weeklyUnits[week] += units;
+
   });
 
 
@@ -2893,6 +2902,7 @@ async function loadPlayerUnits(playerId) {
     }
 
     weeklyUnits[week] += Number(row.units || 0);
+
   });
 
 
@@ -2900,7 +2910,9 @@ async function loadPlayerUnits(playerId) {
     Object.keys(weeklyUnits)
       .map(week => ({
         week: Number(week),
-        units: Number(weeklyUnits[week].toFixed(2))
+        units: Number(
+          weeklyUnits[week].toFixed(2)
+        )
       }))
       .sort((a, b) => a.week - b.week);
 
@@ -2971,9 +2983,7 @@ async function loadPlayerUnits(playerId) {
   });
 
 }
-
-
-
+  
   /*
    * ==========================================================
    * SEASONS
