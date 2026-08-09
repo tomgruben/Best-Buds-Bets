@@ -2546,75 +2546,111 @@ async function saveWeeklyStandardPicks() {
 
 async function loadHistory() {
 
-  if (!currentSeason) return;
+if (!currentSeason) return;
 
-  const { data, error } =
-    await supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        players(name),
-        weeks(week_number)
-      `)
-      .eq("season_id", currentSeason.id)
-      .order("week_id", { ascending: true });
+const { data, error } =
+await supabaseClient
+.from("picks")
+.select( *, players(name), weeks(week_number) )
+.eq("season_id", currentSeason.id)
+.order("week_id", { ascending: true });
 
-  if (error) {
+if (error) {
 
-    console.error(error);
-    return;
-  }
+console.error(
+  "History standard picks error:",
+  error
+);
 
-  const { data: tdPicks, error: tdError } =
-  await supabaseClient
-    .from("touchdown_picks")
-    .select("*")
-    .eq("season_id", currentSeason.id);
+return;
 
-console.log("TD HISTORY:", tdPicks);
-console.log("TD HISTORY ERROR:", tdError);
-  
-  const body =
-    document.getElementById("history-body");
+}
 
-  body.innerHTML = "";
+/*
 
-  if (!data || data.length === 0) {
+Get TD scorer history.
+*/
 
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="empty">
-          No picks have been entered.
-        </td>
-      </tr>
-    `;
+const { data: tdPicks, error: tdError } =
+await supabaseClient
+.from("touchdown_picks")
+.select("*")
+.eq("season_id", currentSeason.id);
 
-    return;
-  }
+console.log(
+"TD HISTORY:",
+tdPicks
+);
 
-  data.forEach(row => {
+console.log(
+"TD HISTORY ERROR:",
+tdError
+);
 
-    const tr =
-      document.createElement("tr");
+const body =
+document.getElementById("history-body");
 
-    tr.innerHTML = `
-      <td>${row.players?.name || ""}</td>
-      <td>${row.weeks?.week_number || ""}</td>
-      <td>${row.day}</td>
-      <td>${row.sport}</td>
-      <td>${row.game}</td>
-      <td>${row.pick}</td>
-      <td>${row.odds ?? "—"}</td>
-      <td>${formatResult(row.result)}</td>
-    `;
+if (!body) {
 
-    body.appendChild(tr);
+console.error(
+  "history-body element not found."
+);
 
-  });
-(tdPicks || []).forEach(row => {
+return;
+
+}
+
+body.innerHTML = "";
+
+/*
+
+Render standard picks.
+*/
+
+if (data && data.length > 0) {
+
+data.forEach(row => {
 
   const tr =
     document.createElement("tr");
+
+
+  tr.innerHTML = `
+    <td>${row.players?.name || ""}</td>
+    <td>${row.weeks?.week_number || ""}</td>
+    <td>${row.day || ""}</td>
+    <td>${row.sport || ""}</td>
+    <td>${row.game || "—"}</td>
+    <td>${row.pick || ""}</td>
+    <td>${row.odds ?? "—"}</td>
+    <td>${formatResult(row.result)}</td>
+  `;
+
+
+  body.appendChild(tr);
+
+
+  console.log(
+    "STANDARD ROW ADDED:",
+    tr
+  );
+
+});
+
+}
+
+/*
+
+Render TD scorer picks.
+*/
+
+if (tdPicks && tdPicks.length > 0) {
+
+tdPicks.forEach(row => {
+
+  const tr =
+    document.createElement("tr");
+
 
   tr.innerHTML = `
     <td>${row.player_id}</td>
@@ -2627,29 +2663,17 @@ console.log("TD HISTORY ERROR:", tdError);
     <td>${formatResult(row.result)}</td>
   `;
 
-  body.appendChild(tr);
-
-});
-(tdPicks || []).forEach(row => {
-
-  const tr =
-    document.createElement("tr");
-
-  tr.innerHTML = `
-    <td>${row.player_id}</td>
-    <td>${row.week_id}</td>
-    <td>Sunday</td>
-    <td>NFL</td>
-    <td>TD Scorer</td>
-    <td>${row.player_pick || ""}</td>
-    <td>${row.odds ?? "—"}</td>
-    <td>${formatResult(row.result)}</td>
-  `;
 
   body.appendChild(tr);
 
+
+  console.log(
+    "TD ROW ADDED:",
+    tr
+  );
+
 });
-  
+
 }
   
   /*
