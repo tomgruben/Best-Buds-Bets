@@ -2800,6 +2800,190 @@ const { data: tdPicks, error: tdError } =
    * ==========================================================
    */
 
+ async function loadPlayerPicks(playerId) {
+
+  const body =
+    document.getElementById("profile-picks-body");
+
+  if (!body) {
+    console.error("profile-picks-body not found");
+    return;
+  }
+
+  body.innerHTML = "";
+
+  /*
+   * STANDARD PICKS
+   */
+  const {
+    data: picks,
+    error: picksError
+  } = await supabaseClient
+    .from("picks")
+    .select(`
+      *,
+      weeks(week_number)
+    `)
+    .eq("player_id", playerId)
+    .eq("season_id", currentSeason.id)
+    .order("week_id", { ascending: true });
+
+  if (picksError) {
+    console.error(
+      "Historical standard picks error:",
+      picksError
+    );
+  }
+
+  /*
+   * Render standard picks.
+   */
+  (picks || []).forEach(row => {
+
+    let units = 0;
+
+    if (row.result === "loss") {
+      units = -1;
+    }
+
+    else if (row.result === "push") {
+      units = 0;
+    }
+
+    else if (row.result === "win") {
+
+      const odds = Number(row.odds);
+
+      if (odds < 0) {
+        units = 100 / Math.abs(odds);
+      }
+
+      else if (odds > 0) {
+        units = odds / 100;
+      }
+    }
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>
+        ${row.weeks?.week_number ?? row.week_id ?? ""}
+      </td>
+
+      <td>
+        ${row.day ?? ""}
+      </td>
+
+      <td>
+        ${row.sport ?? ""}
+      </td>
+
+      <td>
+        ${row.pick ?? ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+    `;
+
+    body.appendChild(tr);
+  });
+
+
+  /*
+   * TOUCHDOWN PICKS
+   */
+  const {
+    data: tdPicks,
+    error: tdError
+  } = await supabaseClient
+    .from("touchdown_picks")
+    .select(`
+      *,
+      weeks(week_number)
+    `)
+    .eq("player_id", playerId)
+    .eq("season_id", currentSeason.id)
+    .order("week_id", { ascending: true });
+
+  if (tdError) {
+    console.error(
+      "Historical TD picks error:",
+      tdError
+    );
+  }
+
+  /*
+   * Render TD picks.
+   */
+  (tdPicks || []).forEach(row => {
+
+    const units =
+      Number(row.units || 0);
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>
+        ${row.weeks?.week_number ?? row.week_id ?? ""}
+      </td>
+
+      <td>
+        Sunday
+      </td>
+
+      <td>
+        TD
+      </td>
+
+      <td>
+        ${row.player_pick ?? ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+    `;
+
+    body.appendChild(tr);
+  });
+
+
+  /*
+   * Nothing found.
+   */
+  if (body.children.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          No historical picks yet.
+        </td>
+      </tr>
+    `;
+  }
+
+} 
+  
 async function loadPlayerUnits(playerId) {
 
   const chart = document.getElementById("units-chart");
