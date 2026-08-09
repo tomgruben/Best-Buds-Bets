@@ -2719,15 +2719,22 @@ const { data, error } =
     return;
   }
 
-const { data: tdPicks, error: tdError } =
-  await supabaseClient
+let tdQuery =
+  supabaseClient
     .from("touchdown_picks")
     .select(`
       *,
       players(name),
       weeks(week_number)
-    `)
-    .eq("season_id", currentSeason.id);
+    `);
+
+if (selectedSeason !== "all") {
+  tdQuery =
+    tdQuery.eq("season_id", selectedSeason);
+}
+
+const { data: tdPicks, error: tdError } =
+  await tdQuery;
 
   console.log("TD TEST:", tdPicks);
   console.log("TD TEST ERROR:", tdError);
