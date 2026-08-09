@@ -2792,116 +2792,7 @@ const { data: tdPicks, error: tdError } =
    * ==========================================================
    */
 
-  async function loadPlayerUnits(playerId) {
-
-    const { data, error } =
-      await supabaseClient
-        .from("player_weekly_stats")
-        .select("*")
-        .eq("season_id", currentSeason.id)
-        .eq("player_id", playerId)
-        .order("week_number");
-
-
-    if (error) {
-
-      console.error(error);
-      return;
-    }
-
-
-    const chart =
-      document.getElementById("units-chart");
-
-    chart.innerHTML = "";
-
-
-    if (!data || data.length === 0) {
-
-      chart.innerHTML =
-        `<div class="empty">No weekly data yet.</div>`;
-
-      return;
-    }
-
-
-    /*
-     * Calculate cumulative units.
-     */
-
-    let cumulative = 0;
-
-    const values = data.map(row => {
-
-      cumulative += Number(row.units);
-
-      return {
-        week: row.week_number,
-        units: cumulative
-      };
-
-    });
-
-
-    const maxAbs =
-      Math.max(
-        ...values.map(v => Math.abs(v.units)),
-        1
-      );
-
-
-    values.forEach(value => {
-
-      const container =
-        document.createElement("div");
-
-      container.className =
-        "bar-container";
-
-
-      const bar =
-        document.createElement("div");
-
-      bar.className =
-        "bar";
-
-
-      if (value.units < 0) {
-
-        bar.classList.add("negative");
-
-      }
-
-
-      const height =
-        Math.max(
-          4,
-          (Math.abs(value.units) / maxAbs) * 180
-        );
-
-
-      bar.style.height =
-        `${height}px`;
-
-
-      const label =
-        document.createElement("div");
-
-      label.className =
-        "bar-label";
-
-      label.textContent =
-        `W${value.week}`;
-
-
-      container.appendChild(bar);
-      container.appendChild(label);
-
-      chart.appendChild(container);
-
-    });
-  }
-
+ 
 
   /*
    * ==========================================================
@@ -2909,95 +2800,357 @@ const { data: tdPicks, error: tdError } =
    * ==========================================================
    */
 
-  async function loadPlayerPicks(playerId) {
+ ```javascript
+async function loadPlayerUnits(playerId) {
 
-    const body =
-      document.getElementById("profile-picks-body");
+  const chart =
+    document.getElementById("units-chart");
 
-    body.innerHTML = "";
+  chart.innerHTML = "";
 
+  /*
+   * Get standard picks.
+   */
+  const { data: picks, error: picksError } =
+    await supabaseClient
+      .from("picks")
+      .select("*")
+      .eq("player_id", playerId)
+      .eq("season_id", currentSeason.id)
+      .order("week_id", { ascending: true });
 
-    const { data: picks, error } =
-      await supabaseClient
-        .from("picks")
-        .select(`
-          *,
-          weeks(week_number)
-        `)
-        .eq("player_id", playerId)
-        .eq("season_id", currentSeason.id)
-        .order("week_id");
-
-
-    if (error) {
-
-      console.error(error);
-      return;
-    }
-
-
-    picks.forEach(row => {
-
-      const tr =
-        document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${row.weeks?.week_number || ""}</td>
-        <td>${row.day}</td>
-        <td>${row.sport}</td>
-        <td>${row.pick}</td>
-        <td>${row.odds ?? "—"}</td>
-        <td>${formatResult(row.result)}</td>
-        <td>—</td>
-      `;
-
-      body.appendChild(tr);
-
-    });
-
-
-    const { data: tdPicks } =
-      await supabaseClient
-        .from("touchdown_picks")
-        .select(`
-          *,
-          weeks(week_number)
-        `)
-        .eq("player_id", playerId)
-        .eq("season_id", currentSeason.id)
-        .order("week_id");
-
-
-    if (tdPicks) {
-
-      tdPicks.forEach(row => {
-
-        const tr =
-          document.createElement("tr");
-
-        tr.innerHTML = `
-          <td>${row.weeks?.week_number || ""}</td>
-          <td>Sunday</td>
-          <td>TD</td>
-          <td>${row.player_pick}</td>
-          <td>${row.odds}</td>
-          <td>${formatResult(row.result)}</td>
-          <td class="${
-            Number(row.units) >= 0
-              ? "positive"
-              : "negative"
-          }">
-            ${formatUnits(row.units)}
-          </td>
-        `;
-
-        body.appendChild(tr);
-
-      });
-
-    }
-
+  if (picksError) {
+    console.error("Player units - standard picks:", picksError);
+    chart.innerHTML =
+      `<div class="empty">Unable to load weekly units.</div>`;
+    return;
   }
+
+  /*
+   * Get TD picks.
+   */
+  const { data: tdPicks, error: tdError } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("*")
+      .eq("player_id", playerId)
+      .eq("season_id", currentSeason.id)
+      .order("week_id", { ascending: true });
+
+  if (tdError) {
+    console.error("Player units - TD picks:", tdError);
+    chart.innerHTML =
+      `<div class="empty">Unable to load weekly units.</div>`;
+    return;
+  }
+
+  /*
+   * Combine standard and TD units by week.
+   */
+  const weeklyUnits = {};
+
+  (picks || []).forEach(row => {
+
+    const week = Number(row.week_id);
+
+    if (!weeklyUnits[week]) {
+      weeklyUnits[week] = 0;
+    }
+
+    let units = 0;
+
+    if (row.result === "loss") {
+      units = -1;
+    }
+
+    else if (row.result === "push") {
+      units = 0;
+    }
+
+    else if (row.result === "win") {
+
+      const odds = Number(row.odds);
+
+      if (odds < 0) {
+        units = 100 / Math.abs(odds);
+      }
+
+      else if (odds > 0) {
+        units = odds / 100;
+      }
+    }
+
+    weeklyUnits[week] += units;
+  });
+
+
+  (tdPicks || []).forEach(row => {
+
+    const week = Number(row.week_id);
+
+    if (!weeklyUnits[week]) {
+      weeklyUnits[week] = 0;
+    }
+
+    weeklyUnits[week] += Number(row.units || 0);
+  });
+
+
+  const values =
+    Object.keys(weeklyUnits)
+      .map(week => ({
+        week: Number(week),
+        units: Number(weeklyUnits[week].toFixed(2))
+      }))
+      .sort((a, b) => a.week - b.week);
+
+
+  if (values.length === 0) {
+
+    chart.innerHTML =
+      `<div class="empty">No weekly data yet.</div>`;
+
+    return;
+  }
+
+
+  const maxAbs =
+    Math.max(
+      ...values.map(v => Math.abs(v.units)),
+      1
+    );
+
+
+  values.forEach(value => {
+
+    const container =
+      document.createElement("div");
+
+    container.className =
+      "bar-container";
+
+
+    const bar =
+      document.createElement("div");
+
+    bar.className =
+      "bar";
+
+
+    if (value.units < 0) {
+      bar.classList.add("negative");
+    }
+
+
+    const height =
+      Math.max(
+        4,
+        (Math.abs(value.units) / maxAbs) * 180
+      );
+
+
+    bar.style.height =
+      `${height}px`;
+
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "bar-label";
+
+    label.textContent =
+      `W${value.week} ${formatUnits(value.units)}`;
+
+
+    container.appendChild(bar);
+    container.appendChild(label);
+
+    chart.appendChild(container);
+
+  });
+
+}
+
+
+async function loadPlayerPicks(playerId) {
+
+  const body =
+    document.getElementById("profile-picks-body");
+
+  body.innerHTML = "";
+
+
+  /*
+   * Get standard picks.
+   */
+  const { data: picks, error } =
+    await supabaseClient
+      .from("picks")
+      .select(`
+        *,
+        weeks(week_number)
+      `)
+      .eq("player_id", playerId)
+      .eq("season_id", currentSeason.id)
+      .order("week_id", { ascending: true });
+
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+  }
+
+
+  /*
+   * Render standard picks.
+   */
+  (picks || []).forEach(row => {
+
+    let units = 0;
+
+    if (row.result === "loss") {
+      units = -1;
+    }
+
+    else if (row.result === "push") {
+      units = 0;
+    }
+
+    else if (row.result === "win") {
+
+      const odds = Number(row.odds);
+
+      if (odds < 0) {
+        units =
+          100 / Math.abs(odds);
+      }
+
+      else if (odds > 0) {
+        units =
+          odds / 100;
+      }
+    }
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
+
+      <td>
+        ${row.day || ""}
+      </td>
+
+      <td>
+        ${row.sport || ""}
+      </td>
+
+      <td>
+        ${row.pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+
+  /*
+   * Get TD picks.
+   */
+  const { data: tdPicks, error: tdError } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select(`
+        *,
+        weeks(week_number)
+      `)
+      .eq("player_id", playerId)
+      .eq("season_id", currentSeason.id)
+      .order("week_id", { ascending: true });
+
+
+  if (tdError) {
+
+    console.error(tdError);
+
+    return;
+  }
+
+
+  /*
+   * Render TD picks.
+   */
+  (tdPicks || []).forEach(row => {
+
+    const units =
+      Number(row.units || 0);
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
+
+      <td>
+        Sunday
+      </td>
+
+      <td>
+        TD
+      </td>
+
+      <td>
+        ${row.player_pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+}
 
 
   /*
