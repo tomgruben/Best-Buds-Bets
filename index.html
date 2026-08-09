@@ -3042,14 +3042,6 @@ async function loadPlayerUnits(playerId) {
   ) + number.toFixed(2) + "u";
 }
 
-function formatUnits(value) {
-
-  const number = Number(value || 0);
-
-  return (
-    number >= 0 ? "+" : ""
-  ) + number.toFixed(2) + "u";
-}
 
 
 function unitsClass(value) {
