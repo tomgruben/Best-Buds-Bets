@@ -2624,8 +2624,8 @@ const { data: tdPicks, error: tdError } =
     document.createElement("tr");
 
   tr.innerHTML = `
-    <td>${row.player_id}</td>
-    <td>${row.week_id}</td>
+    <td>${row.players?.name || ""}</td>
+    <td>${row.weeks?.week_number || ""}</td>
     <td>Sunday</td>
     <td>NFL</td>
     <td>TD Scorer</td>
