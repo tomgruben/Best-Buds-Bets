@@ -2703,6 +2703,11 @@ if (selectedSeason !== "all") {
   picksQuery =
     picksQuery.eq("player_id", selectedPlayer);
 }
+
+  if (selectedResult !== "all") {
+  picksQuery =
+    picksQuery.eq("result", selectedResult);
+}
   
 const { data, error } =
   await picksQuery
