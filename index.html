@@ -895,7 +895,57 @@
 
     <h2 class="section-title">Betting History</h2>
 
-    <div class="card">
+<div class="history-filters card">
+
+  <div class="filter-group">
+    <label for="history-season">Season</label>
+    <select id="history-season" onchange="loadHistory()">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="history-player">Player</label>
+    <select id="history-player" onchange="loadHistory()">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="history-week">Week</label>
+    <select id="history-week" onchange="loadHistory()">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="history-day">Day</label>
+    <select id="history-day" onchange="loadHistory()">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="history-sport">Sport</label>
+    <select id="history-sport" onchange="loadHistory()">
+      <option value="all">All</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="history-result">Result</label>
+    <select id="history-result" onchange="loadHistory()">
+      <option value="all">All</option>
+      <option value="win">Wins</option>
+      <option value="loss">Losses</option>
+      <option value="push">Pushes</option>
+      <option value="pending">Pending</option>
+    </select>
+  </div>
+
+</div>
+
+<div class="card">
 
       <div class="table-wrap">
 
