@@ -2760,19 +2760,6 @@ console.log("TD FILTER ERROR:", tdError);
 
   body.innerHTML = "";
 
-  if (!data || data.length === 0) {
-
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="empty">
-          No picks have been entered.
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
   data.forEach(row => {
 
   const tr =
