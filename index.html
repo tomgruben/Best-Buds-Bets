@@ -108,13 +108,14 @@
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
 
     .stat {
       min-width: 0;
+      padding: 18px;
 }
     
     .stat {
@@ -128,11 +129,13 @@
       color: var(--muted);
       font-size: 13px;
       margin-bottom: 8px;
+      white-space: nowrap;
     }
 
     .stat-value {
       font-size: 26px;
       font-weight: bold;
+      white-space: nowrap;
     }
 
     .table-wrap {
