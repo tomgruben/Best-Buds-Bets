@@ -337,6 +337,40 @@
         grid-template-columns: 1fr;
       }
     }
+
+.history-filters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.filter-group select {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .history-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .history-filters {
+    grid-template-columns: 1fr;
+  }
+}
   </style>
 </head>
 
