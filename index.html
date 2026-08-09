@@ -2543,275 +2543,64 @@ async function saveWeeklyStandardPicks() {
 
 async function loadHistory() {
 
-if (!currentSeason) return;
+  if (!currentSeason) return;
 
-const body =
-document.getElementById("history-body");
-
-if (!body) {
-console.error("history-body element not found.");
-return;
-}
-
-body.innerHTML = `     <tr>       <td colspan="8" class="empty">
-        Loading...       </td>     </tr>
-  `;
-
-/*
-
-* Get standard picks.
-  */
-
-const { data: standardPicks, error: standardError } =
-await supabaseClient
-.from("picks")
-.select(`         *,
+  const { data, error } =
+    await supabaseClient
+      .from("picks")
+      .select(`
+        *,
         players(name),
         weeks(week_number)
       `)
-.eq("season_id", currentSeason.id)
-.order("week_id", { ascending: true });
+      .eq("season_id", currentSeason.id)
+      .order("week_id", { ascending: true });
 
-if (standardError) {
+  if (error) {
 
-```
-console.error(
-  "Error loading standard betting history:",
-  standardError
-);
+    console.error(error);
+    return;
+  }
 
-body.innerHTML = `
-  <tr>
-    <td colspan="8" class="empty">
-      Error loading betting history.
-    </td>
-  </tr>
-`;
+  const body =
+    document.getElementById("history-body");
 
-return;
-```
+  body.innerHTML = "";
 
-}
+  if (!data || data.length === 0) {
 
-/*
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          No picks have been entered.
+        </td>
+      </tr>
+    `;
 
-* Get TD scorer picks.
-  */
+    return;
+  }
 
-const { data: tdPicks, error: tdError } =
-await supabaseClient
-.from("touchdown_picks")
-.select(`         *,
-        players(name),
-        weeks(week_number)
-      `)
-.eq("season_id", currentSeason.id)
-.order("week_id", { ascending: true });
+  data.forEach(row => {
 
-if (tdError) {
+    const tr =
+      document.createElement("tr");
 
-```
-console.error(
-  "Error loading TD betting history:",
-  tdError
-);
+    tr.innerHTML = `
+      <td>${row.players?.name || ""}</td>
+      <td>${row.weeks?.week_number || ""}</td>
+      <td>${row.day}</td>
+      <td>${row.sport}</td>
+      <td>${row.game}</td>
+      <td>${row.pick}</td>
+      <td>${row.odds ?? "—"}</td>
+      <td>${formatResult(row.result)}</td>
+    `;
 
-body.innerHTML = `
-  <tr>
-    <td colspan="8" class="empty">
-      Error loading TD betting history.
-    </td>
-  </tr>
-`;
+    body.appendChild(tr);
 
-return;
-```
+  });
 
 }
-
-/*
-
-* Combine standard and TD picks.
-  */
-
-const history = [];
-
-(standardPicks || []).forEach(row => {
-
-```
-history.push({
-
-  type: "Standard",
-
-  player:
-    row.players?.name || "",
-
-  week:
-    row.weeks?.week_number || "",
-
-  day:
-    row.day || "",
-
-  sport:
-    row.sport || "",
-
-  game:
-    row.game || "—",
-
-  pick:
-    row.pick || "",
-
-  odds:
-    row.odds,
-
-  result:
-    row.result
-
-});
-```
-
-});
-
-(tdPicks || []).forEach(row => {
-
-```
-history.push({
-
-  type: "TD",
-
-  player:
-    row.players?.name || "",
-
-  week:
-    row.weeks?.week_number || "",
-
-  day:
-    "Sunday",
-
-  sport:
-    "NFL",
-
-  game:
-    "TD Scorer",
-
-  pick:
-    row.player_pick || "",
-
-  odds:
-    row.odds,
-
-  result:
-    row.result
-
-});
-```
-
-});
-
-/*
-
-* Sort by week.
-* Standard picks appear before TD picks
-* when they are from the same week.
-  */
-
-history.sort((a, b) => {
-
-```
-const weekDifference =
-  Number(a.week) - Number(b.week);
-
-if (weekDifference !== 0) {
-  return weekDifference;
-}
-
-if (a.type === "Standard" && b.type === "TD") {
-  return -1;
-}
-
-if (a.type === "TD" && b.type === "Standard") {
-  return 1;
-}
-
-return 0;
-```
-
-});
-
-body.innerHTML = "";
-
-if (history.length === 0) {
-
-```
-body.innerHTML = `
-  <tr>
-    <td colspan="8" class="empty">
-      No picks have been entered.
-    </td>
-  </tr>
-`;
-
-return;
-```
-
-}
-
-/*
-
-* Render the history.
-  */
-
-history.forEach(row => {
-
-```
-const tr =
-  document.createElement("tr");
-
-
-tr.innerHTML = `
-
-  <td>
-    ${row.player}
-  </td>
-
-  <td>
-    ${row.week}
-  </td>
-
-  <td>
-    ${row.day}
-  </td>
-
-  <td>
-    ${row.sport}
-  </td>
-
-  <td>
-    ${row.game}
-  </td>
-
-  <td>
-    ${row.pick}
-  </td>
-
-  <td>
-    ${row.odds ?? "—"}
-  </td>
-
-  <td>
-    ${formatResult(row.result)}
-  </td>
-
-`;
-
-
-body.appendChild(tr);
-```
-
-});
-
-}
-
 
   /*
    * ==========================================================
