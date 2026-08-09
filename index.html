@@ -2678,6 +2678,12 @@ const selectedSeason =
 
 const selectedPlayer =
   playerFilter?.value || "all"; 
+
+const resultFilter =
+  document.getElementById("history-result");
+
+const selectedResult =
+  resultFilter?.value || "all";  
   
 let picksQuery =
   supabaseClient
