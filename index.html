@@ -2567,10 +2567,14 @@ async function loadHistory() {
     return;
   }
 
-  const { data: tdPicks, error: tdError } =
+const { data: tdPicks, error: tdError } =
   await supabaseClient
     .from("touchdown_picks")
-    .select("*")
+    .select(`
+      *,
+      players(name),
+      weeks(week_number)
+    `)
     .eq("season_id", currentSeason.id);
 
   console.log("TD TEST:", tdPicks);
