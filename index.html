@@ -927,16 +927,15 @@
 
   <section id="history" class="page">
 
-    <h2 class="section-title">Betting History</h2>
+ <h2 class="section-title">Betting History</h2>
 
-<div class="history-filters card">
+<div class="history-filters">
 
   <div class="filter-group">
     <label for="history-season">Season</label>
     <select id="history-season" onchange="loadHistory()">
       <option value="all">All</option>
     </select>
-
   </div>
 
   <div class="filter-group">
@@ -946,59 +945,27 @@
     </select>
   </div>
 
-  <div class="filter-group">
-    <label for="history-week">Week</label>
-    <select id="history-week" onchange="loadHistory()">
-      <option value="all">All</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="history-day">Day</label>
-    <select id="history-day" onchange="loadHistory()">
-      <option value="all">All</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="history-sport">Sport</label>
-    <select id="history-sport" onchange="loadHistory()">
-      <option value="all">All</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="history-result">Result</label>
-    <select id="history-result" onchange="loadHistory()">
-      <option value="all">All</option>
-      <option value="win">Wins</option>
-      <option value="loss">Losses</option>
-      <option value="push">Pushes</option>
-      <option value="pending">Pending</option>
-    </select>
-  </div>
-
 </div>
 
-<div class="card">
+<div class="table-wrap">
 
-      <div class="table-wrap">
+  <table>
 
-        <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Week</th>
+        <th>Day</th>
+        <th>Sport</th>
+        <th>Game</th>
+        <th>Pick</th>
+        <th>Odds</th>
+        <th>Result</th>
+        <th>Units</th>
+      </tr>
+    </thead>
 
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Week</th>
-              <th>Day</th>
-              <th>Sport</th>
-              <th>Game</th>
-              <th>Pick</th>
-              <th>Odds</th>
-              <th>Result</th>
-              <th>Units</th>
-            </tr>
-          </thead>
+
 
           <tbody id="history-body">
             <tr>
