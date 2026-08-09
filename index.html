@@ -2663,6 +2663,12 @@ async function loadHistory() {
 const selectedSeason =
   seasonFilter?.value || "all";
 
+ const playerFilter =
+  document.getElementById("history-player");
+
+const selectedPlayer =
+  playerFilter?.value || "all"; 
+  
 let picksQuery =
   supabaseClient
     .from("picks")
@@ -2677,6 +2683,11 @@ if (selectedSeason !== "all") {
     picksQuery.eq("season_id", selectedSeason);
 }
 
+  if (selectedPlayer !== "all") {
+  picksQuery =
+    picksQuery.eq("player_id", selectedPlayer);
+}
+  
 const { data, error } =
   await picksQuery
     .order("week_id", { ascending: true });
