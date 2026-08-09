@@ -2676,6 +2676,9 @@ const { data: tdPicks, error: tdError } =
   const tr =
     document.createElement("tr");
 
+  const units =
+  Number(row.units || 0);
+
   tr.innerHTML = `
     <td>${row.players?.name || ""}</td>
     <td>${row.weeks?.week_number || ""}</td>
