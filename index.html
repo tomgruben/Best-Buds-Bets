@@ -2689,18 +2689,29 @@ async function saveWeeklyStandardPicks() {
 
 async function loadHistory() {
 
-  if (!currentSeason) return;
+  const seasonFilter =
+  document.getElementById("history-season");
 
-  const { data, error } =
-    await supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        players(name),
-        weeks(week_number)
-      `)
-      .eq("season_id", currentSeason.id)
-      .order("week_id", { ascending: true });
+const selectedSeason =
+  seasonFilter?.value || "all";
+
+let picksQuery =
+  supabaseClient
+    .from("picks")
+    .select(`
+      *,
+      players(name),
+      weeks(week_number)
+    `);
+
+if (selectedSeason !== "all") {
+  picksQuery =
+    picksQuery.eq("season_id", selectedSeason);
+}
+
+const { data, error } =
+  await picksQuery
+    .order("week_id", { ascending: true });
 
   if (error) {
 
