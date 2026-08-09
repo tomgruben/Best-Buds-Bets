@@ -2565,6 +2565,9 @@ async function loadHistory() {
     return;
   }
 
+  console.log("HISTORY DATA:", data);
+  console.log("HISTORY ERROR:", error);
+  
   const body =
     document.getElementById("history-body");
 
