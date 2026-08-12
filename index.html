@@ -2788,9 +2788,23 @@ if (selectedSport !== "all") {
   }
 
 
-  /*
-   * Get TD picks.
-   */
+/*
+ * Get TD picks.
+ */
+
+let tdPicks = [];
+let tdError = null;
+
+
+/*
+ * TD scorer picks are NFL,
+ * so only query them for All or NFL.
+ */
+
+if (
+  selectedSport === "all" ||
+  selectedSport === "NFL"
+) {
 
   let tdQuery =
     supabaseClient
@@ -2834,35 +2848,31 @@ if (selectedSport !== "all") {
 
   }
 
-  if (
-  selectedSport !== "all" &&
-  selectedSport !== "NFL"
-) {
 
-  tdQuery =
-    tdQuery.eq(
-      "id",
-      "00000000-0000-0000-0000-000000000000"
-    );
-
-}
-
-  const {
-    data: tdPicks,
-    error: tdError
-  } =
+  const tdResponse =
     await tdQuery;
 
 
-  if (tdError) {
+  tdPicks =
+    tdResponse.data || [];
 
-    console.error(
-      "History TD error:",
-      tdError
-    );
 
-    return;
-  }
+  tdError =
+    tdResponse.error;
+
+}
+
+
+if (tdError) {
+
+  console.error(
+    "History TD error:",
+    tdError
+  );
+
+  return;
+
+}
 
 
   /*
