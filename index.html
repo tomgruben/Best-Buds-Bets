@@ -2694,6 +2694,11 @@ async function loadHistory() {
   const selectedResult =
     resultFilter?.value || "all";
 
+  const sportFilter =
+  document.getElementById("history-sport");
+
+const selectedSport =
+  sportFilter?.value || "all";
 
   /*
    * Get standard picks.
