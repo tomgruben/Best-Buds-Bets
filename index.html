@@ -2695,7 +2695,60 @@ async function saveWeeklyStandardPicks() {
    * HISTORY
    * ==========================================================
    */
+function resetHistoryFilters() {
 
+  const seasonFilter =
+    document.getElementById("history-season");
+
+  const playerFilter =
+    document.getElementById("history-player");
+
+  const weekFilter =
+    document.getElementById("history-week");
+
+  const resultFilter =
+    document.getElementById("history-result");
+
+  const sportFilter =
+    document.getElementById("history-sport");
+
+
+  if (seasonFilter) {
+    seasonFilter.value = "all";
+  }
+
+  if (playerFilter) {
+    playerFilter.value = "all";
+  }
+
+  if (weekFilter) {
+    weekFilter.value = "all";
+  }
+
+  if (resultFilter) {
+    resultFilter.value = "all";
+  }
+
+  if (sportFilter) {
+    sportFilter.value = "all";
+  }
+
+
+  loadHistoryWeeks().then(() => {
+
+    const refreshedWeekFilter =
+      document.getElementById("history-week");
+
+    if (refreshedWeekFilter) {
+      refreshedWeekFilter.value = "all";
+    }
+
+    loadHistory();
+
+  });
+
+}
+  
 async function loadHistory() {
 
   const seasonFilter =
