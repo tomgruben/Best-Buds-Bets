@@ -1077,32 +1077,116 @@
        PLAYERS
        ====================================================== -->
 
-  <section id="players" class="page">
+<section id="players" class="page">
 
-    <div id="player-list">
+  <div id="player-list">
 
-      <h2 class="section-title">Players</h2>
+    <h2 class="section-title">Players</h2>
 
-      <div class="card">
+    <div class="card">
 
-        <div class="table-wrap">
+      <div class="table-wrap">
 
-          <table>
+        <table>
 
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th>Record</th>
-                <th>Win %</th>
-                <th>Units</th>
-              </tr>
-            </thead>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Record</th>
+              <th>Win %</th>
+              <th>Units</th>
+            </tr>
+          </thead>
 
-            <tbody id="players-body">
-            </tbody>
+          <tbody id="players-body">
+          </tbody>
 
-          </table>
+        </table>
 
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div id="player-profile" style="display:none;">
+
+    <button
+      class="back-button"
+      onclick="showPlayerList()"
+    >
+      ← Back to Players
+    </button>
+
+
+    <div class="card">
+
+      <div class="profile-header">
+
+        <div>
+
+          <h2
+            class="profile-name"
+            id="profile-name"
+          >
+            Player
+          </h2>
+
+          <div
+            class="record"
+            id="profile-record"
+          ></div>
+
+
+          <div class="profile-filters">
+
+            <div class="profile-filter-group">
+
+              <label for="profile-season">
+                Season
+              </label>
+
+              <select
+                id="profile-season"
+                onchange="reloadPlayerProfile()"
+              >
+                <option value="all">All</option>
+              </select>
+
+            </div>
+
+
+            <div class="profile-filter-group">
+
+              <label for="profile-sport">
+                Sport
+              </label>
+
+              <select
+                id="profile-sport"
+                onchange="reloadPlayerProfile()"
+              >
+                <option value="all">All</option>
+                <option value="College Football">
+                  College Football
+                </option>
+                <option value="NFL">
+                  NFL
+                </option>
+              </select>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div>
+          <strong id="profile-units">
+            0.00u
+          </strong>
         </div>
 
       </div>
@@ -1110,112 +1194,50 @@
     </div>
 
 
-    <div id="player-profile" style="display:none;">
+    <div class="card">
 
-      <button class="back-button" onclick="showPlayerList()">
-        ← Back to Players
-      </button>
+      <h3>Units by Week</h3>
 
-      <div class="card">
-
-     <div class="profile-header">
-
-  <div>
-
-    <h2 class="profile-name" id="profile-name">
-      Player
-    </h2>
-
-    <div class="record" id="profile-record"></div>
-
-    <div class="profile-season-filter">
-
-      <label for="profile-season">
-        Season
-      </label><div class="profile-sport-filter">
-
-</div>
-        
-<div class="profile-filters">
-        
-  <label for="profile-sport">
-    Sport
-  </label>
-
-  <select
-    id="profile-sport"
-    onchange="reloadPlayerProfile()"
-  >
-    <option value="all">All</option>
-    <option value="College Football">College Football</option>
-    <option value="NFL">NFL</option>
-  </select>
-
-</div>
-
-      <select
-        id="profile-season"
-        onchange="reloadPlayerProfile()"
-      >
-        <option value="all">All</option>
-      </select>
+      <div
+        id="units-chart"
+        class="chart"
+      ></div>
 
     </div>
 
 
-    
-  </div>
+    <div class="card">
 
-  <div>
-    <strong id="profile-units">0.00u</strong>
-  </div>
+      <h3>Historical Picks</h3>
 
-</div>  
+      <div class="table-wrap">
 
-      </div>
+        <table>
 
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Day</th>
+              <th>Type</th>
+              <th>Pick</th>
+              <th>Odds</th>
+              <th>Result</th>
+              <th>Units</th>
+            </tr>
+          </thead>
 
-      <div class="card">
+          <tbody id="profile-picks-body">
+          </tbody>
 
-        <h3>Units by Week</h3>
-
-        <div id="units-chart" class="chart"></div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>Historical Picks</h3>
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Week</th>
-                <th>Day</th>
-                <th>Type</th>
-                <th>Pick</th>
-                <th>Odds</th>
-                <th>Result</th>
-                <th>Units</th>
-              </tr>
-            </thead>
-
-            <tbody id="profile-picks-body">
-            </tbody>
-
-          </table>
-
-        </div>
+        </table>
 
       </div>
 
     </div>
 
-  </section>
+  </div>
+
+</section>
 
 
   <!-- ======================================================
