@@ -3530,7 +3530,7 @@ profileUnits.className =
    * ==========================================================
    */
 
- async function loadPlayerPicks(playerId) {
+async function loadPlayerPicks(playerId) {
 
   const body =
     document.getElementById("profile-picks-body");
@@ -3542,99 +3542,192 @@ profileUnits.className =
 
   body.innerHTML = "";
 
+
   const profileSeasonFilter =
-  document.getElementById("profile-season");
+    document.getElementById("profile-season");
 
-const selectedProfileSeason =
-  profileSeasonFilter?.value || "all";
+  const selectedProfileSeason =
+    profileSeasonFilter?.value || "all";
 
-   const profileSportFilter =
-  document.getElementById("profile-sport");
 
-const selectedProfileSport =
-  profileSportFilter?.value || "all";
-   
+  const profileSportFilter =
+    document.getElementById("profile-sport");
+
+  const selectedProfileSport =
+    profileSportFilter?.value || "all";
+
+
   /*
    * STANDARD PICKS
    */
+
   let picksQuery =
-  supabaseClient
-    .from("picks")
-    .select(`
-      *,
-      weeks(week_number)
-    `)
-    .eq("player_id", playerId);
+    supabaseClient
+      .from("picks")
+      .select(`
+        *,
+        weeks(week_number)
+      `)
+      .eq("player_id", playerId);
 
-if (selectedProfileSeason !== "all") {
 
-  picksQuery =
-    picksQuery.eq(
-      "season_id",
-      selectedProfileSeason
-    );
+  if (selectedProfileSeason !== "all") {
 
-}
+    picksQuery =
+      picksQuery.eq(
+        "season_id",
+        selectedProfileSeason
+      );
 
- if (selectedProfileSport !== "all") {
+  }
 
-  picksQuery =
-    picksQuery.eq(
-      "sport",
-      selectedProfileSport
-    );
 
-}  
+  if (selectedProfileSport !== "all") {
 
-const {
-  data: picks,
-  error: picksError
-} =
-  await picksQuery
-    .order(
-      "week_id",
-      { ascending: true }
-    );
+    picksQuery =
+      picksQuery.eq(
+        "sport",
+        selectedProfileSport
+      );
+
+  }
+
+
+  const {
+    data: picks,
+    error: picksError
+  } =
+    await picksQuery
+      .order(
+        "week_id",
+        { ascending: true }
+      );
+
 
   if (picksError) {
+
     console.error(
       "Historical standard picks error:",
       picksError
     );
+
   }
 
+
   /*
-   * Render standard picks.
+   * TOUCHDOWN PICKS
+   *
+   * TD scorer picks are NFL.
+   * Therefore only retrieve them
+   * when Sport is All or NFL.
    */
+
+  let tdPicks = [];
+
+
+  if (
+    selectedProfileSport === "all" ||
+    selectedProfileSport === "NFL"
+  ) {
+
+    let tdQuery =
+      supabaseClient
+        .from("touchdown_picks")
+        .select(`
+          *,
+          weeks(week_number)
+        `)
+        .eq("player_id", playerId);
+
+
+    if (selectedProfileSeason !== "all") {
+
+      tdQuery =
+        tdQuery.eq(
+          "season_id",
+          selectedProfileSeason
+        );
+
+    }
+
+
+    const tdResponse =
+      await tdQuery
+        .order(
+          "week_id",
+          { ascending: true }
+        );
+
+
+    if (tdResponse.error) {
+
+      console.error(
+        "Historical TD picks error:",
+        tdResponse.error
+      );
+
+    }
+
+    else {
+
+      tdPicks =
+        tdResponse.data || [];
+
+    }
+
+  }
+
+
+  /*
+   * RENDER STANDARD PICKS
+   */
+
   (picks || []).forEach(row => {
 
     let units = 0;
 
+
     if (row.result === "loss") {
+
       units = -1;
+
     }
 
     else if (row.result === "push") {
+
       units = 0;
+
     }
 
     else if (row.result === "win") {
 
-      const odds = Number(row.odds);
+      const odds =
+        Number(row.odds);
+
 
       if (odds < 0) {
-        units = 100 / Math.abs(odds);
+
+        units =
+          100 / Math.abs(odds);
+
       }
 
       else if (odds > 0) {
-        units = odds / 100;
+
+        units =
+          odds / 100;
+
       }
+
     }
+
 
     const tr =
       document.createElement("tr");
 
+
     tr.innerHTML = `
+
       <td>
         ${row.weeks?.week_number ?? row.week_id ?? ""}
       </td>
@@ -3662,63 +3755,31 @@ const {
       <td class="${unitsClass(units)}">
         ${formatUnits(units)}
       </td>
+
     `;
 
+
     body.appendChild(tr);
+
   });
 
 
   /*
-   * TOUCHDOWN PICKS
+   * RENDER TD PICKS
    */
-  let tdQuery =
-  supabaseClient
-    .from("touchdown_picks")
-    .select(`
-      *,
-      weeks(week_number)
-    `)
-    .eq("player_id", playerId);
 
-if (selectedProfileSeason !== "all") {
-
-  tdQuery =
-    tdQuery.eq(
-      "season_id",
-      selectedProfileSeason
-    );
-
-}
-
-const {
-  data: tdPicks,
-  error: tdError
-} =
-  await tdQuery
-    .order(
-      "week_id",
-      { ascending: true }
-    );
-
-  if (tdError) {
-    console.error(
-      "Historical TD picks error:",
-      tdError
-    );
-  }
-
-  /*
-   * Render TD picks.
-   */
   (tdPicks || []).forEach(row => {
 
     const units =
       Number(row.units || 0);
 
+
     const tr =
       document.createElement("tr");
 
+
     tr.innerHTML = `
+
       <td>
         ${row.weeks?.week_number ?? row.week_id ?? ""}
       </td>
@@ -3746,70 +3807,103 @@ const {
       <td class="${unitsClass(units)}">
         ${formatUnits(units)}
       </td>
+
     `;
 
+
     body.appendChild(tr);
+
   });
 
 
   /*
-   * Nothing found.
+   * NOTHING FOUND
    */
+
   if (body.children.length === 0) {
 
     body.innerHTML = `
+
       <tr>
         <td colspan="7" class="empty">
           No historical picks yet.
         </td>
       </tr>
+
     `;
+
   }
 
-} 
+}
   
 async function loadPlayerUnits(playerId) {
 
-  const chart = document.getElementById("units-chart");
+  const chart =
+    document.getElementById("units-chart");
 
   chart.innerHTML = "";
 
-  const profileSeasonFilter =
-  document.getElementById("profile-season");
 
-const selectedProfileSeason =
-  profileSeasonFilter?.value || "all";
+  const profileSeasonFilter =
+    document.getElementById("profile-season");
+
+  const selectedProfileSeason =
+    profileSeasonFilter?.value || "all";
+
+
+  const profileSportFilter =
+    document.getElementById("profile-sport");
+
+  const selectedProfileSport =
+    profileSportFilter?.value || "all";
+
 
   /*
-   * Get standard picks.
+   * STANDARD PICKS
    */
+
   let picksQuery =
-  supabaseClient
-    .from("picks")
-    .select("*")
-    .eq("player_id", playerId);
+    supabaseClient
+      .from("picks")
+      .select("*")
+      .eq("player_id", playerId);
 
-if (selectedProfileSeason !== "all") {
 
-  picksQuery =
-    picksQuery.eq(
-      "season_id",
-      selectedProfileSeason
-    );
+  if (selectedProfileSeason !== "all") {
 
-}
+    picksQuery =
+      picksQuery.eq(
+        "season_id",
+        selectedProfileSeason
+      );
 
-const {
-  data: picks,
-  error: picksError
-} =
-  await picksQuery
-    .order(
-      "week_id",
-      { ascending: true }
-    );
+  }
+
+
+  if (selectedProfileSport !== "all") {
+
+    picksQuery =
+      picksQuery.eq(
+        "sport",
+        selectedProfileSport
+      );
+
+  }
+
+
+  const {
+    data: picks,
+    error: picksError
+  } =
+    await picksQuery
+      .order(
+        "week_id",
+        { ascending: true }
+      );
+
 
   if (picksError) {
+
     console.error(
       "Player units - standard picks:",
       picksError
@@ -3819,99 +3913,150 @@ const {
       `<div class="empty">Unable to load weekly units.</div>`;
 
     return;
+
   }
 
+
   /*
-   * Get TD picks.
+   * TD PICKS
+   *
+   * TD scorer picks are NFL.
    */
-let tdQuery =
-  supabaseClient
-    .from("touchdown_picks")
-    .select("*")
-    .eq("player_id", playerId);
 
-if (selectedProfileSeason !== "all") {
+  let tdPicks = [];
 
-  tdQuery =
-    tdQuery.eq(
-      "season_id",
-      selectedProfileSeason
-    );
 
-}
+  if (
+    selectedProfileSport === "all" ||
+    selectedProfileSport === "NFL"
+  ) {
 
-const {
-  data: tdPicks,
-  error: tdError
-} =
-  await tdQuery
-    .order(
-      "week_id",
-      { ascending: true }
-    );
+    let tdQuery =
+      supabaseClient
+        .from("touchdown_picks")
+        .select("*")
+        .eq("player_id", playerId);
 
-  if (tdError) {
-    console.error(
-      "Player units - TD picks:",
-      tdError
-    );
 
-    chart.innerHTML =
-      `<div class="empty">Unable to load weekly units.</div>`;
+    if (selectedProfileSeason !== "all") {
 
-    return;
+      tdQuery =
+        tdQuery.eq(
+          "season_id",
+          selectedProfileSeason
+        );
+
+    }
+
+
+    const tdResponse =
+      await tdQuery
+        .order(
+          "week_id",
+          { ascending: true }
+        );
+
+
+    if (tdResponse.error) {
+
+      console.error(
+        "Player units - TD picks:",
+        tdResponse.error
+      );
+
+      chart.innerHTML =
+        `<div class="empty">Unable to load weekly units.</div>`;
+
+      return;
+
+    }
+
+
+    tdPicks =
+      tdResponse.data || [];
+
   }
 
+
   /*
-   * Combine standard and TD units by week.
+   * COMBINE UNITS BY WEEK
    */
+
   const weeklyUnits = {};
+
 
   (picks || []).forEach(row => {
 
-    const week = Number(row.week_id);
+    const week =
+      Number(row.week_id);
+
 
     if (!weeklyUnits[week]) {
+
       weeklyUnits[week] = 0;
+
     }
+
 
     let units = 0;
 
+
     if (row.result === "loss") {
+
       units = -1;
+
     }
 
     else if (row.result === "push") {
+
       units = 0;
+
     }
 
     else if (row.result === "win") {
 
-      const odds = Number(row.odds);
+      const odds =
+        Number(row.odds);
+
 
       if (odds < 0) {
-        units = 100 / Math.abs(odds);
+
+        units =
+          100 / Math.abs(odds);
+
       }
 
       else if (odds > 0) {
-        units = odds / 100;
+
+        units =
+          odds / 100;
+
       }
+
     }
 
-    weeklyUnits[week] += units;
+
+    weeklyUnits[week] +=
+      units;
 
   });
 
 
   (tdPicks || []).forEach(row => {
 
-    const week = Number(row.week_id);
+    const week =
+      Number(row.week_id);
+
 
     if (!weeklyUnits[week]) {
+
       weeklyUnits[week] = 0;
+
     }
 
-    weeklyUnits[week] += Number(row.units || 0);
+
+    weeklyUnits[week] +=
+      Number(row.units || 0);
 
   });
 
@@ -3924,7 +4069,10 @@ const {
           weeklyUnits[week].toFixed(2)
         )
       }))
-      .sort((a, b) => a.week - b.week);
+      .sort(
+        (a, b) =>
+          a.week - b.week
+      );
 
 
   if (values.length === 0) {
@@ -3933,12 +4081,16 @@ const {
       `<div class="empty">No weekly data yet.</div>`;
 
     return;
+
   }
 
 
   const maxAbs =
     Math.max(
-      ...values.map(v => Math.abs(v.units)),
+      ...values.map(
+        value =>
+          Math.abs(value.units)
+      ),
       1
     );
 
@@ -3960,14 +4112,21 @@ const {
 
 
     if (value.units < 0) {
-      bar.classList.add("negative");
+
+      bar.classList.add(
+        "negative"
+      );
+
     }
 
 
     const height =
       Math.max(
         4,
-        (Math.abs(value.units) / maxAbs) * 180
+        (
+          Math.abs(value.units) /
+          maxAbs
+        ) * 180
       );
 
 
@@ -3980,6 +4139,7 @@ const {
 
     label.className =
       "bar-label";
+
 
     label.textContent =
       `W${value.week} ${formatUnits(value.units)}`;
