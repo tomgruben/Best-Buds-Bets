@@ -3404,21 +3404,43 @@ profileUnits.className =
 
   body.innerHTML = "";
 
+  const profileSeasonFilter =
+  document.getElementById("profile-season");
+
+const selectedProfileSeason =
+  profileSeasonFilter?.value || "all";
+   
   /*
    * STANDARD PICKS
    */
-  const {
-    data: picks,
-    error: picksError
-  } = await supabaseClient
+  let picksQuery =
+  supabaseClient
     .from("picks")
     .select(`
       *,
       weeks(week_number)
     `)
-    .eq("player_id", playerId)
-    .eq("season_id", currentSeason.id)
-    .order("week_id", { ascending: true });
+    .eq("player_id", playerId);
+
+if (selectedProfileSeason !== "all") {
+
+  picksQuery =
+    picksQuery.eq(
+      "season_id",
+      selectedProfileSeason
+    );
+
+}
+
+const {
+  data: picks,
+  error: picksError
+} =
+  await picksQuery
+    .order(
+      "week_id",
+      { ascending: true }
+    );
 
   if (picksError) {
     console.error(
@@ -3495,18 +3517,34 @@ profileUnits.className =
   /*
    * TOUCHDOWN PICKS
    */
-  const {
-    data: tdPicks,
-    error: tdError
-  } = await supabaseClient
+  let tdQuery =
+  supabaseClient
     .from("touchdown_picks")
     .select(`
       *,
       weeks(week_number)
     `)
-    .eq("player_id", playerId)
-    .eq("season_id", currentSeason.id)
-    .order("week_id", { ascending: true });
+    .eq("player_id", playerId);
+
+if (selectedProfileSeason !== "all") {
+
+  tdQuery =
+    tdQuery.eq(
+      "season_id",
+      selectedProfileSeason
+    );
+
+}
+
+const {
+  data: tdPicks,
+  error: tdError
+} =
+  await tdQuery
+    .order(
+      "week_id",
+      { ascending: true }
+    );
 
   if (tdError) {
     console.error(
