@@ -2746,6 +2746,15 @@ const selectedSport =
 
   }
 
+  if (selectedSport !== "all") {
+
+  picksQuery =
+    picksQuery.eq(
+      "sport",
+      selectedSport
+    );
+
+}
 
   const {
     data,
@@ -2815,6 +2824,18 @@ const selectedSport =
 
   }
 
+  if (
+  selectedSport !== "all" &&
+  selectedSport !== "NFL"
+) {
+
+  tdQuery =
+    tdQuery.eq(
+      "id",
+      "00000000-0000-0000-0000-000000000000"
+    );
+
+}
 
   const {
     data: tdPicks,
