@@ -401,26 +401,26 @@
 
 .profile-filters {
   display: flex;
-  align-items: flex-end;
-  gap: 16px;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
   margin-top: 14px;
 }
 
-.profile-season-filter,
-.profile-sport-filter {
+.profile-filter-group {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
-.profile-season-filter label,
-.profile-sport-filter label {
+.profile-filter-group label {
   color: var(--muted);
   font-size: 13px;
+  margin: 0;
 }
 
-.profile-season-filter select,
-.profile-sport-filter select {
+.profile-filter-group select {
   min-width: 150px;
 }
     
