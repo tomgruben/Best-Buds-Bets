@@ -2697,7 +2697,12 @@ async function loadHistory() {
   const selectedPlayer =
     playerFilter?.value || "all";
 
+const weekFilter =
+  document.getElementById("history-week");
 
+const selectedWeek =
+  weekFilter?.value || "all";
+  
   const resultFilter =
     document.getElementById("history-result");
 
