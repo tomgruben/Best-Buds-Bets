@@ -3858,6 +3858,57 @@ if (sportFilter) {
     });
 
 }
+
+const weekFilter =
+  document.getElementById("history-week");
+
+if (weekFilter) {
+
+  const {
+    data: weeks,
+    error: weekError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .select("id, week_number")
+      .order("week_number", {
+        ascending: true
+      });
+
+
+  if (weekError) {
+
+    console.error(
+      "Week filter error:",
+      weekError
+    );
+
+  }
+
+  else {
+
+    weekFilter.innerHTML =
+      '<option value="all">All</option>';
+
+
+    (weeks || []).forEach(week => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        week.id;
+
+      option.textContent =
+        `Week ${week.week_number}`;
+
+      weekFilter.appendChild(option);
+
+    });
+
+  }
+
+}
    
 }
   
