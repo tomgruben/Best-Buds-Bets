@@ -4170,18 +4170,19 @@ async function loadPlayerUnits(playerId) {
     }
 
 
-    const height =
-      Math.max(
-        4,
-        (
-          Math.abs(value.units) /
-          maxAbs
-        ) * 180
-      );
+  const maxBarHeight = 105;
 
+  const height =
+  Math.max(
+    4,
+    (
+      Math.abs(value.units) /
+      maxAbs
+    ) * maxBarHeight
+  );
 
-    bar.style.height =
-      `${height}px`;
+bar.style.height =
+  `${height}px`;
 
 
     const label =
