@@ -3510,77 +3510,275 @@ async function reloadPlayerProfile() {
 
 }
   
-  async function openPlayerProfile(playerId) {
+ async function openPlayerProfile(playerId) {
 
-    currentProfilePlayerId = playerId;
+  currentProfilePlayerId = playerId;
 
-    await loadProfileSeasons();
-    
-    document.getElementById("player-list")
-      .style.display = "none";
-
-    document.getElementById("player-profile")
-      .style.display = "block";
+  await loadProfileSeasons();
 
 
-    const player =
-      players.find(p => p.id === playerId);
+  document.getElementById("player-list")
+    .style.display = "none";
+
+  document.getElementById("player-profile")
+    .style.display = "block";
 
 
-    if (!player) return;
+  const player =
+    players.find(p => p.id === playerId);
 
 
-    document.getElementById("profile-name")
-      .textContent = player.name;
+  if (!player) return;
 
 
-    const { data: stats } =
-      await supabaseClient
-        .from("season_standings")
+  document.getElementById("profile-name")
+    .textContent = player.name;
+
+
+  const profileSeasonFilter =
+    document.getElementById("profile-season");
+
+  const selectedProfileSeason =
+    profileSeasonFilter?.value || "all";
+
+
+  const profileSportFilter =
+    document.getElementById("profile-sport");
+
+  const selectedProfileSport =
+    profileSportFilter?.value || "all";
+
+
+  /*
+   * STANDARD PICKS
+   */
+
+  let picksQuery =
+    supabaseClient
+      .from("picks")
+      .select("*")
+      .eq("player_id", playerId);
+
+
+  if (selectedProfileSeason !== "all") {
+
+    picksQuery =
+      picksQuery.eq(
+        "season_id",
+        selectedProfileSeason
+      );
+
+  }
+
+
+  if (selectedProfileSport !== "all") {
+
+    picksQuery =
+      picksQuery.eq(
+        "sport",
+        selectedProfileSport
+      );
+
+  }
+
+
+  const {
+    data: picks,
+    error: picksError
+  } =
+    await picksQuery;
+
+
+  if (picksError) {
+
+    console.error(
+      "Player profile standard picks:",
+      picksError
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * TD PICKS
+   *
+   * TD scorer picks count toward Units only
+   * and are treated as NFL.
+   */
+
+  let tdPicks = [];
+
+
+  if (
+    selectedProfileSport === "all" ||
+    selectedProfileSport === "NFL"
+  ) {
+
+    let tdQuery =
+      supabaseClient
+        .from("touchdown_picks")
         .select("*")
-        .eq("season_id", currentSeason.id)
-        .eq("player_id", playerId)
-        .single();
+        .eq("player_id", playerId);
 
 
-    if (stats) {
+    if (selectedProfileSeason !== "all") {
 
-      document.getElementById("profile-record")
-        .textContent =
-          `${stats.wins}-${stats.losses}-${stats.pushes} • ${stats.win_percentage.toFixed(1)}%`;
-
-const profileUnits =
-  document.getElementById("profile-units");
-
-profileUnits.textContent =
-  formatUnits(stats.units);
-
-profileUnits.className =
-  Number(stats.units) > 0
-    ? "positive"
-    : Number(stats.units) < 0
-      ? "negative"
-      : "";
+      tdQuery =
+        tdQuery.eq(
+          "season_id",
+          selectedProfileSeason
+        );
 
     }
 
 
-    await loadPlayerUnits(playerId);
+    const tdResponse =
+      await tdQuery;
 
-    await loadPlayerPicks(playerId);
+
+    if (tdResponse.error) {
+
+      console.error(
+        "Player profile TD picks:",
+        tdResponse.error
+      );
+
+      return;
+
+    }
+
+
+    tdPicks =
+      tdResponse.data || [];
+
   }
 
 
-  function showPlayerList() {
+  /*
+   * RECORD / WIN %
+   *
+   * Standard picks only.
+   */
 
-    document.getElementById("player-profile")
-      .style.display = "none";
+  let wins = 0;
+  let losses = 0;
+  let pushes = 0;
 
-    document.getElementById("player-list")
-      .style.display = "block";
 
-    loadPlayers();
-  }
+  (picks || []).forEach(row => {
+
+    if (row.result === "win") {
+      wins++;
+    }
+
+    else if (row.result === "loss") {
+      losses++;
+    }
+
+    else if (row.result === "push") {
+      pushes++;
+    }
+
+  });
+
+
+  const gradedPicks =
+    wins + losses;
+
+
+  const winPercentage =
+    gradedPicks > 0
+      ? (wins / gradedPicks) * 100
+      : 0;
+
+
+  document.getElementById("profile-record")
+    .textContent =
+      `${wins}-${losses}-${pushes} • ${winPercentage.toFixed(1)}%`;
+
+
+  /*
+   * TOTAL UNITS
+   *
+   * Standard picks + TD picks.
+   */
+
+  let totalUnits = 0;
+
+
+  (picks || []).forEach(row => {
+
+    if (row.result === "loss") {
+
+      totalUnits -= 1;
+
+    }
+
+    else if (row.result === "win") {
+
+      const odds =
+        Number(row.odds);
+
+
+      if (odds < 0) {
+
+        totalUnits +=
+          100 / Math.abs(odds);
+
+      }
+
+      else if (odds > 0) {
+
+        totalUnits +=
+          odds / 100;
+
+      }
+
+    }
+
+  });
+
+
+  (tdPicks || []).forEach(row => {
+
+    totalUnits +=
+      Number(row.units || 0);
+
+  });
+
+
+  totalUnits =
+    Number(totalUnits.toFixed(2));
+
+
+  const profileUnits =
+    document.getElementById("profile-units");
+
+
+  profileUnits.textContent =
+    formatUnits(totalUnits);
+
+
+  profileUnits.className =
+    totalUnits > 0
+      ? "positive"
+      : totalUnits < 0
+        ? "negative"
+        : "";
+
+
+  /*
+   * Refresh chart and historical picks
+   * using the same filters.
+   */
+
+  await loadPlayerUnits(playerId);
+
+  await loadPlayerPicks(playerId);
+
+}
 
 
   /*
