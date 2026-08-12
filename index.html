@@ -3704,6 +3704,54 @@ async function loadPlayerUnits(playerId) {
 
   });
 
+   const sportFilter =
+  document.getElementById("history-sport");
+
+if (sportFilter) {
+
+  const { data: sports, error: sportError } =
+    await supabaseClient
+      .from("picks")
+      .select("sport");
+
+  if (sportError) {
+
+    console.error(
+      "Sport filter error:",
+      sportError
+    );
+
+  }
+
+  else {
+
+    const uniqueSports =
+      [...new Set(
+        (sports || [])
+          .map(row => row.sport)
+          .filter(Boolean)
+      )]
+      .sort();
+
+    sportFilter.innerHTML =
+      '<option value="all">All</option>';
+
+    uniqueSports.forEach(sport => {
+
+      const option =
+        document.createElement("option");
+
+      option.value = sport;
+      option.textContent = sport;
+
+      sportFilter.appendChild(option);
+
+    });
+
+  }
+
+}
+   
 }
   
   /*
