@@ -1371,8 +1371,11 @@ if (pageId === "history") {
 
   console.log("HISTORY PAGE LOADED");
 
-  loadSeasons();
-  loadHistory();
+  loadSeasons().then(() => {
+    loadHistoryWeeks();
+    loadHistory();
+  });
+
 }
 
 
