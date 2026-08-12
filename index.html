@@ -3297,6 +3297,16 @@ if (tdError) {
    * ==========================================================
    */
 
+async function reloadPlayerProfile() {
+
+  if (!currentProfilePlayerId) return;
+
+  await openPlayerProfile(
+    currentProfilePlayerId
+  );
+
+}
+  
   async function openPlayerProfile(playerId) {
 
     document.getElementById("player-list")
