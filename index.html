@@ -3547,6 +3547,12 @@ profileUnits.className =
 
 const selectedProfileSeason =
   profileSeasonFilter?.value || "all";
+
+   const profileSportFilter =
+  document.getElementById("profile-sport");
+
+const selectedProfileSport =
+  profileSportFilter?.value || "all";
    
   /*
    * STANDARD PICKS
@@ -3569,6 +3575,16 @@ if (selectedProfileSeason !== "all") {
     );
 
 }
+
+ if (selectedProfileSport !== "all") {
+
+  picksQuery =
+    picksQuery.eq(
+      "sport",
+      selectedProfileSport
+    );
+
+}  
 
 const {
   data: picks,
