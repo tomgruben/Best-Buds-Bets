@@ -3309,6 +3309,8 @@ async function reloadPlayerProfile() {
   
   async function openPlayerProfile(playerId) {
 
+    currentProfilePlayerId = playerId;
+    
     document.getElementById("player-list")
       .style.display = "none";
 
