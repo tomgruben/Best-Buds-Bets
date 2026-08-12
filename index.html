@@ -3810,7 +3810,28 @@ async function loadPlayerUnits(playerId) {
 
   }
 
+const profileSeasonFilter =
+  document.getElementById("profile-season");
 
+if (profileSeasonFilter) {
+
+  profileSeasonFilter.innerHTML =
+    '<option value="all">All</option>';
+
+  data.forEach(season => {
+
+    const option =
+      document.createElement("option");
+
+    option.value = season.id;
+    option.textContent = season.year;
+
+    profileSeasonFilter.appendChild(option);
+
+  });
+
+}
+   
   /*
    * Populate History Player filter.
    */
