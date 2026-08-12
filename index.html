@@ -1105,7 +1105,22 @@
 
       <label for="profile-season">
         Season
-      </label>
+      </label><div class="profile-sport-filter">
+
+  <label for="profile-sport">
+    Sport
+  </label>
+
+  <select
+    id="profile-sport"
+    onchange="reloadPlayerProfile()"
+  >
+    <option value="all">All</option>
+    <option value="College Football">College Football</option>
+    <option value="NFL">NFL</option>
+  </select>
+
+</div>
 
       <select
         id="profile-season"
@@ -1116,6 +1131,8 @@
 
     </div>
 
+
+    
   </div>
 
   <div>
