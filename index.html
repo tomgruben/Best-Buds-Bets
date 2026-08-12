@@ -3709,34 +3709,90 @@ async function loadPlayerUnits(playerId) {
 
 if (sportFilter) {
 
-  const { data: sports, error: sportError } =
+  /*
+   * Get sports from regular picks.
+   */
+
+  const {
+    data: regularSports,
+    error: regularSportError
+  } =
     await supabaseClient
       .from("picks")
       .select("sport");
 
-  if (sportError) {
+
+  /*
+   * Get sports represented by TD picks.
+   */
+
+  const {
+    data: touchdownSports,
+    error: touchdownSportError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("id");
+
+
+  if (regularSportError) {
 
     console.error(
-      "Sport filter error:",
-      sportError
+      "Regular sport filter error:",
+      regularSportError
     );
 
   }
 
-  else {
 
-    const uniqueSports =
-      [...new Set(
-        (sports || [])
-          .map(row => row.sport)
-          .filter(Boolean)
-      )]
-      .sort();
+  if (touchdownSportError) {
 
-    sportFilter.innerHTML =
-      '<option value="all">All</option>';
+    console.error(
+      "TD sport filter error:",
+      touchdownSportError
+    );
 
-    uniqueSports.forEach(sport => {
+  }
+
+
+  const uniqueSports =
+    new Set();
+
+
+  /*
+   * Add sports from regular picks.
+   */
+
+  (regularSports || []).forEach(row => {
+
+    if (row.sport) {
+      uniqueSports.add(row.sport);
+    }
+
+  });
+
+
+  /*
+   * TD picks are NFL.
+   */
+
+  if (
+    touchdownSports &&
+    touchdownSports.length > 0
+  ) {
+
+    uniqueSports.add("NFL");
+
+  }
+
+
+  sportFilter.innerHTML =
+    '<option value="all">All</option>';
+
+
+  [...uniqueSports]
+    .sort()
+    .forEach(sport => {
 
       const option =
         document.createElement("option");
@@ -3747,8 +3803,6 @@ if (sportFilter) {
       sportFilter.appendChild(option);
 
     });
-
-  }
 
 }
    
