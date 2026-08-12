@@ -2750,6 +2750,15 @@ const selectedSport =
 
   }
 
+  if (selectedWeek !== "all") {
+
+  picksQuery =
+    picksQuery.eq(
+      "week_id",
+      selectedWeek
+    );
+
+}
 
   if (selectedResult !== "all") {
 
@@ -2852,6 +2861,15 @@ if (
 
   }
 
+  if (selectedWeek !== "all") {
+
+  tdQuery =
+    tdQuery.eq(
+      "week_id",
+      selectedWeek
+    );
+
+}
 
   if (selectedResult !== "all") {
 
