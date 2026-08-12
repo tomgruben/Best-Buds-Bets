@@ -1091,18 +1091,38 @@
 
       <div class="card">
 
-        <div class="profile-header">
+     <div class="profile-header">
 
-          <div>
-            <h2 class="profile-name" id="profile-name">Player</h2>
-            <div class="record" id="profile-record"></div>
-          </div>
+  <div>
 
-          <div>
-            <strong id="profile-units">0.00u</strong>
-          </div>
+    <h2 class="profile-name" id="profile-name">
+      Player
+    </h2>
 
-        </div>
+    <div class="record" id="profile-record"></div>
+
+    <div class="profile-season-filter">
+
+      <label for="profile-season">
+        Season
+      </label>
+
+      <select
+        id="profile-season"
+        onchange="reloadPlayerProfile()"
+      >
+        <option value="all">All</option>
+      </select>
+
+    </div>
+
+  </div>
+
+  <div>
+    <strong id="profile-units">0.00u</strong>
+  </div>
+
+</div>  
 
       </div>
 
