@@ -3306,10 +3306,78 @@ async function reloadPlayerProfile() {
   );
 
 }
+
+  async function loadProfileSeasons() {
+
+  const profileSeasonFilter =
+    document.getElementById("profile-season");
+
+  if (!profileSeasonFilter) return;
+
+
+  const currentValue =
+    profileSeasonFilter.value;
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year")
+      .order("year", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Profile seasons error:",
+      error
+    );
+
+    return;
+  }
+
+
+  profileSeasonFilter.innerHTML =
+    '<option value="all">All</option>';
+
+
+  (data || []).forEach(season => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      season.id;
+
+    option.textContent =
+      season.year;
+
+    profileSeasonFilter.appendChild(option);
+
+  });
+
+
+  if (
+    [...profileSeasonFilter.options]
+      .some(option =>
+        option.value === currentValue
+      )
+  ) {
+
+    profileSeasonFilter.value =
+      currentValue;
+
+  }
+
+}
   
   async function openPlayerProfile(playerId) {
 
     currentProfilePlayerId = playerId;
+
+    await loadProfileSeasons();
     
     document.getElementById("player-list")
       .style.display = "none";
