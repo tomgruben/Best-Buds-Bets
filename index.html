@@ -3859,57 +3859,208 @@ if (sportFilter) {
 
 }
 
-const weekFilter =
-  document.getElementById("history-week");
+}
+   
+async function loadHistoryWeeks() {
 
-if (weekFilter) {
+  const weekFilter =
+    document.getElementById("history-week");
+
+  if (!weekFilter) return;
+
+
+  const seasonFilter =
+    document.getElementById("history-season");
+
+  const selectedSeason =
+    seasonFilter?.value || "all";
+
+
+  let picksQuery =
+    supabaseClient
+      .from("picks")
+      .select(`
+        week_id,
+        season_id,
+        weeks(
+          id,
+          week_number
+        )
+      `);
+
+
+  let tdQuery =
+    supabaseClient
+      .from("touchdown_picks")
+      .select(`
+        week_id,
+        season_id,
+        weeks(
+          id,
+          week_number
+        )
+      `);
+
+
+  if (selectedSeason !== "all") {
+
+    picksQuery =
+      picksQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+    tdQuery =
+      tdQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+  }
+
+
+  const [
+    picksResponse,
+    tdResponse
+  ] =
+    await Promise.all([
+      picksQuery,
+      tdQuery
+    ]);
+
+
+  if (picksResponse.error) {
+
+    console.error(
+      "History week standard picks error:",
+      picksResponse.error
+    );
+
+    return;
+
+  }
+
+
+  if (tdResponse.error) {
+
+    console.error(
+      "History week TD picks error:",
+      tdResponse.error
+    );
+
+    return;
+
+  }
+
+
+  const allEnteredPicks = [
+    ...(picksResponse.data || []),
+    ...(tdResponse.data || [])
+  ];
+
+
+  const enteredWeekNumbers =
+    allEnteredPicks
+      .map(row =>
+        Number(
+          row.weeks?.week_number || 0
+        )
+      )
+      .filter(week => week > 0);
+
+
+  weekFilter.innerHTML =
+    '<option value="all">All</option>';
+
+
+  if (enteredWeekNumbers.length === 0) {
+    return;
+  }
+
+
+  const maxWeek =
+    Math.max(...enteredWeekNumbers);
+
+
+  let weeksQuery =
+    supabaseClient
+      .from("weeks")
+      .select(
+        "id, season_id, week_number"
+      )
+      .lte(
+        "week_number",
+        maxWeek
+      );
+
+
+  if (selectedSeason !== "all") {
+
+    weeksQuery =
+      weeksQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+  }
+
 
   const {
     data: weeks,
-    error: weekError
+    error: weeksError
   } =
-    await supabaseClient
-      .from("weeks")
-      .select("id, week_number")
-      .order("week_number", {
-        ascending: true
-      });
+    await weeksQuery
+      .order(
+        "week_number",
+        { ascending: true }
+      );
 
 
-  if (weekError) {
+  if (weeksError) {
 
     console.error(
-      "Week filter error:",
-      weekError
+      "History weeks error:",
+      weeksError
     );
 
-  }
-
-  else {
-
-    weekFilter.innerHTML =
-      '<option value="all">All</option>';
-
-
-    (weeks || []).forEach(week => {
-
-      const option =
-        document.createElement("option");
-
-      option.value =
-        week.id;
-
-      option.textContent =
-        `Week ${week.week_number}`;
-
-      weekFilter.appendChild(option);
-
-    });
+    return;
 
   }
 
-}
-   
+
+  const usedWeekNumbers =
+    new Set();
+
+
+  (weeks || []).forEach(week => {
+
+    if (
+      usedWeekNumbers.has(
+        week.week_number
+      )
+    ) {
+      return;
+    }
+
+
+    usedWeekNumbers.add(
+      week.week_number
+    );
+
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      week.id;
+
+    option.textContent =
+      `Week ${week.week_number}`;
+
+    weekFilter.appendChild(option);
+
+  });
+
 }
   
   /*
