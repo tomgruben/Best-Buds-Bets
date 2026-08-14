@@ -5284,11 +5284,9 @@ checkAuth().then(async () => {
 
 
   const navButton =
-    [...document.querySelectorAll(".nav-button")]
-      .find(button =>
-        button.getAttribute("onclick")
-          ?.includes(`"${lastPage}"`)
-      );
+  document.querySelector(
+    `.nav-button[data-page="${lastPage}"]`
+  );
 
 
   showPage(
