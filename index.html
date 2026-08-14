@@ -2742,6 +2742,85 @@ async function loadWeeklyTdPicks() {
  * ==========================================================
  */
 
+async function loadManageWeeks() {
+
+  const weekSelect =
+    document.getElementById("manage-week");
+
+  if (!weekSelect || !currentSeason) {
+    return;
+  }
+
+
+  const previousValue =
+    weekSelect.value;
+
+
+  const {
+    data: weeks,
+    error
+  } =
+    await supabaseClient
+      .from("weeks")
+      .select("id, week_number")
+      .eq("season_id", currentSeason.id)
+      .order("week_number", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Manage weeks error:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  weekSelect.innerHTML =
+    `<option value="">Select Week</option>`;
+
+
+  (weeks || []).forEach(week => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      week.id;
+
+    option.textContent =
+      `Week ${week.week_number}`;
+
+    weekSelect.appendChild(option);
+
+  });
+
+
+  /*
+   * Keep the selected week
+   * when the list refreshes.
+   */
+
+  if (
+    previousValue &&
+    [...weekSelect.options].some(
+      option =>
+        option.value === previousValue
+    )
+  ) {
+
+    weekSelect.value =
+      previousValue;
+
+  }
+
+}
+  
 async function saveWeeklyStandardPicks() {
 
   if (!currentSeason) return;
