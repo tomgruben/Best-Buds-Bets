@@ -1720,46 +1720,18 @@ if (pageId === "history") {
 
     if (!seasons || seasons.length === 0) {
 
-      currentSeason = null;
+  currentSeason = null;
 
+  clearStandingsForNoActiveSeason();
 
-      const standingsTitle =
-        document.querySelector(
-          "#standings .section-title"
-        );
+  await loadAdminPeople();
 
-      if (standingsTitle) {
-        standingsTitle.textContent =
-          "Season Standings";
-      }
+  await loadAdminSeason();
 
+  await loadSeasons();
 
-      const standingsBody =
-        document.getElementById(
-          "standings-body"
-        );
-
-      if (standingsBody) {
-
-        standingsBody.innerHTML = `
-          <tr>
-            <td colspan="8" class="empty">
-              No active season.
-            </td>
-          </tr>
-        `;
-
-      }
-
-
-      const leaderName =
-        document.getElementById(
-          "leader-name"
-        );
-
-      if (leaderName) {
-        leaderName.textContent = "—";
-      }
+  return;
+}
 
 
       /*
