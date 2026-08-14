@@ -3386,13 +3386,52 @@ async function loadManageWeeklyPicks() {
             ${row.odds ?? "—"}
           </td>
 
-          <td>
-            ${formatResult(row.result)}
-          </td>
+         <td>
 
-          <td>
-            Manage
-          </td>
+  <select id="manage-standard-result-${row.id}">
+
+    <option
+      value="pending"
+      ${row.result === "pending" ? "selected" : ""}
+    >
+      Pending
+    </option>
+
+    <option
+      value="win"
+      ${row.result === "win" ? "selected" : ""}
+    >
+      Win
+    </option>
+
+    <option
+      value="loss"
+      ${row.result === "loss" ? "selected" : ""}
+    >
+      Loss
+    </option>
+
+    <option
+      value="push"
+      ${row.result === "push" ? "selected" : ""}
+    >
+      Push
+    </option>
+
+  </select>
+
+</td>
+
+<td>
+
+  <button
+    type="button"
+    onclick="updateStandardPickResult(${row.id})"
+  >
+    Save
+  </button>
+
+</td>
         `;
 
 
@@ -3512,6 +3551,63 @@ async function loadManageWeeklyPicks() {
     tdBody.appendChild(tr);
 
   });
+
+}
+
+async function updateStandardPickResult(pickId) {
+
+  const resultSelect =
+    document.getElementById(
+      `manage-standard-result-${pickId}`
+    );
+
+
+  if (!resultSelect) {
+    return;
+  }
+
+
+  const newResult =
+    resultSelect.value;
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .update({
+        result: newResult
+      })
+      .eq("id", pickId);
+
+
+  if (error) {
+
+    console.error(
+      "Update standard pick result error:",
+      error
+    );
+
+    alert(
+      "Unable to update the result."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Refresh everything affected
+   * by grading the wager.
+   */
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    "Pick result updated successfully."
+  );
 
 }
   
