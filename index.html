@@ -1969,7 +1969,16 @@ async function loadStandingsSeasons() {
   
   async function loadStandings() {
 
-    if (!currentSeason) return;
+  const seasonSelect =
+  document.getElementById("standings-season");
+
+const selectedSeasonId =
+  Number(seasonSelect?.value);
+
+
+if (!selectedSeasonId) {
+  return;
+} 
 
     const { data, error } =
       await supabaseClient
