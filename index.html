@@ -3245,6 +3245,276 @@ async function loadAdminPeople() {
 
 }
 
+async function loadManageWeeklyPicks() {
+
+  const weekSelect =
+    document.getElementById("manage-week");
+
+  const standardBody =
+    document.getElementById("manage-standard-body");
+
+  const tdBody =
+    document.getElementById("manage-td-body");
+
+
+  if (
+    !weekSelect ||
+    !standardBody ||
+    !tdBody ||
+    !currentSeason
+  ) {
+    return;
+  }
+
+
+  const weekId =
+    Number(weekSelect.value);
+
+
+  if (!weekId) {
+
+    standardBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Select a week to manage picks.
+        </td>
+      </tr>
+    `;
+
+    tdBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          Select a week to manage picks.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * STANDARD PICKS
+   */
+
+  const {
+    data: standardPicks,
+    error: standardError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select(`
+        id,
+        player_id,
+        day,
+        sport,
+        pick,
+        odds,
+        result,
+        players(name)
+      `)
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", weekId)
+      .order("player_id", {
+        ascending: true
+      });
+
+
+  if (standardError) {
+
+    console.error(
+      "Manage standard picks error:",
+      standardError
+    );
+
+    standardBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Unable to load standard picks.
+        </td>
+      </tr>
+    `;
+
+  }
+
+  else {
+
+    standardBody.innerHTML = "";
+
+
+    if (
+      !standardPicks ||
+      standardPicks.length === 0
+    ) {
+
+      standardBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty">
+            No standard picks for this week.
+          </td>
+        </tr>
+      `;
+
+    }
+
+    else {
+
+      standardPicks.forEach(row => {
+
+        const tr =
+          document.createElement("tr");
+
+
+        tr.innerHTML = `
+          <td>
+            ${row.players?.name || ""}
+          </td>
+
+          <td>
+            ${row.day || ""}
+          </td>
+
+          <td>
+            ${row.sport || ""}
+          </td>
+
+          <td>
+            ${row.pick || ""}
+          </td>
+
+          <td>
+            ${row.odds ?? "—"}
+          </td>
+
+          <td>
+            ${formatResult(row.result)}
+          </td>
+
+          <td>
+            Manage
+          </td>
+        `;
+
+
+        standardBody.appendChild(tr);
+
+      });
+
+    }
+
+  }
+
+
+  /*
+   * TD PICKS
+   */
+
+  const {
+    data: tdPicks,
+    error: tdError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select(`
+        id,
+        player_id,
+        player_pick,
+        odds,
+        result,
+        units,
+        players(name)
+      `)
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", weekId)
+      .order("player_id", {
+        ascending: true
+      });
+
+
+  if (tdError) {
+
+    console.error(
+      "Manage TD picks error:",
+      tdError
+    );
+
+    tdBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          Unable to load TD picks.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  tdBody.innerHTML = "";
+
+
+  if (
+    !tdPicks ||
+    tdPicks.length === 0
+  ) {
+
+    tdBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty">
+          No TD picks for this week.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  tdPicks.forEach(row => {
+
+    const units =
+      Number(row.units || 0);
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+      <td>
+        ${row.players?.name || ""}
+      </td>
+
+      <td>
+        ${row.player_pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+      <td>
+        Manage
+      </td>
+    `;
+
+
+    tdBody.appendChild(tr);
+
+  });
+
+}
+  
 async function addAdminPerson() {
 
   const input =
