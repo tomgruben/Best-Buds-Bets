@@ -709,14 +709,14 @@
   <div class="form-grid">
 
     <div>
-      <label>Week</label>
-      <input
-        id="weekly-week"
-        type="number"
-        min="1"
-        max="19"
-        value="1"
-        onchange="loadWeeklyStandardPicks()">
+      <label for="weekly-week">Week</label>
+
+<select
+  id="weekly-week"
+  onchange="loadWeeklyStandardPicks()"
+>
+  <option value="">Select Week</option>
+</select>
     </div>
 
   </div>
