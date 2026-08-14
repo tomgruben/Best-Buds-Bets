@@ -1656,6 +1656,11 @@ supabaseClient.auth.onAuthStateChange(
 
   function showPage(pageId, button) {
 
+  localStorage.setItem(
+    "bestBudsLastPage",
+    pageId
+  );
+
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
