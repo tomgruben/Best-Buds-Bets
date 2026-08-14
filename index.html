@@ -1050,6 +1050,113 @@
 
 </div>
 
+  <!-- ======================================================
+     MANAGE WEEKLY PICKS
+     ====================================================== -->
+
+<div class="card">
+
+  <h3>Manage Weekly Picks</h3>
+
+  <p class="muted">
+    View, grade, edit, or delete picks that have already been entered.
+  </p>
+
+
+  <div class="form-grid">
+
+    <div>
+
+      <label for="manage-week">
+        Week
+      </label>
+
+      <select
+        id="manage-week"
+        onchange="loadManageWeeklyPicks()"
+      >
+        <option value="">
+          Select Week
+        </option>
+      </select>
+
+    </div>
+
+  </div>
+
+
+  <h4>Standard Picks</h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Player</th>
+          <th>Day</th>
+          <th>Sport</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Actions</th>
+        </tr>
+
+      </thead>
+
+      <tbody id="manage-standard-body">
+
+        <tr>
+          <td colspan="7" class="empty">
+            Select a week to manage picks.
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <h4 style="margin-top: 30px;">
+    TD Scorer Picks
+  </h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Player</th>
+          <th>Player Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Units</th>
+          <th>Actions</th>
+        </tr>
+
+      </thead>
+
+      <tbody id="manage-td-body">
+
+        <tr>
+          <td colspan="6" class="empty">
+            Select a week to manage picks.
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+      
 </section>
     
 
