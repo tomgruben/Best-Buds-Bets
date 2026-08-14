@@ -6533,6 +6533,14 @@ for (const season of data) {
         ) * 100
       : 0;
 
+  const combinedWinPctClass =
+  combinedGraded === 0
+    ? ""
+    : combinedWinPct > 50
+    ? "positive"
+    : combinedWinPct < 50
+    ? "negative"
+    : "";
 
   /*
    * Leader information.
@@ -6596,7 +6604,7 @@ const leaderWinPctClass =
       ${leaderRecord}
     </td>
 
-    <td>
+    <td class="${combinedWinPctClass}">
       ${
         combinedGraded > 0
           ? combinedWinPct.toFixed(1) + "%"
