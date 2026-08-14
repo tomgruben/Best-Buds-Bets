@@ -1160,6 +1160,79 @@
   </div>
 
 </div>
+
+<!-- ======================================================
+     ADMIN WEEK MANAGEMENT
+     ====================================================== -->
+
+<div class="card">
+
+  <h3>Manage Weeks</h3>
+
+  <p class="muted">
+    Add or remove weeks for the active season.
+  </p>
+
+
+  <div class="form-grid">
+
+    <div>
+
+      <label for="admin-week-number">
+        Week Number
+      </label>
+
+      <input
+        id="admin-week-number"
+        type="number"
+        min="1"
+        max="19"
+        placeholder="Example: 20"
+      >
+
+    </div>
+
+  </div>
+
+
+  <button
+    class="primary-button"
+    onclick="addAdminWeek()"
+  >
+    Add Week
+  </button>
+
+
+  <h4 style="margin-top: 30px;">
+    Existing Weeks
+  </h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="admin-weeks-body">
+
+        <tr>
+          <td colspan="2" class="empty">
+            Loading weeks...
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
       
 </section>
     
