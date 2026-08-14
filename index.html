@@ -3397,13 +3397,82 @@ async function loadAdminSeason() {
     </td>
 
     <td>
-      Close / Archive
-    </td>
+
+  <button
+    type="button"
+    onclick="closeAdminSeason(${activeSeason.id}, ${activeSeason.year})"
+  >
+    Close / Archive
+  </button>
+
+</td>
 
   `;
 
 
   body.appendChild(tr);
+
+}
+
+async function closeAdminSeason(seasonId, seasonYear) {
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to close the ${seasonYear} season?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("seasons")
+      .update({
+        status: "archived",
+        archived_at: new Date().toISOString()
+      })
+      .eq("id", seasonId);
+
+
+  if (error) {
+
+    console.error(
+      "Close season error:",
+      error
+    );
+
+    alert(
+      "Unable to close the season."
+    );
+
+    return;
+  }
+
+
+  /*
+   * The current season is no longer active.
+   */
+
+  currentSeason = null;
+
+
+  /*
+   * Refresh season-related UI.
+   */
+
+  await loadAdminSeason();
+
+  await loadSeasons();
+
+
+  alert(
+    `${seasonYear} season closed successfully.`
+  );
 
 }
   
