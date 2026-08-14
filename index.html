@@ -1732,7 +1732,7 @@ if (pageId === "history") {
    * ==========================================================
    */
 
-  async function initialize() {
+async function initialize() {
 
   try {
 
@@ -1744,6 +1744,7 @@ if (pageId === "history") {
         .order("year", { ascending: false })
         .limit(1);
 
+
     if (error) {
       throw error;
     }
@@ -1751,31 +1752,13 @@ if (pageId === "history") {
 
     /*
      * No active season.
-     *
-     * Keep the site usable so Admin can
-     * still create/start a new season.
      */
 
     if (!seasons || seasons.length === 0) {
 
-  currentSeason = null;
+      currentSeason = null;
 
-  clearStandingsForNoActiveSeason();
-
-  await loadAdminPeople();
-
-  await loadAdminSeason();
-
-  await loadSeasons();
-
-  return;
-}
-
-
-      /*
-       * These parts of the site do not
-       * require an active season.
-       */
+      clearStandingsForNoActiveSeason();
 
       await loadAdminPeople();
 
@@ -1784,7 +1767,6 @@ if (pageId === "history") {
       await loadSeasons();
 
       return;
-
     }
 
 
@@ -1800,6 +1782,7 @@ if (pageId === "history") {
       document.querySelector(
         "#standings .section-title"
       );
+
 
     if (standingsTitle) {
 
