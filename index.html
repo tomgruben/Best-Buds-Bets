@@ -3700,6 +3700,63 @@ async function updateStandardPickResult(pickId) {
   );
 
 }
+
+async function updateTdPickResult(pickId) {
+
+  const resultSelect =
+    document.getElementById(
+      `manage-td-result-${pickId}`
+    );
+
+  if (!resultSelect) {
+    return;
+  }
+
+
+  const newResult =
+    resultSelect.value;
+
+
+  const { error } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .update({
+        result: newResult
+      })
+      .eq("id", pickId);
+
+
+  if (error) {
+
+    console.error(
+      "Update TD pick result error:",
+      error
+    );
+
+    alert(
+      "Unable to update the TD result."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Refresh Admin table and standings.
+   * Your existing database trigger
+   * recalculates TD units automatically.
+   */
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    "TD pick result updated successfully."
+  );
+
+}
   
 async function addAdminPerson() {
 
