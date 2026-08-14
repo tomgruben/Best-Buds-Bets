@@ -1974,309 +1974,741 @@ seasonSelect.appendChild(allOption);
 
 }
   
-  async function loadStandings() {
+ async function loadStandings() {
 
   const seasonSelect =
-  document.getElementById("standings-season");
+    document.getElementById("standings-season");
 
-const selectedSeasonId =
-  Number(seasonSelect?.value);
-
-
-if (!selectedSeasonId) {
-  return;
-} 
-
-const selectedOption =
-  seasonSelect.options[
-    seasonSelect.selectedIndex
-  ];
+  if (!seasonSelect) {
+    return;
+  }
 
 
-const selectedSeasonYear =
-  selectedOption?.dataset.year || "—";
+  const selectedValue =
+    seasonSelect.value;
+
+  const isAllTime =
+    selectedValue === "all";
 
 
-const selectedSeasonStatus =
-  selectedOption?.dataset.status || "";
+  const selectedSeasonId =
+    isAllTime
+      ? null
+      : Number(selectedValue);
 
 
-/*
- * Update Standings heading.
- */
-
-const standingsTitle =
-  document.querySelector(
-    "#standings .section-title"
-  );
-
-if (standingsTitle) {
-
-  standingsTitle.textContent =
-    `${selectedSeasonYear} Season Standings`;
-
-}
+  if (
+    !isAllTime &&
+    !selectedSeasonId
+  ) {
+    return;
+  }
 
 
-/*
- * Update Season summary card.
- */
-
-const seasonYearElement =
-  document.getElementById(
-    "standings-season-year"
-  );
-
-if (seasonYearElement) {
-
-  seasonYearElement.textContent =
-    selectedSeasonYear;
-
-}
+  const selectedOption =
+    seasonSelect.options[
+      seasonSelect.selectedIndex
+    ];
 
 
-/*
- * Update season status.
- */
+  const selectedSeasonYear =
+    selectedOption?.dataset.year || "—";
 
-const seasonStatusElement =
-  document.getElementById(
-    "standings-season-status"
-  );
 
-if (seasonStatusElement) {
+  const selectedSeasonStatus =
+    selectedOption?.dataset.status || "";
 
-  seasonStatusElement.textContent =
-    selectedSeasonStatus === "active"
-      ? "🟢 Active"
-      : "🏆 Closed";
 
-}
-    
-    const { data, error } =
-      await supabaseClient
-        .from("season_standings")
-        .select("*")
-        .eq("season_id", selectedSeasonId)
-        .order("win_percentage", {
-          ascending: false
-        });
+  /*
+   * ==========================================================
+   * UPDATE STANDINGS HEADER
+   * ==========================================================
+   */
 
-    if (error) {
+  const standingsTitle =
+    document.querySelector(
+      "#standings .section-title"
+    );
 
-      console.error(error);
 
-      showMessage(
-        "standings-message",
-        error.message,
-        "error"
-      );
+  const seasonYearElement =
+    document.getElementById(
+      "standings-season-year"
+    );
 
-      return;
+
+  const seasonStatusElement =
+    document.getElementById(
+      "standings-season-status"
+    );
+
+
+  if (isAllTime) {
+
+    if (standingsTitle) {
+      standingsTitle.textContent =
+        "All-Time Standings";
     }
 
-const {
-  data: recentPicks,
-  error: recentPicksError
-} =
-  await supabaseClient
-    .from("picks")
-    .select(`
-      player_id,
-      week_id,
-      day,
-      result
-    `)
-    .eq("season_id", selectedSeasonId)
-    .in(
-      "result",
-      ["win", "loss", "push"]
-    )
-    .order("week_id", {
-      ascending: false
+
+    if (seasonYearElement) {
+      seasonYearElement.textContent =
+        "All";
+    }
+
+
+    if (seasonStatusElement) {
+      seasonStatusElement.textContent =
+        "📚 All Seasons";
+    }
+
+  }
+
+  else {
+
+    if (standingsTitle) {
+
+      standingsTitle.textContent =
+        `${selectedSeasonYear} Season Standings`;
+
+    }
+
+
+    if (seasonYearElement) {
+
+      seasonYearElement.textContent =
+        selectedSeasonYear;
+
+    }
+
+
+    if (seasonStatusElement) {
+
+      seasonStatusElement.textContent =
+        selectedSeasonStatus === "active"
+          ? "🟢 Active"
+          : "🏆 Closed";
+
+    }
+
+  }
+
+
+  /*
+   * ==========================================================
+   * LOAD STANDINGS
+   * ==========================================================
+   */
+
+  let standingsQuery =
+    supabaseClient
+      .from("season_standings")
+      .select("*");
+
+
+  if (!isAllTime) {
+
+    standingsQuery =
+      standingsQuery.eq(
+        "season_id",
+        selectedSeasonId
+      );
+
+  }
+
+
+  const {
+    data: standingsRows,
+    error
+  } =
+    await standingsQuery;
+
+
+  if (error) {
+
+    console.error(
+      "Standings error:",
+      error
+    );
+
+    showMessage(
+      "standings-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  /*
+   * ==========================================================
+   * BUILD FINAL STANDINGS DATA
+   * ==========================================================
+   */
+
+  let data = [];
+
+
+  /*
+   * Specific season:
+   * use season_standings normally.
+   */
+
+  if (!isAllTime) {
+
+    data =
+      (standingsRows || [])
+        .sort(
+          (a, b) =>
+            Number(b.win_percentage || 0) -
+            Number(a.win_percentage || 0)
+        );
+
+  }
+
+
+  /*
+   * All-Time:
+   * combine each player's seasons.
+   */
+
+  else {
+
+    const playerMap = {};
+
+
+    (standingsRows || []).forEach(row => {
+
+      const playerId =
+        Number(row.player_id);
+
+
+      if (!playerMap[playerId]) {
+
+        playerMap[playerId] = {
+
+          player_id:
+            playerId,
+
+          player_name:
+            row.player_name,
+
+          wins: 0,
+          losses: 0,
+          pushes: 0,
+          units: 0
+
+        };
+
+      }
+
+
+      playerMap[playerId].wins +=
+        Number(row.wins || 0);
+
+      playerMap[playerId].losses +=
+        Number(row.losses || 0);
+
+      playerMap[playerId].pushes +=
+        Number(row.pushes || 0);
+
+      playerMap[playerId].units +=
+        Number(row.units || 0);
+
     });
 
 
-if (recentPicksError) {
+    data =
+      Object.values(playerMap)
+        .map(row => {
 
-  console.error(
-    "Last 5 picks error:",
-    recentPicksError
-  );
-
-}
-
-
-const last5Map = {};
+          const decisions =
+            row.wins +
+            row.losses;
 
 
-(data || []).forEach(row => {
+          const winPercentage =
+            decisions > 0
+              ? (
+                  row.wins /
+                  decisions
+                ) * 100
+              : 0;
 
-  const playerPicks =
-    (recentPicks || [])
-      .filter(pick =>
-        Number(pick.player_id) ===
-        Number(row.player_id)
-      )
-      .sort((a, b) => {
 
-        if (a.week_id !== b.week_id) {
-          return b.week_id - a.week_id;
-        }
+          return {
 
-        /*
-         * Within the same week,
-         * Sunday is more recent
-         * than Saturday.
-         */
+            ...row,
 
-        const dayOrder = {
-          Sunday: 2,
-          Saturday: 1
-        };
+            win_percentage:
+              winPercentage
 
-        return (
-          (dayOrder[b.day] || 0) -
-          (dayOrder[a.day] || 0)
+          };
+
+        })
+        .sort((a, b) => {
+
+          const winPctDifference =
+            Number(b.win_percentage) -
+            Number(a.win_percentage);
+
+
+          if (winPctDifference !== 0) {
+            return winPctDifference;
+          }
+
+
+          /*
+           * Keep tied Win % players
+           * ordered by Units for display.
+           *
+           * Win % remains the ranking
+           * measurement.
+           */
+
+          return (
+            Number(b.units || 0) -
+            Number(a.units || 0)
+          );
+
+        });
+
+
+    /*
+     * Assign all-time ranks.
+     *
+     * Equal Win % = equal rank.
+     */
+
+    let previousWinPct = null;
+    let previousRank = 0;
+
+
+    data.forEach((row, index) => {
+
+      const winPct =
+        Number(
+          row.win_percentage || 0
         );
 
-      })
-      .slice(0, 5);
+
+      if (
+        previousWinPct !== null &&
+        winPct === previousWinPct
+      ) {
+
+        row.rank =
+          previousRank;
+
+      }
+
+      else {
+
+        row.rank =
+          index + 1;
+
+        previousRank =
+          row.rank;
+
+      }
 
 
-  let wins = 0;
-  let losses = 0;
-  let pushes = 0;
+      previousWinPct =
+        winPct;
+
+    });
+
+  }
 
 
-  playerPicks.forEach(pick => {
+  /*
+   * ==========================================================
+   * LOAD STANDARD PICKS FOR LAST 5
+   * ==========================================================
+   *
+   * TD picks intentionally excluded.
+   */
 
-    if (pick.result === "win") {
-      wins++;
-    }
+  let recentPicksQuery =
+    supabaseClient
+      .from("picks")
+      .select(`
+        player_id,
+        season_id,
+        week_id,
+        day,
+        result,
+        seasons(year)
+      `)
+      .in(
+        "result",
+        ["win", "loss", "push"]
+      );
 
-    else if (pick.result === "loss") {
-      losses++;
-    }
 
-    else if (pick.result === "push") {
-      pushes++;
-    }
+  if (!isAllTime) {
+
+    recentPicksQuery =
+      recentPicksQuery.eq(
+        "season_id",
+        selectedSeasonId
+      );
+
+  }
+
+
+  const {
+    data: recentPicks,
+    error: recentPicksError
+  } =
+    await recentPicksQuery;
+
+
+  if (recentPicksError) {
+
+    console.error(
+      "Last 5 picks error:",
+      recentPicksError
+    );
+
+  }
+
+
+  const last5Map = {};
+
+
+  (data || []).forEach(row => {
+
+    const playerPicks =
+      (recentPicks || [])
+        .filter(pick =>
+          Number(pick.player_id) ===
+          Number(row.player_id)
+        )
+        .sort((a, b) => {
+
+          /*
+           * All-Time must first sort
+           * by season year.
+           */
+
+          if (isAllTime) {
+
+            const yearA =
+              Number(
+                a.seasons?.year || 0
+              );
+
+            const yearB =
+              Number(
+                b.seasons?.year || 0
+              );
+
+
+            if (yearA !== yearB) {
+
+              return yearB - yearA;
+
+            }
+
+          }
+
+
+          /*
+           * Then week.
+           */
+
+          if (
+            Number(a.week_id) !==
+            Number(b.week_id)
+          ) {
+
+            return (
+              Number(b.week_id) -
+              Number(a.week_id)
+            );
+
+          }
+
+
+          /*
+           * Within the same week,
+           * Sunday is newer than Saturday.
+           */
+
+          const dayOrder = {
+            Sunday: 2,
+            Saturday: 1
+          };
+
+
+          return (
+            (dayOrder[b.day] || 0) -
+            (dayOrder[a.day] || 0)
+          );
+
+        })
+        .slice(0, 5);
+
+
+    let wins = 0;
+    let losses = 0;
+    let pushes = 0;
+
+
+    playerPicks.forEach(pick => {
+
+      if (pick.result === "win") {
+        wins++;
+      }
+
+      else if (pick.result === "loss") {
+        losses++;
+      }
+
+      else if (pick.result === "push") {
+        pushes++;
+      }
+
+    });
+
+
+    last5Map[row.player_id] =
+      `${wins}-${losses}-${pushes}`;
 
   });
 
 
-  last5Map[row.player_id] =
-    `${wins}-${losses}-${pushes}`;
+  /*
+   * ==========================================================
+   * RENDER STANDINGS
+   * ==========================================================
+   */
 
-});
-    
-    const body =
-      document.getElementById("standings-body");
-
-    body.innerHTML = "";
-
-    if (!data || data.length === 0) {
-
-      body.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty">
-            No picks have been entered yet.
-          </td>
-        </tr>
-      `;
-
-      document.getElementById("leader-name").textContent = "—";
-
-      return;
-    }
-
-    document.getElementById("leader-name").textContent =
-      data[0].player_name;
-
-    // Calculate combined team statistics
-const combinedWins = data.reduce(
-  (total, row) => total + Number(row.wins || 0),
-  0
-);
-
-const combinedLosses = data.reduce(
-  (total, row) => total + Number(row.losses || 0),
-  0
-);
-
-const combinedPushes = data.reduce(
-  (total, row) => total + Number(row.pushes || 0),
-  0
-);
-
-const combinedUnits = data.reduce(
-  (total, row) => total + Number(row.units || 0),
-  0
-);
-
-const totalDecisions =
-  combinedWins + combinedLosses;
-
-const combinedWinPercentage =
-  totalDecisions > 0
-    ? (combinedWins / totalDecisions) * 100
-    : 0;
+  const body =
+    document.getElementById(
+      "standings-body"
+    );
 
 
-// Display combined statistics
-document.getElementById("combined-record").textContent =
-  `${combinedWins}-${combinedLosses}-${combinedPushes}`;
+  body.innerHTML = "";
 
-document.getElementById("combined-win-pct").textContent =
-  `${combinedWinPercentage.toFixed(1)}%`;
 
-const combinedUnitsElement =
-  document.getElementById("combined-units");
+  if (!data || data.length === 0) {
 
-combinedUnitsElement.textContent =
-  formatUnits(combinedUnits);
-
-combinedUnitsElement.className =
-  `stat-value ${unitsClass(combinedUnits)}`;
-    
-    data.forEach(row => {
-
-      const tr = document.createElement("tr");
-
-const unitClass = unitsClass(row.units);
-
-      tr.innerHTML = `
-        <td class="rank">
-          ${row.rank}
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          No picks have been entered yet.
         </td>
+      </tr>
+    `;
 
-        <td>
-          <button
-            class="player-button"
-            onclick="openPlayerProfile(${row.player_id})">
-            ${row.player_name}
-          </button>
-        </td>
 
-        <td>${row.wins}</td>
-        <td>${row.losses}</td>
-        <td>${row.pushes}</td>
-        <td>${row.win_percentage.toFixed(1)}%</td>
+    document.getElementById(
+      "leader-name"
+    ).textContent = "—";
 
-<td class="${unitClass}">
-          ${formatUnits(row.units)}
-        </td>
+
+    document.getElementById(
+      "combined-record"
+    ).textContent = "—";
+
+
+    document.getElementById(
+      "combined-win-pct"
+    ).textContent = "—";
+
+
+    document.getElementById(
+      "combined-units"
+    ).textContent = "—";
+
+
+    return;
+  }
+
+
+  /*
+   * Leader.
+   */
+
+  document.getElementById(
+    "leader-name"
+  ).textContent =
+    data[0].player_name;
+
+
+  /*
+   * ==========================================================
+   * COMBINED GROUP STATISTICS
+   * ==========================================================
+   */
+
+  const combinedWins =
+    data.reduce(
+      (total, row) =>
+        total +
+        Number(row.wins || 0),
+      0
+    );
+
+
+  const combinedLosses =
+    data.reduce(
+      (total, row) =>
+        total +
+        Number(row.losses || 0),
+      0
+    );
+
+
+  const combinedPushes =
+    data.reduce(
+      (total, row) =>
+        total +
+        Number(row.pushes || 0),
+      0
+    );
+
+
+  const combinedUnits =
+    data.reduce(
+      (total, row) =>
+        total +
+        Number(row.units || 0),
+      0
+    );
+
+
+  const totalDecisions =
+    combinedWins +
+    combinedLosses;
+
+
+  const combinedWinPercentage =
+    totalDecisions > 0
+      ? (
+          combinedWins /
+          totalDecisions
+        ) * 100
+      : 0;
+
+
+  document.getElementById(
+    "combined-record"
+  ).textContent =
+    `${combinedWins}-${combinedLosses}-${combinedPushes}`;
+
+
+  document.getElementById(
+    "combined-win-pct"
+  ).textContent =
+    `${combinedWinPercentage.toFixed(1)}%`;
+
+
+  const combinedUnitsElement =
+    document.getElementById(
+      "combined-units"
+    );
+
+
+  combinedUnitsElement.textContent =
+    formatUnits(combinedUnits);
+
+
+  combinedUnitsElement.className =
+    `stat-value ${unitsClass(combinedUnits)}`;
+
+
+  /*
+   * ==========================================================
+   * PLAYER ROWS
+   * ==========================================================
+   */
+
+  data.forEach((row, index) => {
+
+    const tr =
+      document.createElement("tr");
+
+
+    const unitClass =
+      unitsClass(row.units);
+
+
+    /*
+     * Specific season uses the
+     * existing database rank.
+     *
+     * All-Time uses our calculated rank.
+     */
+
+    const displayRank =
+      isAllTime
+        ? row.rank
+        : row.rank ?? index + 1;
+
+
+    tr.innerHTML = `
+
+      <td class="rank">
+        ${displayRank}
+      </td>
+
 
       <td>
-  ${last5Map[row.player_id] || "0-0-0"}
-</td>
-        
-      `;
 
-      body.appendChild(tr);
-    });
-  }
+        <button
+          class="player-button"
+          onclick="openPlayerProfile(${row.player_id})"
+        >
+          ${row.player_name}
+        </button>
+
+      </td>
+
+
+      <td>
+        ${row.wins}
+      </td>
+
+
+      <td>
+        ${row.losses}
+      </td>
+
+
+      <td>
+        ${row.pushes}
+      </td>
+
+
+      <td>
+        ${Number(
+          row.win_percentage || 0
+        ).toFixed(1)}%
+      </td>
+
+
+      <td class="${unitClass}">
+        ${formatUnits(row.units)}
+      </td>
+
+
+      <td>
+        ${last5Map[row.player_id] || "0-0-0"}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+}
 
   function clearStandingsForNoActiveSeason() {
 
