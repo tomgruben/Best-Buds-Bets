@@ -3416,9 +3416,103 @@ async function loadAdminSeason() {
 
 async function closeAdminSeason(seasonId, seasonYear) {
 
+  /*
+   * Check for pending standard picks.
+   */
+
+  const {
+    data: pendingStandard,
+    error: standardError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("id")
+      .eq("season_id", seasonId)
+      .eq("result", "pending");
+
+
+  if (standardError) {
+
+    console.error(
+      "Pending standard picks check error:",
+      standardError
+    );
+
+    alert(
+      "Unable to verify pending standard picks."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check for pending TD picks.
+   */
+
+  const {
+    data: pendingTd,
+    error: tdError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("id")
+      .eq("season_id", seasonId)
+      .eq("result", "pending");
+
+
+  if (tdError) {
+
+    console.error(
+      "Pending TD picks check error:",
+      tdError
+    );
+
+    alert(
+      "Unable to verify pending TD picks."
+    );
+
+    return;
+  }
+
+
+  const pendingStandardCount =
+    (pendingStandard || []).length;
+
+  const pendingTdCount =
+    (pendingTd || []).length;
+
+  const totalPending =
+    pendingStandardCount +
+    pendingTdCount;
+
+
+  /*
+   * Do not allow a season to close
+   * while wagers are still pending.
+   */
+
+  if (totalPending > 0) {
+
+    alert(
+      `The ${seasonYear} season cannot be closed yet.\n\n` +
+      `${pendingStandardCount} standard pick(s) are pending.\n` +
+      `${pendingTdCount} TD pick(s) are pending.\n\n` +
+      `Grade or delete all pending picks before closing the season.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Final confirmation.
+   */
+
   const confirmed =
     confirm(
-      `Are you sure you want to close the ${seasonYear} season?`
+      `Are you sure you want to close the ${seasonYear} season?\n\n` +
+      `All picks have been graded. This season will be archived.`
     );
 
 
@@ -3427,14 +3521,17 @@ async function closeAdminSeason(seasonId, seasonYear) {
   }
 
 
-  const {
-    error
-  } =
+  /*
+   * Archive the season.
+   */
+
+  const { error } =
     await supabaseClient
       .from("seasons")
       .update({
         status: "archived",
-        archived_at: new Date().toISOString()
+        archived_at:
+          new Date().toISOString()
       })
       .eq("id", seasonId);
 
@@ -3454,16 +3551,8 @@ async function closeAdminSeason(seasonId, seasonYear) {
   }
 
 
-  /*
-   * The current season is no longer active.
-   */
-
   currentSeason = null;
 
-
-  /*
-   * Refresh season-related UI.
-   */
 
   await loadAdminSeason();
 
