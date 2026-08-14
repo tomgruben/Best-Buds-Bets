@@ -3822,6 +3822,57 @@ async function updateTdPickResult(pickId) {
   );
 
 }
+
+async function deleteTdPick(pickId) {
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to delete this TD pick?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .delete()
+      .eq("id", pickId);
+
+
+  if (error) {
+
+    console.error(
+      "Delete TD pick error:",
+      error
+    );
+
+    alert(
+      "Unable to delete the TD pick."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Refresh everything affected
+   * by removing the TD wager.
+   */
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    "TD pick deleted successfully."
+  );
+
+}
   
 async function addAdminPerson() {
 
