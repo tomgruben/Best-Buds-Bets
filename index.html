@@ -1765,8 +1765,9 @@ if (pageId === "history") {
       await loadManageWeeks();
       await loadAdminWeeks();
       await loadAdminPeople();
+      await buildWeeklyStandardPlayerRows();
       await loadStandings();
-
+      
     } catch (error) {
 
       console.error(error);
