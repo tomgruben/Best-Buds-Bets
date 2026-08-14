@@ -1755,6 +1755,102 @@ async function loadPlayersForForms() {
       return;
     }
 
+const {
+  data: recentPicks,
+  error: recentPicksError
+} =
+  await supabaseClient
+    .from("picks")
+    .select(`
+      player_id,
+      week_id,
+      day,
+      result
+    `)
+    .eq("season_id", currentSeason.id)
+    .in(
+      "result",
+      ["win", "loss", "push"]
+    )
+    .order("week_id", {
+      ascending: false
+    });
+
+
+if (recentPicksError) {
+
+  console.error(
+    "Last 5 picks error:",
+    recentPicksError
+  );
+
+}
+
+
+const last5Map = {};
+
+
+(data || []).forEach(row => {
+
+  const playerPicks =
+    (recentPicks || [])
+      .filter(pick =>
+        Number(pick.player_id) ===
+        Number(row.player_id)
+      )
+      .sort((a, b) => {
+
+        if (a.week_id !== b.week_id) {
+          return b.week_id - a.week_id;
+        }
+
+        /*
+         * Within the same week,
+         * Sunday is more recent
+         * than Saturday.
+         */
+
+        const dayOrder = {
+          Sunday: 2,
+          Saturday: 1
+        };
+
+        return (
+          (dayOrder[b.day] || 0) -
+          (dayOrder[a.day] || 0)
+        );
+
+      })
+      .slice(0, 5);
+
+
+  let wins = 0;
+  let losses = 0;
+  let pushes = 0;
+
+
+  playerPicks.forEach(pick => {
+
+    if (pick.result === "win") {
+      wins++;
+    }
+
+    else if (pick.result === "loss") {
+      losses++;
+    }
+
+    else if (pick.result === "push") {
+      pushes++;
+    }
+
+  });
+
+
+  last5Map[row.player_id] =
+    `${wins}-${losses}-${pushes}`;
+
+});
+    
     const body =
       document.getElementById("standings-body");
 
@@ -1764,7 +1860,7 @@ async function loadPlayersForForms() {
 
       body.innerHTML = `
         <tr>
-          <td colspan="7" class="empty">
+          <td colspan="8" class="empty">
             No picks have been entered yet.
           </td>
         </tr>
@@ -1851,6 +1947,11 @@ const unitClass = unitsClass(row.units);
 <td class="${unitClass}">
           ${formatUnits(row.units)}
         </td>
+
+      <td>
+  ${last5Map[row.player_id] || "0-0-0"}
+</td>
+        
       `;
 
       body.appendChild(tr);
