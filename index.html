@@ -2745,16 +2745,16 @@ async function loadWeeklyTdPicks() {
 
 async function loadManageWeeks() {
 
-  const weekSelect =
-    document.getElementById("manage-week");
-
-  if (!weekSelect || !currentSeason) {
+  if (!currentSeason) {
     return;
   }
 
 
-  const previousValue =
-    weekSelect.value;
+  const manageWeekSelect =
+    document.getElementById("manage-week");
+
+  const weeklyWeekSelect =
+    document.getElementById("weekly-week");
 
 
   const {
@@ -2773,7 +2773,7 @@ async function loadManageWeeks() {
   if (error) {
 
     console.error(
-      "Manage weeks error:",
+      "Week dropdown error:",
       error
     );
 
@@ -2782,41 +2782,97 @@ async function loadManageWeeks() {
   }
 
 
-  weekSelect.innerHTML =
-    `<option value="">Select Week</option>`;
+  /*
+   * Populate Manage Weekly Picks dropdown.
+   */
+
+  if (manageWeekSelect) {
+
+    const previousManageValue =
+      manageWeekSelect.value;
+
+    manageWeekSelect.innerHTML =
+      `<option value="">Select Week</option>`;
 
 
-  (weeks || []).forEach(week => {
+    (weeks || []).forEach(week => {
 
-    const option =
-      document.createElement("option");
+      const option =
+        document.createElement("option");
 
-    option.value =
-      week.id;
+      option.value =
+        week.id;
 
-    option.textContent =
-      `Week ${week.week_number}`;
+      option.textContent =
+        `Week ${week.week_number}`;
 
-    weekSelect.appendChild(option);
+      manageWeekSelect.appendChild(option);
 
-  });
+    });
+
+
+    if (
+      previousManageValue &&
+      [...manageWeekSelect.options].some(
+        option =>
+          option.value === previousManageValue
+      )
+    ) {
+
+      manageWeekSelect.value =
+        previousManageValue;
+
+    }
+
+  }
 
 
   /*
-   * Keep the selected week
-   * when the list refreshes.
+   * Populate Enter Bets dropdown.
+   *
+   * IMPORTANT:
+   * weekly-week uses the WEEK NUMBER,
+   * because saveWeeklyStandardPicks()
+   * expects a week number.
    */
 
-  if (
-    previousValue &&
-    [...weekSelect.options].some(
-      option =>
-        option.value === previousValue
-    )
-  ) {
+  if (weeklyWeekSelect) {
 
-    weekSelect.value =
-      previousValue;
+    const previousWeeklyValue =
+      weeklyWeekSelect.value;
+
+    weeklyWeekSelect.innerHTML =
+      `<option value="">Select Week</option>`;
+
+
+    (weeks || []).forEach(week => {
+
+      const option =
+        document.createElement("option");
+
+      option.value =
+        week.week_number;
+
+      option.textContent =
+        `Week ${week.week_number}`;
+
+      weeklyWeekSelect.appendChild(option);
+
+    });
+
+
+    if (
+      previousWeeklyValue &&
+      [...weeklyWeekSelect.options].some(
+        option =>
+          option.value === previousWeeklyValue
+      )
+    ) {
+
+      weeklyWeekSelect.value =
+        previousWeeklyValue;
+
+    }
 
   }
 
