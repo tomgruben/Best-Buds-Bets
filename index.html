@@ -3203,6 +3203,106 @@ async function loadAdminPeople() {
   });
 
 }
+
+async function addAdminPerson() {
+
+  const input =
+    document.getElementById("admin-person-name");
+
+  const name =
+    input?.value.trim();
+
+
+  if (!name) {
+
+    alert(
+      "Please enter a name."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check for duplicate name.
+   */
+
+  const {
+    data: existingPerson,
+    error: checkError
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id")
+      .ilike("name", name)
+      .maybeSingle();
+
+
+  if (checkError) {
+
+    console.error(
+      "Check person error:",
+      checkError
+    );
+
+    alert(
+      "Unable to check whether that person already exists."
+    );
+
+    return;
+  }
+
+
+  if (existingPerson) {
+
+    alert(
+      `${name} already exists.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Add the person.
+   */
+
+  const {
+    error: insertError
+  } =
+    await supabaseClient
+      .from("players")
+      .insert({
+        name: name
+      });
+
+
+  if (insertError) {
+
+    console.error(
+      "Add person error:",
+      insertError
+    );
+
+    alert(
+      "Unable to add the person."
+    );
+
+    return;
+  }
+
+
+  input.value = "";
+
+
+  await loadAdminPeople();
+
+
+  alert(
+    `${name} added successfully.`
+  );
+
+}  
   
 async function deleteAdminWeek(weekId, weekNumber) {
 
