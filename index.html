@@ -3765,7 +3765,7 @@ async function saveWeeklyStandardPicks() {
 
     showMessage(
       "bet-message",
-      "Please enter a week number.",
+      "Please select a week.",
       "error"
     );
 
@@ -3794,10 +3794,20 @@ async function saveWeeklyStandardPicks() {
   }
 
 
-  const { data: playerRows, error: playerError } =
+  /*
+   * Load all current players dynamically.
+   */
+
+  const {
+    data: playerRows,
+    error: playerError
+  } =
     await supabaseClient
       .from("players")
-      .select("id,name");
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
 
 
   if (playerError) {
@@ -3812,76 +3822,106 @@ async function saveWeeklyStandardPicks() {
   }
 
 
-  const playerMap = {};
-
-  playerRows.forEach(player => {
-
-    playerMap[
-      player.name.toLowerCase()
-    ] = player.id;
-
-  });
-
-
-  const players = [
-    "Andy",
-    "Bach",
-    "Joe",
-    "Tom"
-  ];
-
-
   const wagers = [];
 
 
-  for (const player of players) {
+  /*
+   * Read the dynamic rows.
+   *
+   * The row IDs were built using player.id:
+   * sat-pick-1
+   * sat-odds-1
+   * sat-result-1
+   * etc.
+   */
+
+  for (const player of playerRows || []) {
 
     const key =
-      player.toLowerCase();
+      String(player.id);
+
+
+    const saturdayPickInput =
+      document.getElementById(
+        `sat-pick-${key}`
+      );
+
+    const saturdayOddsInput =
+      document.getElementById(
+        `sat-odds-${key}`
+      );
+
+    const saturdayResultInput =
+      document.getElementById(
+        `sat-result-${key}`
+      );
+
+
+    const sundayPickInput =
+      document.getElementById(
+        `sun-pick-${key}`
+      );
+
+    const sundayOddsInput =
+      document.getElementById(
+        `sun-odds-${key}`
+      );
+
+    const sundayResultInput =
+      document.getElementById(
+        `sun-result-${key}`
+      );
+
+
+    /*
+     * Skip safely if a row
+     * somehow is not on the page.
+     */
+
+    if (
+      !saturdayPickInput ||
+      !saturdayOddsInput ||
+      !saturdayResultInput ||
+      !sundayPickInput ||
+      !sundayOddsInput ||
+      !sundayResultInput
+    ) {
+
+      continue;
+
+    }
 
 
     const saturdayPick =
-      document.getElementById(
-        `sat-pick-${key}`
-      ).value.trim();
-
+      saturdayPickInput.value.trim();
 
     const saturdayOdds =
-      document.getElementById(
-        `sat-odds-${key}`
-      ).value;
-
+      saturdayOddsInput.value;
 
     const saturdayResult =
-      document.getElementById(
-        `sat-result-${key}`
-      ).value || "pending";
+      saturdayResultInput.value || "pending";
 
 
     const sundayPick =
-      document.getElementById(
-        `sun-pick-${key}`
-      ).value.trim();
-
+      sundayPickInput.value.trim();
 
     const sundayOdds =
-      document.getElementById(
-        `sun-odds-${key}`
-      ).value;
-
+      sundayOddsInput.value;
 
     const sundayResult =
-      document.getElementById(
-        `sun-result-${key}`
-      ).value || "pending";
+      sundayResultInput.value || "pending";
 
+
+    /*
+     * Saturday — College Football
+     */
 
     if (saturdayPick) {
 
       wagers.push({
 
         player_id:
-          playerMap[key],
+          player.id,
 
         season_id:
           currentSeason.id,
@@ -3914,12 +3954,16 @@ async function saveWeeklyStandardPicks() {
     }
 
 
+    /*
+     * Sunday — NFL
+     */
+
     if (sundayPick) {
 
       wagers.push({
 
         player_id:
-          playerMap[key],
+          player.id,
 
         season_id:
           currentSeason.id,
@@ -3965,6 +4009,10 @@ async function saveWeeklyStandardPicks() {
     return;
   }
 
+
+  /*
+   * Save or update picks.
+   */
 
   const { error } =
     await supabaseClient
