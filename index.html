@@ -3561,6 +3561,57 @@ async function updateStandardPickResult(pickId) {
       `manage-standard-result-${pickId}`
     );
 
+  if (!resultSelect) {
+    return;
+  }
+
+
+  const newResult =
+    resultSelect.value;
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .update({
+        result: newResult
+      })
+      .eq("id", pickId);
+
+
+  if (error) {
+
+    console.error(
+      "Update standard pick result error:",
+      error
+    );
+
+    alert(
+      "Unable to update the result."
+    );
+
+    return;
+  }
+
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    "Pick result updated successfully."
+  );
+
+}  
+  
+async function updateStandardPickResult(pickId) {
+
+  const resultSelect =
+    document.getElementById(
+      `manage-standard-result-${pickId}`
+    );
+
 
   if (!resultSelect) {
     return;
