@@ -628,16 +628,54 @@
 
   <section id="standings" class="page active">
 
-    <div id="standings-message" class="message"></div>
+<div id="standings-message" class="message"></div>
 
-   <h2 class="section-title">2026 Season Standings</h2>
+
+<div class="standings-season-controls">
+
+  <div class="filter-group">
+
+    <label for="standings-season">
+      Season
+    </label>
+
+    <select
+      id="standings-season"
+      onchange="loadStandings()"
+    >
+      <option value="">
+        Select Season
+      </option>
+    </select>
+
+  </div>
+
+
+  <div
+    id="standings-season-status"
+    class="season-status"
+  >
+    —
+  </div>
+
+</div>
+
+
+<h2 class="section-title">
+  Season Standings
+</h2>
 
 <div class="stats-grid">
 
-  <div class="stat">
-    <div class="stat-label">Season</div>
-    <div class="stat-value">2026</div>
+<div class="stat">
+  <div class="stat-label">Season</div>
+  <div
+    class="stat-value"
+    id="standings-season-year"
+  >
+    —
   </div>
+</div>
 
   <div class="stat">
     <div class="stat-label">Current Leader</div>
