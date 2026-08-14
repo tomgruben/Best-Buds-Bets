@@ -1857,6 +1857,112 @@ async function loadPlayersForForms() {
    * ==========================================================
    */
 
+async function loadStandingsSeasons() {
+
+  const seasonSelect =
+    document.getElementById("standings-season");
+
+  if (!seasonSelect) {
+    return;
+  }
+
+
+  const {
+    data: seasons,
+    error
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year, status")
+      .order("year", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Standings seasons error:",
+      error
+    );
+
+    return;
+  }
+
+
+  seasonSelect.innerHTML = "";
+
+
+  if (!seasons || seasons.length === 0) {
+
+    seasonSelect.innerHTML = `
+      <option value="">
+        No Seasons
+      </option>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * Add every season to the dropdown.
+   */
+
+  seasons.forEach(season => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      season.id;
+
+    option.textContent =
+      season.status === "active"
+        ? `${season.year} — Active`
+        : `${season.year} — Closed`;
+
+    option.dataset.year =
+      season.year;
+
+    option.dataset.status =
+      season.status;
+
+    seasonSelect.appendChild(option);
+
+  });
+
+
+  /*
+   * Default selection:
+   *
+   * 1. Active season if one exists.
+   * 2. Otherwise newest closed season.
+   */
+
+  const activeSeason =
+    seasons.find(
+      season =>
+        season.status === "active"
+    );
+
+
+  if (activeSeason) {
+
+    seasonSelect.value =
+      String(activeSeason.id);
+
+  }
+
+  else {
+
+    seasonSelect.value =
+      String(seasons[0].id);
+
+  }
+
+}
+  
   async function loadStandings() {
 
     if (!currentSeason) return;
