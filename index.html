@@ -2825,6 +2825,99 @@ async function loadWeeklyTdPicks() {
  * ==========================================================
  */
 
+async function loadAdminWeeks() {
+
+  const body =
+    document.getElementById("admin-weeks-body");
+
+  if (!body || !currentSeason) {
+    return;
+  }
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="2" class="empty">
+        Loading weeks...
+      </td>
+    </tr>
+  `;
+
+
+  const {
+    data: weeks,
+    error
+  } =
+    await supabaseClient
+      .from("weeks")
+      .select("id, week_number")
+      .eq("season_id", currentSeason.id)
+      .order("week_number", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Admin weeks error:",
+      error
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="2" class="empty">
+          Unable to load weeks.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  body.innerHTML = "";
+
+
+  if (!weeks || weeks.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="2" class="empty">
+          No weeks have been created.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  weeks.forEach(week => {
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>
+        Week ${week.week_number}
+      </td>
+
+      <td>
+        <button
+          type="button"
+          onclick="deleteAdminWeek(${week.id}, ${week.week_number})"
+        >
+          Delete
+        </button>
+      </td>
+    `;
+
+    body.appendChild(tr);
+
+  });
+
+}
+  
 async function loadManageWeeks() {
 
   if (!currentSeason) {
