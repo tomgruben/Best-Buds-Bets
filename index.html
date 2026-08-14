@@ -3039,6 +3039,156 @@ async function addAdminWeek() {
   );
 
 }
+
+async function deleteAdminWeek(weekId, weekNumber) {
+
+  if (!currentSeason) {
+    return;
+  }
+
+
+  /*
+   * Check for standard picks.
+   */
+
+  const {
+    count: standardCount,
+    error: standardError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", weekId);
+
+
+  if (standardError) {
+
+    console.error(
+      "Check standard picks error:",
+      standardError
+    );
+
+    alert(
+      "Unable to check whether this week can be deleted."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check for TD picks.
+   */
+
+  const {
+    count: tdCount,
+    error: tdError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", weekId);
+
+
+  if (tdError) {
+
+    console.error(
+      "Check TD picks error:",
+      tdError
+    );
+
+    alert(
+      "Unable to check whether this week can be deleted."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Block deletion if the week
+   * already contains picks.
+   */
+
+  if (
+    Number(standardCount || 0) > 0 ||
+    Number(tdCount || 0) > 0
+  ) {
+
+    alert(
+      `Week ${weekNumber} cannot be deleted because picks have already been entered for that week.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Confirm deletion.
+   */
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to delete Week ${weekNumber}?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /*
+   * Delete the week.
+   */
+
+  const {
+    error: deleteError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .delete()
+      .eq("id", weekId)
+      .eq("season_id", currentSeason.id);
+
+
+  if (deleteError) {
+
+    console.error(
+      "Delete week error:",
+      deleteError
+    );
+
+    alert(
+      "Unable to delete the week."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Refresh week-based UI.
+   */
+
+  await loadAdminWeeks();
+
+  await loadManageWeeks();
+
+
+  alert(
+    `Week ${weekNumber} deleted successfully.`
+  );
+
+}
   
 async function loadManageWeeks() {
 
