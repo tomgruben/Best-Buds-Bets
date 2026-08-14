@@ -1756,17 +1756,19 @@ async function initialize() {
 
     if (!seasons || seasons.length === 0) {
 
-      currentSeason = null;
+currentSeason = null;
 
-      clearStandingsForNoActiveSeason();
+await loadStandingsSeasons();
 
-      await loadAdminPeople();
+await loadAdminPeople();
 
-      await loadAdminSeason();
+await loadAdminSeason();
 
-      await loadSeasons();
+await loadSeasons();
 
-      return;
+await loadStandings();
+
+return;
     }
 
 
