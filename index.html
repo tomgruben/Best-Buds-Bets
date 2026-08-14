@@ -1984,7 +1984,7 @@ if (!selectedSeasonId) {
       await supabaseClient
         .from("season_standings")
         .select("*")
-        .eq("season_id", currentSeason.id)
+        .eq("season_id", selectedSeasonId)
         .order("win_percentage", {
           ascending: false
         });
@@ -2014,7 +2014,7 @@ const {
       day,
       result
     `)
-    .eq("season_id", currentSeason.id)
+    .eq("season_id", selectedSeasonId)
     .in(
       "result",
       ["win", "loss", "push"]
