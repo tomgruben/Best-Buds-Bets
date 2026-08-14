@@ -2918,6 +2918,128 @@ async function loadAdminWeeks() {
   });
 
 }
+
+async function addAdminWeek() {
+
+  if (!currentSeason) {
+    return;
+  }
+
+
+  const input =
+    document.getElementById("admin-week-number");
+
+  const weekNumber =
+    Number(input?.value);
+
+
+  if (
+    !weekNumber ||
+    weekNumber < 1
+  ) {
+
+    alert(
+      "Please enter a valid week number."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check whether this week
+   * already exists.
+   */
+
+  const {
+    data: existingWeek,
+    error: checkError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .select("id")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .maybeSingle();
+
+
+  if (checkError) {
+
+    console.error(
+      "Check week error:",
+      checkError
+    );
+
+    alert(
+      "Unable to check the week."
+    );
+
+    return;
+  }
+
+
+  if (existingWeek) {
+
+    alert(
+      `Week ${weekNumber} already exists.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Create the new week.
+   */
+
+  const {
+    error: insertError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .insert({
+        season_id: currentSeason.id,
+        week_number: weekNumber
+      });
+
+
+  if (insertError) {
+
+    console.error(
+      "Add week error:",
+      insertError
+    );
+
+    alert(
+      "Unable to add the week."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Clear the input.
+   */
+
+  input.value = "";
+
+
+  /*
+   * Refresh everything that
+   * depends on the weeks table.
+   */
+
+  await loadAdminWeeks();
+
+  await loadManageWeeks();
+
+
+  alert(
+    `Week ${weekNumber} added successfully.`
+  );
+
+}
   
 async function loadManageWeeks() {
 
