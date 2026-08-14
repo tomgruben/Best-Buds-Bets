@@ -2300,6 +2300,98 @@ async function saveWeeklyTdPicks() {
 
 }
 
+async function buildWeeklyTdPlayerRows() {
+
+  const tdBody =
+    document.getElementById("weekly-td-body");
+
+  if (!tdBody) {
+    return;
+  }
+
+
+  const {
+    data: playerRows,
+    error
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Build weekly TD player rows error:",
+      error
+    );
+
+    tdBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Unable to load players.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tdBody.innerHTML = "";
+
+
+  (playerRows || []).forEach(player => {
+
+    const key =
+      String(player.id);
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+      <td>
+        <strong>${player.name}</strong>
+      </td>
+
+      <td>
+        <input
+          id="td-pick-${key}"
+          type="text"
+          placeholder="Example: Josh Allen"
+        >
+      </td>
+
+      <td>
+        <input
+          id="td-odds-${key}"
+          type="number"
+          placeholder="+175"
+        >
+      </td>
+
+      <td>
+        <select id="td-result-${key}">
+          <option value="pending">Pending</option>
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+          <option value="push">Push</option>
+        </select>
+      </td>
+    `;
+
+
+    tdBody.appendChild(tr);
+
+  });
+
+}
+  
 async function buildWeeklyStandardPlayerRows() {
 
   const saturdayBody =
