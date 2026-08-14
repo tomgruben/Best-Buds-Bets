@@ -2389,6 +2389,156 @@ async function saveWeeklyTdPicks() {
 
 }
 
+async function buildWeeklyStandardPlayerRows() {
+
+  const saturdayBody =
+    document.getElementById("weekly-saturday-body");
+
+  const sundayBody =
+    document.getElementById("weekly-sunday-body");
+
+
+  if (!saturdayBody || !sundayBody) {
+    return;
+  }
+
+
+  const {
+    data: playerRows,
+    error
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Build weekly player rows error:",
+      error
+    );
+
+    saturdayBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Unable to load players.
+        </td>
+      </tr>
+    `;
+
+    sundayBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Unable to load players.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  saturdayBody.innerHTML = "";
+  sundayBody.innerHTML = "";
+
+
+  (playerRows || []).forEach(player => {
+
+    const key =
+      String(player.id);
+
+
+    /*
+     * Saturday row
+     */
+
+    const saturdayRow =
+      document.createElement("tr");
+
+    saturdayRow.innerHTML = `
+      <td>
+        <strong>${player.name}</strong>
+      </td>
+
+      <td>
+        <input
+          id="sat-pick-${key}"
+          type="text"
+        >
+      </td>
+
+      <td>
+        <input
+          id="sat-odds-${key}"
+          type="number"
+          placeholder="-110"
+        >
+      </td>
+
+      <td>
+        <select id="sat-result-${key}">
+          <option value="pending">Pending</option>
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+          <option value="push">Push</option>
+        </select>
+      </td>
+    `;
+
+    saturdayBody.appendChild(
+      saturdayRow
+    );
+
+
+    /*
+     * Sunday row
+     */
+
+    const sundayRow =
+      document.createElement("tr");
+
+    sundayRow.innerHTML = `
+      <td>
+        <strong>${player.name}</strong>
+      </td>
+
+      <td>
+        <input
+          id="sun-pick-${key}"
+          type="text"
+        >
+      </td>
+
+      <td>
+        <input
+          id="sun-odds-${key}"
+          type="number"
+          placeholder="-110"
+        >
+      </td>
+
+      <td>
+        <select id="sun-result-${key}">
+          <option value="pending">Pending</option>
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+          <option value="push">Push</option>
+        </select>
+      </td>
+    `;
+
+    sundayBody.appendChild(
+      sundayRow
+    );
+
+  });
+
+}
+  
 async function loadWeeklyStandardPicks() {
 
   if (!currentSeason) return;
