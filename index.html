@@ -2988,7 +2988,7 @@ async function loadAdminWeeks() {
   });
 
 }
-
+  
 async function addAdminWeek() {
 
   if (!currentSeason) {
@@ -3111,6 +3111,98 @@ async function addAdminWeek() {
 
 }
 
+async function loadAdminPeople() {
+
+  const body =
+    document.getElementById("admin-people-body");
+
+  if (!body) {
+    return;
+  }
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="2" class="empty">
+        Loading people...
+      </td>
+    </tr>
+  `;
+
+
+  const {
+    data: people,
+    error
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Admin people error:",
+      error
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="2" class="empty">
+          Unable to load people.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  body.innerHTML = "";
+
+
+  if (!people || people.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="2" class="empty">
+          No people have been added.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  people.forEach(person => {
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>
+        ${person.name}
+      </td>
+
+      <td>
+        <button
+          type="button"
+          onclick="deleteAdminPerson(${person.id}, '${person.name}')"
+        >
+          Remove
+        </button>
+      </td>
+    `;
+
+    body.appendChild(tr);
+
+  });
+
+}
+  
 async function deleteAdminWeek(weekId, weekNumber) {
 
   if (!currentSeason) {
