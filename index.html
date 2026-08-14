@@ -1696,52 +1696,140 @@ if (pageId === "history") {
 
   async function initialize() {
 
-    try {
+  try {
 
-      const { data: seasons, error } =
-        await supabaseClient
-          .from("seasons")
-          .select("*")
-          .eq("status", "active")
-          .order("year", { ascending: false })
-          .limit(1);
+    const { data: seasons, error } =
+      await supabaseClient
+        .from("seasons")
+        .select("*")
+        .eq("status", "active")
+        .order("year", { ascending: false })
+        .limit(1);
 
-      if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
-      if (!seasons || seasons.length === 0) {
-        showMessage(
-          "standings-message",
-          "No active season found.",
-          "error"
+
+    /*
+     * No active season.
+     *
+     * Keep the site usable so Admin can
+     * still create/start a new season.
+     */
+
+    if (!seasons || seasons.length === 0) {
+
+      currentSeason = null;
+
+
+      const standingsTitle =
+        document.querySelector(
+          "#standings .section-title"
         );
-        return;
+
+      if (standingsTitle) {
+        standingsTitle.textContent =
+          "Season Standings";
       }
 
-      currentSeason = seasons[0];
 
-      document.querySelector(".section-title").textContent =
+      const standingsBody =
+        document.getElementById(
+          "standings-body"
+        );
+
+      if (standingsBody) {
+
+        standingsBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              No active season.
+            </td>
+          </tr>
+        `;
+
+      }
+
+
+      const leaderName =
+        document.getElementById(
+          "leader-name"
+        );
+
+      if (leaderName) {
+        leaderName.textContent = "—";
+      }
+
+
+      /*
+       * These parts of the site do not
+       * require an active season.
+       */
+
+      await loadAdminPeople();
+
+      await loadAdminSeason();
+
+      await loadSeasons();
+
+      return;
+
+    }
+
+
+    /*
+     * Active season exists.
+     */
+
+    currentSeason =
+      seasons[0];
+
+
+    const standingsTitle =
+      document.querySelector(
+        "#standings .section-title"
+      );
+
+    if (standingsTitle) {
+
+      standingsTitle.textContent =
         `${currentSeason.year} Season Standings`;
 
-      await loadPlayersForForms();
-      await loadManageWeeks();
-      await loadAdminWeeks();
-      await loadAdminPeople();
-      await loadAdminSeason();
-      await buildWeeklyStandardPlayerRows();
-      await buildWeeklyTdPlayerRows();
-      await loadStandings();
-      
-    } catch (error) {
-
-      console.error(error);
-
-      showMessage(
-        "standings-message",
-        "Unable to connect to Supabase. Check your Project URL and Publishable/anon key.",
-        "error"
-      );
     }
+
+
+    await loadPlayersForForms();
+
+    await loadManageWeeks();
+
+    await loadAdminWeeks();
+
+    await loadAdminPeople();
+
+    await loadAdminSeason();
+
+    await buildWeeklyStandardPlayerRows();
+
+    await buildWeeklyTdPlayerRows();
+
+    await loadStandings();
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    showMessage(
+      "standings-message",
+      "Unable to connect to Supabase. Check your Project URL and Publishable/anon key.",
+      "error"
+    );
+
   }
+
+}
 
 
   /*
