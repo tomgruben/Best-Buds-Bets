@@ -3534,17 +3534,56 @@ async function loadManageWeeklyPicks() {
         ${row.odds ?? "—"}
       </td>
 
-      <td>
-        ${formatResult(row.result)}
-      </td>
+<td>
 
-      <td class="${unitsClass(units)}">
-        ${formatUnits(units)}
-      </td>
+  <select id="manage-td-result-${row.id}">
 
-      <td>
-        Manage
-      </td>
+    <option
+      value="pending"
+      ${row.result === "pending" ? "selected" : ""}
+    >
+      Pending
+    </option>
+
+    <option
+      value="win"
+      ${row.result === "win" ? "selected" : ""}
+    >
+      Win
+    </option>
+
+    <option
+      value="loss"
+      ${row.result === "loss" ? "selected" : ""}
+    >
+      Loss
+    </option>
+
+    <option
+      value="push"
+      ${row.result === "push" ? "selected" : ""}
+    >
+      Push
+    </option>
+
+  </select>
+
+</td>
+
+<td class="${unitsClass(units)}">
+  ${formatUnits(units)}
+</td>
+
+<td>
+
+  <button
+    type="button"
+    onclick="updateTdPickResult(${row.id})"
+  >
+    Save
+  </button>
+
+</td>
     `;
 
 
