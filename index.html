@@ -1921,10 +1921,8 @@ async function loadStandingsSeasons() {
     option.value =
       season.id;
 
-    option.textContent =
-      season.status === "active"
-        ? `${season.year} — Active`
-        : `${season.year} — Closed`;
+  option.textContent =
+  season.year;
 
     option.dataset.year =
       season.year;
