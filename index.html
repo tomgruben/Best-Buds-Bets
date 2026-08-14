@@ -6424,31 +6424,186 @@ if (profileSeasonFilter) {
   }
 
 
+/*
+ * Render Seasons table.
+ */
+
+for (const season of data) {
+
   /*
-   * Render Seasons table.
+   * Get the current leader / final leader
+   * for this season.
    */
-  data.forEach(season => {
 
-    const tr =
-      document.createElement("tr");
+  const {
+    data: leader,
+    error: leaderError
+  } =
+    await supabaseClient
+      .from("season_standings")
+      .select(`
+        player_name,
+        wins,
+        losses,
+        pushes,
+        win_percentage,
+        rank
+      `)
+      .eq("season_id", season.id)
+      .order("rank", {
+        ascending: true
+      })
+      .limit(1)
+      .maybeSingle();
 
 
-    tr.innerHTML = `
-      <td>${season.year}</td>
+  if (leaderError) {
 
-      <td>
-        ${
-          season.status === "active"
-            ? "🟢 Active"
-            : "📦 Archived"
-        }
-      </td>
-    `;
+    console.error(
+      `Season ${season.year} leader error:`,
+      leaderError
+    );
+
+  }
 
 
-    body.appendChild(tr);
+  /*
+   * Get all graded standard picks
+   * for Combined Win Pct.
+   *
+   * TD picks are intentionally excluded.
+   */
 
-  });
+  const {
+    data: seasonPicks,
+    error: picksError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("result")
+      .eq("season_id", season.id)
+      .in(
+        "result",
+        ["win", "loss"]
+      );
+
+
+  if (picksError) {
+
+    console.error(
+      `Season ${season.year} combined record error:`,
+      picksError
+    );
+
+  }
+
+
+  /*
+   * Combined Win Pct.
+   *
+   * Pushes are excluded entirely.
+   */
+
+  const combinedWins =
+    (seasonPicks || [])
+      .filter(row =>
+        row.result === "win"
+      )
+      .length;
+
+
+  const combinedLosses =
+    (seasonPicks || [])
+      .filter(row =>
+        row.result === "loss"
+      )
+      .length;
+
+
+  const combinedGraded =
+    combinedWins +
+    combinedLosses;
+
+
+  const combinedWinPct =
+    combinedGraded > 0
+      ? (
+          combinedWins /
+          combinedGraded
+        ) * 100
+      : 0;
+
+
+  /*
+   * Leader information.
+   */
+
+  const leaderName =
+    leader?.player_name || "—";
+
+
+  const leaderWinPct =
+    leader
+      ? Number(
+          leader.win_percentage || 0
+        ).toFixed(1) + "%"
+      : "—";
+
+
+  const leaderRecord =
+    leader
+      ? `${leader.wins}-${leader.losses}-${leader.pushes}`
+      : "—";
+
+
+  /*
+   * Build the row.
+   */
+
+  const tr =
+    document.createElement("tr");
+
+
+  tr.innerHTML = `
+
+    <td>
+      ${season.year}
+    </td>
+
+    <td>
+      ${leaderName}
+    </td>
+
+    <td>
+      ${leaderWinPct}
+    </td>
+
+    <td>
+      ${leaderRecord}
+    </td>
+
+    <td>
+      ${
+        combinedGraded > 0
+          ? combinedWinPct.toFixed(1) + "%"
+          : "—"
+      }
+    </td>
+
+    <td>
+      ${
+        season.status === "active"
+          ? "🟢 Active"
+          : "🏆 Closed"
+      }
+    </td>
+
+  `;
+
+
+  body.appendChild(tr);
+
+}
 
    const sportFilter =
   document.getElementById("history-sport");
