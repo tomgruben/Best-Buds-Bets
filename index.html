@@ -1896,7 +1896,16 @@ async function loadStandingsSeasons() {
 
   seasonSelect.innerHTML = "";
 
+const allOption =
+  document.createElement("option");
 
+allOption.value = "all";
+allOption.textContent = "All";
+allOption.dataset.year = "All";
+allOption.dataset.status = "all";
+
+seasonSelect.appendChild(allOption);
+  
   if (!seasons || seasons.length === 0) {
 
     seasonSelect.innerHTML = `
