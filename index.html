@@ -1232,6 +1232,77 @@
   </div>
 
 </div>
+
+<!-- ======================================================
+     ADMIN PEOPLE MANAGEMENT
+     ====================================================== -->
+
+<div class="card">
+
+  <h3>Manage People</h3>
+
+  <p class="muted">
+    Add or remove people from the competition.
+  </p>
+
+
+  <div class="form-grid">
+
+    <div>
+
+      <label for="admin-person-name">
+        Name
+      </label>
+
+      <input
+        id="admin-person-name"
+        type="text"
+        placeholder="Example: Mike"
+      >
+
+    </div>
+
+  </div>
+
+
+  <button
+    class="primary-button"
+    onclick="addAdminPerson()"
+  >
+    Add Person
+  </button>
+
+
+  <h4 style="margin-top: 30px;">
+    Existing People
+  </h4>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="admin-people-body">
+
+        <tr>
+          <td colspan="2" class="empty">
+            Loading people...
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
       
 </section>
     
