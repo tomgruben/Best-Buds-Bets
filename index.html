@@ -1742,6 +1742,7 @@ if (pageId === "history") {
         `${currentSeason.year} Season Standings`;
 
       await loadPlayersForForms();
+      await loadManageWeeks();
       await loadStandings();
 
     } catch (error) {
