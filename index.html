@@ -583,13 +583,6 @@
 <nav>
   
 <button
-  class="nav-button active"
-  data-page="standings"
-  onclick="showPage('standings', this)">
-  Standings
-</button>
-  
-<button
   id="enter-bets-nav"
   class="nav-button"
   data-page="bets"
@@ -598,17 +591,33 @@
   📝 Enter Bets
 </button>
 
-  <button class="nav-button" onclick="showPage('history', this)">
-    📚 History
-  </button>
+<button
+  class="nav-button active"
+  data-page="standings"
+  onclick="showPage('standings', this)">
+  🏆 Standings
+</button>
+  
+ <button
+  class="nav-button"
+  data-page="history"
+  onclick="showPage('history', this)">
+  📚 History
+</button>
 
-  <button class="nav-button" onclick="showPage('players', this)">
-    👤 Players
-  </button>
+<button
+  class="nav-button"
+  data-page="players"
+  onclick="showPage('players', this)">
+  👤 Players
+</button>
 
-  <button class="nav-button" onclick="showPage('seasons', this)">
-    🗄️ Seasons
-  </button>
+<button
+  class="nav-button"
+  data-page="seasons"
+  onclick="showPage('seasons', this)">
+  🗄️ Seasons
+</button> 
 </nav>
 
 <main>
