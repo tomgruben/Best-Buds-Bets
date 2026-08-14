@@ -2093,6 +2093,89 @@ const unitClass = unitsClass(row.units);
     });
   }
 
+  function clearStandingsForNoActiveSeason() {
+
+  const title =
+    document.querySelector(
+      "#standings .section-title"
+    );
+
+  if (title) {
+    title.textContent =
+      "Season Standings";
+  }
+
+
+  const seasonValue =
+    document.querySelector(
+      "#standings .stat-value"
+    );
+
+  if (seasonValue) {
+    seasonValue.textContent = "—";
+  }
+
+
+  const leaderName =
+    document.getElementById(
+      "leader-name"
+    );
+
+  if (leaderName) {
+    leaderName.textContent = "—";
+  }
+
+
+  const combinedRecord =
+    document.getElementById(
+      "combined-record"
+    );
+
+  if (combinedRecord) {
+    combinedRecord.textContent = "—";
+  }
+
+
+  const combinedWinPct =
+    document.getElementById(
+      "combined-win-pct"
+    );
+
+  if (combinedWinPct) {
+    combinedWinPct.textContent = "—";
+  }
+
+
+  const combinedUnits =
+    document.getElementById(
+      "combined-units"
+    );
+
+  if (combinedUnits) {
+    combinedUnits.textContent = "—";
+    combinedUnits.className =
+      "stat-value";
+  }
+
+
+  const body =
+    document.getElementById(
+      "standings-body"
+    );
+
+  if (body) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          No active season.
+        </td>
+      </tr>
+    `;
+
+  }
+
+}
 
   /*
    * ==========================================================
