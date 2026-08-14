@@ -4374,6 +4374,265 @@ async function closeAdminSeason(seasonId, seasonYear) {
   );
 
 }
+
+async function startAdminSeason() {
+
+  const yearInput =
+    document.getElementById("new-season-year");
+
+  const weeksInput =
+    document.getElementById("new-season-weeks");
+
+
+  const seasonYear =
+    Number(yearInput?.value);
+
+  const numberOfWeeks =
+    Number(weeksInput?.value);
+
+
+  /*
+   * Validate input.
+   */
+
+  if (!seasonYear) {
+
+    alert(
+      "Please enter a season year."
+    );
+
+    return;
+  }
+
+
+  if (
+    !numberOfWeeks ||
+    numberOfWeeks < 1
+  ) {
+
+    alert(
+      "Please enter the number of weeks."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Make sure there is not already
+   * an active season.
+   */
+
+  const {
+    data: activeSeasons,
+    error: activeError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year")
+      .eq("status", "active");
+
+
+  if (activeError) {
+
+    console.error(
+      "Active season check error:",
+      activeError
+    );
+
+    alert(
+      "Unable to verify the current season."
+    );
+
+    return;
+  }
+
+
+  if (
+    activeSeasons &&
+    activeSeasons.length > 0
+  ) {
+
+    alert(
+      `The ${activeSeasons[0].year} season is already active.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Prevent duplicate season years.
+   */
+
+  const {
+    data: existingSeason,
+    error: existingError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year")
+      .eq("year", seasonYear)
+      .maybeSingle();
+
+
+  if (existingError) {
+
+    console.error(
+      "Existing season check error:",
+      existingError
+    );
+
+    alert(
+      "Unable to verify the season year."
+    );
+
+    return;
+  }
+
+
+  if (existingSeason) {
+
+    alert(
+      `A ${seasonYear} season already exists.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Final confirmation.
+   */
+
+  const confirmed =
+    confirm(
+      `Start the ${seasonYear} season with ${numberOfWeeks} weeks?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /*
+   * Create the season.
+   */
+
+  const {
+    data: newSeason,
+    error: seasonError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .insert({
+        year: seasonYear,
+        status: "active"
+      })
+      .select()
+      .single();
+
+
+  if (seasonError || !newSeason) {
+
+    console.error(
+      "Create season error:",
+      seasonError
+    );
+
+    alert(
+      "Unable to create the new season."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Build the weeks.
+   */
+
+  const weeks = [];
+
+
+  for (
+    let weekNumber = 1;
+    weekNumber <= numberOfWeeks;
+    weekNumber++
+  ) {
+
+    weeks.push({
+
+      season_id:
+        newSeason.id,
+
+      week_number:
+        weekNumber
+
+    });
+
+  }
+
+
+  /*
+   * Create all weeks.
+   */
+
+  const {
+    error: weeksError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .insert(weeks);
+
+
+  if (weeksError) {
+
+    console.error(
+      "Create season weeks error:",
+      weeksError
+    );
+
+    alert(
+      `The ${seasonYear} season was created, but its weeks could not be created.\n\nUse Manage Weeks to add them manually.`
+    );
+
+    /*
+     * Still make the successfully
+     * created season current.
+     */
+
+    currentSeason =
+      newSeason;
+
+    await initialize();
+
+    return;
+  }
+
+
+  /*
+   * Make the new season current.
+   */
+
+  currentSeason =
+    newSeason;
+
+
+  alert(
+    `${seasonYear} season started successfully with ${numberOfWeeks} weeks.`
+  );
+
+
+  /*
+   * Reload the application against
+   * the new active season.
+   */
+
+  await initialize();
+
+}  
   
 async function loadAdminPeople() {
 
