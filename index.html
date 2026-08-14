@@ -5618,6 +5618,17 @@ profileRecord.innerHTML = `
 
 }
 
+function showPlayerList() {
+
+  document.getElementById("player-profile")
+    .style.display = "none";
+
+  document.getElementById("player-list")
+    .style.display = "block";
+
+  loadPlayers();
+
+}
 
   /*
    * ==========================================================
