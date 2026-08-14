@@ -6549,6 +6549,20 @@ for (const season of data) {
         ).toFixed(1) + "%"
       : "—";
 
+  const leaderWinPctNumber =
+  leader
+    ? Number(leader.win_percentage || 0)
+    : null;
+
+
+const leaderWinPctClass =
+  leaderWinPctNumber === null
+    ? ""
+    : leaderWinPctNumber > 50
+    ? "positive"
+    : leaderWinPctNumber < 50
+    ? "negative"
+    : "";
 
   const leaderRecord =
     leader
@@ -6574,7 +6588,7 @@ for (const season of data) {
       ${leaderName}
     </td>
 
-    <td>
+    <td class="${leaderWinPctClass}">
       ${leaderWinPct}
     </td>
 
