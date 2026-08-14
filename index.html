@@ -3305,6 +3305,107 @@ async function addAdminWeek() {
 
 }
 
+async function loadAdminSeason() {
+
+  const body =
+    document.getElementById("admin-season-body");
+
+  if (!body) {
+    return;
+  }
+
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="3" class="empty">
+        Loading season...
+      </td>
+    </tr>
+  `;
+
+
+  const {
+    data: seasons,
+    error
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year, status")
+      .order("year", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Admin season error:",
+      error
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="3" class="empty">
+          Unable to load season.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  const activeSeason =
+    (seasons || []).find(
+      season =>
+        season.status === "active"
+    );
+
+
+  body.innerHTML = "";
+
+
+  if (!activeSeason) {
+
+    body.innerHTML = `
+      <tr>
+        <td>—</td>
+        <td>⚪ No Active Season</td>
+        <td>
+          Start New Season
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  const tr =
+    document.createElement("tr");
+
+
+  tr.innerHTML = `
+
+    <td>
+      ${activeSeason.year}
+    </td>
+
+    <td>
+      🟢 Active
+    </td>
+
+    <td>
+      Close / Archive
+    </td>
+
+  `;
+
+
+  body.appendChild(tr);
+
+}
+  
 async function loadAdminPeople() {
 
   const body =
