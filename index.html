@@ -2076,6 +2076,7 @@ async function saveTdBet() {
 
   await loadStandings();
 }
+
 async function saveWeeklyTdPicks() {
 
   if (!currentSeason) {
@@ -2091,14 +2092,16 @@ async function saveWeeklyTdPicks() {
 
 
   const weekNumber =
-    Number(document.getElementById("weekly-week").value);
+    Number(
+      document.getElementById("weekly-week").value
+    );
 
 
   if (!weekNumber) {
 
     showMessage(
       "bet-message",
-      "Please enter a week number.",
+      "Please select a week.",
       "error"
     );
 
@@ -2110,7 +2113,10 @@ async function saveWeeklyTdPicks() {
    * Find the database week.
    */
 
-  const { data: week, error: weekError } =
+  const {
+    data: week,
+    error: weekError
+  } =
     await supabaseClient
       .from("weeks")
       .select("*")
@@ -2132,13 +2138,19 @@ async function saveWeeklyTdPicks() {
 
 
   /*
-   * Get the four players.
+   * Load all current players dynamically.
    */
 
-  const { data: playerRows, error: playerError } =
+  const {
+    data: playerRows,
+    error: playerError
+  } =
     await supabaseClient
       .from("players")
-      .select("id,name");
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
 
 
   if (playerError) {
@@ -2153,58 +2165,64 @@ async function saveWeeklyTdPicks() {
   }
 
 
-  const playerMap = {};
-
-  playerRows.forEach(player => {
-
-    playerMap[
-      player.name.toLowerCase()
-    ] = player.id;
-
-  });
-
-
-  const players = [
-    "Andy",
-    "Bach",
-    "Joe",
-    "Tom"
-  ];
-
-
   const tdWagers = [];
 
 
   /*
-   * Build the four TD wagers.
+   * Read the dynamic TD rows.
    */
 
-  for (const player of players) {
+  for (const player of playerRows || []) {
 
-    const key = player.toLowerCase();
+    const key =
+      String(player.id);
 
 
-    const playerPick =
+    const playerPickInput =
       document.getElementById(
         `td-pick-${key}`
-      ).value.trim();
+      );
 
-
-    const oddsValue =
+    const oddsInput =
       document.getElementById(
         `td-odds-${key}`
-      ).value;
+      );
 
-
-    const result =
+    const resultInput =
       document.getElementById(
         `td-result-${key}`
-      ).value || "pending";
+      );
 
 
     /*
-     * Only save a row when a TD player
-     * has been entered.
+     * Skip safely if the row
+     * is not present on the page.
+     */
+
+    if (
+      !playerPickInput ||
+      !oddsInput ||
+      !resultInput
+    ) {
+
+      continue;
+
+    }
+
+
+    const playerPick =
+      playerPickInput.value.trim();
+
+    const oddsValue =
+      oddsInput.value;
+
+    const result =
+      resultInput.value || "pending";
+
+
+    /*
+     * Only save when a TD player
+     * has actually been entered.
      */
 
     if (playerPick) {
@@ -2213,7 +2231,7 @@ async function saveWeeklyTdPicks() {
 
         showMessage(
           "bet-message",
-          `Please enter odds for ${player}.`,
+          `Please enter odds for ${player.name}.`,
           "error"
         );
 
@@ -2223,7 +2241,8 @@ async function saveWeeklyTdPicks() {
 
       tdWagers.push({
 
-        player_id: playerMap[key],
+        player_id:
+          player.id,
 
         season_id:
           currentSeason.id,
@@ -2260,10 +2279,10 @@ async function saveWeeklyTdPicks() {
 
 
   /*
-   * Save all TD wagers.
+   * Save or update TD wagers.
    *
-   * The database trigger will calculate
-   * Units automatically.
+   * Your database trigger will
+   * continue calculating Units.
    */
 
   const { error } =
@@ -2300,7 +2319,7 @@ async function saveWeeklyTdPicks() {
   await loadStandings();
 
 }
-
+  
 async function buildWeeklyTdPlayerRows() {
 
   const tdBody =
