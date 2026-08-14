@@ -5264,8 +5264,37 @@ function unitsClass(value) {
    * ==========================================================
    */
 
-checkAuth().then(() => {
-  initialize();
+checkAuth().then(async () => {
+
+  await initialize();
+
+  let lastPage =
+    localStorage.getItem(
+      "bestBudsLastPage"
+    ) || "standings";
+
+
+  if (
+    lastPage === "bets" &&
+    !isAdmin
+  ) {
+    lastPage = "standings";
+  }
+
+
+  const navButton =
+    [...document.querySelectorAll(".nav-button")]
+      .find(button =>
+        button.getAttribute("onclick")
+          ?.includes(`"${lastPage}"`)
+      );
+
+
+  showPage(
+    lastPage,
+    navButton
+  );
+
 });
 
 </script>
