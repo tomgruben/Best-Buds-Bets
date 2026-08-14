@@ -3303,6 +3303,145 @@ async function addAdminPerson() {
   );
 
 }  
+
+async function deleteAdminPerson(personId, personName) {
+
+  /*
+   * Check for standard picks.
+   */
+
+  const {
+    count: standardCount,
+    error: standardError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("player_id", personId);
+
+
+  if (standardError) {
+
+    console.error(
+      "Check person standard picks error:",
+      standardError
+    );
+
+    alert(
+      "Unable to check whether this person can be removed."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check for TD picks.
+   */
+
+  const {
+    count: tdCount,
+    error: tdError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("player_id", personId);
+
+
+  if (tdError) {
+
+    console.error(
+      "Check person TD picks error:",
+      tdError
+    );
+
+    alert(
+      "Unable to check whether this person can be removed."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Protect historical data.
+   */
+
+  if (
+    Number(standardCount || 0) > 0 ||
+    Number(tdCount || 0) > 0
+  ) {
+
+    alert(
+      `${personName} cannot be removed because betting history already exists for this person.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Confirm removal.
+   */
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to remove ${personName}?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /*
+   * Remove person.
+   */
+
+  const {
+    error: deleteError
+  } =
+    await supabaseClient
+      .from("players")
+      .delete()
+      .eq("id", personId);
+
+
+  if (deleteError) {
+
+    console.error(
+      "Delete person error:",
+      deleteError
+    );
+
+    alert(
+      "Unable to remove the person."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Refresh people UI.
+   */
+
+  await loadAdminPeople();
+
+
+  alert(
+    `${personName} removed successfully.`
+  );
+
+}  
   
 async function deleteAdminWeek(weekId, weekNumber) {
 
