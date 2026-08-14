@@ -1980,6 +1980,72 @@ if (!selectedSeasonId) {
   return;
 } 
 
+const selectedOption =
+  seasonSelect.options[
+    seasonSelect.selectedIndex
+  ];
+
+
+const selectedSeasonYear =
+  selectedOption?.dataset.year || "—";
+
+
+const selectedSeasonStatus =
+  selectedOption?.dataset.status || "";
+
+
+/*
+ * Update Standings heading.
+ */
+
+const standingsTitle =
+  document.querySelector(
+    "#standings .section-title"
+  );
+
+if (standingsTitle) {
+
+  standingsTitle.textContent =
+    `${selectedSeasonYear} Season Standings`;
+
+}
+
+
+/*
+ * Update Season summary card.
+ */
+
+const seasonYearElement =
+  document.getElementById(
+    "standings-season-year"
+  );
+
+if (seasonYearElement) {
+
+  seasonYearElement.textContent =
+    selectedSeasonYear;
+
+}
+
+
+/*
+ * Update season status.
+ */
+
+const seasonStatusElement =
+  document.getElementById(
+    "standings-season-status"
+  );
+
+if (seasonStatusElement) {
+
+  seasonStatusElement.textContent =
+    selectedSeasonStatus === "active"
+      ? "🟢 Active"
+      : "🏆 Closed";
+
+}
+    
     const { data, error } =
       await supabaseClient
         .from("season_standings")
