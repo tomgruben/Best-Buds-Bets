@@ -4419,6 +4419,177 @@ async function loadAdminSeason() {
   });
 
 }
+
+async function deleteAdminSeason(
+  seasonId,
+  seasonYear
+) {
+
+  /*
+   * Check for standard picks.
+   */
+
+  const {
+    count: standardCount,
+    error: standardError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("season_id", seasonId);
+
+
+  if (standardError) {
+
+    console.error(
+      "Delete season standard-picks check error:",
+      standardError
+    );
+
+    alert(
+      "Unable to verify whether this season can be deleted."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Check for TD picks.
+   */
+
+  const {
+    count: tdCount,
+    error: tdError
+  } =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("season_id", seasonId);
+
+
+  if (tdError) {
+
+    console.error(
+      "Delete season TD-picks check error:",
+      tdError
+    );
+
+    alert(
+      "Unable to verify whether this season can be deleted."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Protect real historical data.
+   */
+
+  if (
+    Number(standardCount || 0) > 0 ||
+    Number(tdCount || 0) > 0
+  ) {
+
+    alert(
+      `The ${seasonYear} season cannot be deleted because betting history exists for that season.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Confirm deletion.
+   */
+
+  const confirmed =
+    confirm(
+      `Are you sure you want to permanently delete the ${seasonYear} season?\n\n` +
+      `This will also delete its weeks.`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /*
+   * Delete weeks first.
+   */
+
+  const {
+    error: weeksError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .delete()
+      .eq("season_id", seasonId);
+
+
+  if (weeksError) {
+
+    console.error(
+      "Delete season weeks error:",
+      weeksError
+    );
+
+    alert(
+      "Unable to delete the season's weeks."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Delete the season.
+   */
+
+  const {
+    error: seasonError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .delete()
+      .eq("id", seasonId)
+      .eq("status", "archived");
+
+
+  if (seasonError) {
+
+    console.error(
+      "Delete season error:",
+      seasonError
+    );
+
+    alert(
+      "Unable to delete the season."
+    );
+
+    return;
+  }
+
+
+  await loadAdminSeason();
+
+  await loadSeasons();
+
+  await loadStandingsSeasons();
+
+  alert(
+    `${seasonYear} season deleted successfully.`
+  );
+
+}
   
 async function closeAdminSeason(seasonId, seasonYear) {
 
