@@ -7787,6 +7787,35 @@ const selectedType =
     );
 
 }
+
+if (
+  selectedType === "Spread" ||
+  selectedType === "Total"
+) {
+
+  picksQuery =
+    picksQuery.eq(
+      "wager_type",
+      selectedType
+    );
+
+}
+
+
+if (selectedType === "NFL Prop") {
+
+  /*
+   * Standard picks should not appear
+   * when filtering specifically for NFL Props.
+   */
+
+  picksQuery =
+    picksQuery.eq(
+      "id",
+      -1
+    );
+
+}
   
   const {
     data,
@@ -7824,8 +7853,14 @@ let tdError = null;
  */
 
 if (
-  selectedSport === "all" ||
-  selectedSport === "NFL"
+  (
+    selectedSport === "all" ||
+    selectedSport === "NFL"
+  ) &&
+  (
+    selectedType === "all" ||
+    selectedType === "NFL Prop"
+  )
 ) {
 
   let tdQuery =
