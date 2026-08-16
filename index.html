@@ -6160,13 +6160,13 @@ async function loadManageWeeklyPicks() {
             ${row.players?.name || ""}
           </td>
 
-          <td>
-            ${row.day || ""}
-          </td>
+<td>
+  ${row.sport || ""}
+</td>
 
-          <td>
-            ${row.sport || ""}
-          </td>
+<td>
+  ${row.wager_type || "—"}
+</td>
 
           <td>
             ${row.pick || ""}
@@ -6251,15 +6251,17 @@ async function loadManageWeeklyPicks() {
   } =
     await supabaseClient
       .from("touchdown_picks")
-      .select(`
-        id,
-        player_id,
-        player_pick,
-        odds,
-        result,
-        units,
-        players(name)
-      `)
+.select(`
+  id,
+  player_id,
+  day,
+  sport,
+  wager_type,
+  pick,
+  odds,
+  result,
+  players(name)
+`)
       .eq("season_id", currentSeason.id)
       .eq("week_id", weekId)
       .order("player_id", {
