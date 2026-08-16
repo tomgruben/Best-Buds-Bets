@@ -8022,129 +8022,35 @@ async function loadPlayers() {
     return;
   }
 
+
   body.innerHTML = "";
 
 
   /*
-   * ==========================================================
-   * NO ACTIVE SEASON
-   * ==========================================================
+   * Load everybody from the Players table.
    *
-   * Still show all players so historical
-   * profiles remain accessible.
+   * This ensures players with no historical
+   * picks still appear in the career table.
    */
 
-  if (!currentSeason) {
-
-    const {
-      data: playerRows,
-      error: playerError
-    } =
-      await supabaseClient
-        .from("players")
-        .select("id, name")
-        .order("name", {
-          ascending: true
-        });
-
-
-    if (playerError) {
-
-      console.error(
-        "Players load error:",
-        playerError
-      );
-
-      body.innerHTML = `
-        <tr>
-          <td colspan="4" class="empty">
-            Unable to load players.
-          </td>
-        </tr>
-      `;
-
-      return;
-    }
-
-
-    players =
-      (playerRows || []).map(player => ({
-        id: player.id,
-        name: player.name
-      }));
-
-
-    if (!playerRows || playerRows.length === 0) {
-
-      body.innerHTML = `
-        <tr>
-          <td colspan="4" class="empty">
-            No players found.
-          </td>
-        </tr>
-      `;
-
-      return;
-    }
-
-
-    playerRows.forEach(player => {
-
-      const tr =
-        document.createElement("tr");
-
-
-      tr.innerHTML = `
-        <td>
-          <button
-            class="player-button"
-            onclick="openPlayerProfile(${player.id})">
-            ${player.name}
-          </button>
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          —
-        </td>
-
-        <td>
-          —
-        </td>
-      `;
-
-
-      body.appendChild(tr);
-
-    });
-
-
-    return;
-  }
-
-
-  /*
-   * ==========================================================
-   * ACTIVE SEASON
-   * ==========================================================
-   */
-
-  const { data, error } =
+  const {
+    data: playerRows,
+    error: playerError
+  } =
     await supabaseClient
-      .from("season_standings")
-      .select("*")
-      .eq("season_id", currentSeason.id)
-      .order("win_percentage", {
-        ascending: false
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
       });
 
 
-  if (error) {
+  if (playerError) {
 
-    console.error(error);
+    console.error(
+      "Players load error:",
+      playerError
+    );
 
     body.innerHTML = `
       <tr>
@@ -8158,14 +8064,52 @@ async function loadPlayers() {
   }
 
 
+  /*
+   * Load every player's standings from
+   * every season.
+   */
+
+  const {
+    data: standingsRows,
+    error: standingsError
+  } =
+    await supabaseClient
+      .from("season_standings")
+      .select("*");
+
+
+  if (standingsError) {
+
+    console.error(
+      "Career standings error:",
+      standingsError
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Unable to load career statistics.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  /*
+   * Keep the global players array available
+   * for openPlayerProfile().
+   */
+
   players =
-    (data || []).map(row => ({
-      id: row.player_id,
-      name: row.player_name
+    (playerRows || []).map(player => ({
+      id: player.id,
+      name: player.name
     }));
 
 
-  if (!data || data.length === 0) {
+  if (!playerRows || playerRows.length === 0) {
 
     body.innerHTML = `
       <tr>
@@ -8179,127 +8123,205 @@ async function loadPlayers() {
   }
 
 
-  data.forEach(row => {
+  /*
+   * Build one career record per player.
+   */
+
+  const careerMap = {};
+
+
+  playerRows.forEach(player => {
+
+    careerMap[player.id] = {
+
+      player_id:
+        player.id,
+
+      player_name:
+        player.name,
+
+      wins: 0,
+
+      losses: 0,
+
+      pushes: 0,
+
+      units: 0,
+
+      win_percentage: 0
+
+    };
+
+  });
+
+
+  /*
+   * Add together every season.
+   */
+
+  (standingsRows || []).forEach(row => {
+
+    const playerId =
+      Number(row.player_id);
+
+
+    if (!careerMap[playerId]) {
+      return;
+    }
+
+
+    careerMap[playerId].wins +=
+      Number(row.wins || 0);
+
+
+    careerMap[playerId].losses +=
+      Number(row.losses || 0);
+
+
+    careerMap[playerId].pushes +=
+      Number(row.pushes || 0);
+
+
+    careerMap[playerId].units +=
+      Number(row.units || 0);
+
+  });
+
+
+  /*
+   * Calculate career Win %.
+   *
+   * Pushes are excluded from the denominator.
+   */
+
+  const careerData =
+    Object.values(careerMap)
+      .map(row => {
+
+        const decisions =
+          row.wins +
+          row.losses;
+
+
+        row.win_percentage =
+          decisions > 0
+            ? (
+                row.wins /
+                decisions
+              ) * 100
+            : 0;
+
+
+        row.units =
+          Number(
+            row.units.toFixed(2)
+          );
+
+
+        return row;
+
+      })
+      .sort((a, b) => {
+
+        const winPctDifference =
+          b.win_percentage -
+          a.win_percentage;
+
+
+        if (winPctDifference !== 0) {
+          return winPctDifference;
+        }
+
+
+        return (
+          Number(b.units || 0) -
+          Number(a.units || 0)
+        );
+
+      });
+
+
+  /*
+   * Render career table.
+   */
+
+  careerData.forEach(row => {
 
     const tr =
       document.createElement("tr");
 
 
+    const decisions =
+      Number(row.wins || 0) +
+      Number(row.losses || 0);
+
+
+    let winPctClass = "";
+
+
+    if (decisions > 0) {
+
+      if (row.win_percentage > 50) {
+
+        winPctClass =
+          "win-percentage-positive";
+
+      }
+
+      else if (
+        row.win_percentage < 50
+      ) {
+
+        winPctClass =
+          "win-percentage-negative";
+
+      }
+
+    }
+
+
+    const unitClass =
+      Number(row.units) > 0
+        ? "positive"
+        : Number(row.units) < 0
+        ? "negative"
+        : "";
+
+
     tr.innerHTML = `
+
       <td>
+
         <button
           class="player-button"
-          onclick="openPlayerProfile(${row.player_id})">
+          onclick="openPlayerProfile(${row.player_id})"
+        >
           ${row.player_name}
         </button>
+
       </td>
+
 
       <td>
         ${row.wins}-${row.losses}-${row.pushes}
       </td>
 
-      <td>
+
+      <td class="${winPctClass}">
         ${row.win_percentage.toFixed(1)}%
       </td>
 
-      <td class="${
-        Number(row.units) > 0
-          ? "positive"
-          : Number(row.units) < 0
-          ? "negative"
-          : ""
-      }">
+
+      <td class="${unitClass}">
         ${formatUnits(row.units)}
       </td>
+
     `;
 
 
     body.appendChild(tr);
 
   });
-
-}
-
-
-  /*
-   * ==========================================================
-   * PLAYER PROFILE
-   * ==========================================================
-   */
-
-async function reloadPlayerProfile() {
-
-  if (!currentProfilePlayerId) return;
-
-  await openPlayerProfile(
-    currentProfilePlayerId
-  );
-
-}
-
-  async function loadProfileSeasons() {
-
-  const profileSeasonFilter =
-    document.getElementById("profile-season");
-
-  if (!profileSeasonFilter) return;
-
-
-  const currentValue =
-    profileSeasonFilter.value;
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("seasons")
-      .select("id, year")
-      .order("year", {
-        ascending: false
-      });
-
-
-  if (error) {
-
-    console.error(
-      "Profile seasons error:",
-      error
-    );
-
-    return;
-  }
-
-
-  profileSeasonFilter.innerHTML =
-    '<option value="all">All</option>';
-
-
-  (data || []).forEach(season => {
-
-    const option =
-      document.createElement("option");
-
-    option.value =
-      season.id;
-
-    option.textContent =
-      season.year;
-
-    profileSeasonFilter.appendChild(option);
-
-  });
-
-
-  if (
-    [...profileSeasonFilter.options]
-      .some(option =>
-        option.value === currentValue
-      )
-  ) {
-
-    profileSeasonFilter.value =
-      currentValue;
-
-  }
 
 }
   
