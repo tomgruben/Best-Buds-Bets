@@ -8367,24 +8367,39 @@ async function reloadPlayerProfile() {
       : 0;
 
 
-  const profileRecord =
+const profileRecord =
   document.getElementById("profile-record");
+
+const profileWinPct =
+  document.getElementById("profile-win-pct");
+
+
+profileRecord.textContent =
+  `${wins}-${losses}-${pushes}`;
+
 
 let winPercentageClass = "";
 
 if (winPercentage > 50) {
-  winPercentageClass = "win-percentage-positive";
-}
-else if (winPercentage < 50) {
-  winPercentageClass = "win-percentage-negative";
+
+  winPercentageClass =
+    "win-percentage-positive";
+
 }
 
-profileRecord.innerHTML = `
-  ${wins}-${losses}-${pushes} •
-  <span class="${winPercentageClass}">
-    ${winPercentage.toFixed(1)}%
-  </span>
-`;
+else if (winPercentage < 50) {
+
+  winPercentageClass =
+    "win-percentage-negative";
+
+}
+
+
+profileWinPct.textContent =
+  `${winPercentage.toFixed(1)}%`;
+
+profileWinPct.className =
+  `profile-stat-value ${winPercentageClass}`;
 
 
   /*
