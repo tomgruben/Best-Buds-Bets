@@ -4565,6 +4565,133 @@ async function closeAdminSeason(seasonId, seasonYear) {
 
 }
 
+async function reactivateAdminSeason(
+  seasonId,
+  seasonYear
+) {
+
+  /*
+   * Make sure another season
+   * is not already active.
+   */
+
+  const {
+    data: activeSeasons,
+    error: activeError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year")
+      .eq("status", "active");
+
+
+  if (activeError) {
+
+    console.error(
+      "Active season check error:",
+      activeError
+    );
+
+    alert(
+      "Unable to verify the current active season."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Block reactivation if another
+   * season is currently active.
+   */
+
+  if (
+    activeSeasons &&
+    activeSeasons.length > 0
+  ) {
+
+    alert(
+      `The ${activeSeasons[0].year} season is currently active.\n\n` +
+      `Close that season before reactivating ${seasonYear}.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Final confirmation.
+   */
+
+  const confirmed =
+    confirm(
+      `Reactivate the ${seasonYear} season?\n\n` +
+      `Its existing weeks, picks, results, and standings will remain unchanged.`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  /*
+   * Reactivate the archived season.
+   */
+
+  const {
+    data: reactivatedSeason,
+    error
+  } =
+    await supabaseClient
+      .from("seasons")
+      .update({
+        status: "active",
+        archived_at: null
+      })
+      .eq("id", seasonId)
+      .eq("status", "archived")
+      .select()
+      .single();
+
+
+  if (error || !reactivatedSeason) {
+
+    console.error(
+      "Reactivate season error:",
+      error
+    );
+
+    alert(
+      `Unable to reactivate the ${seasonYear} season.`
+    );
+
+    return;
+  }
+
+
+  /*
+   * Make it the current season.
+   */
+
+  currentSeason =
+    reactivatedSeason;
+
+
+  alert(
+    `${seasonYear} season reactivated successfully.`
+  );
+
+
+  /*
+   * Reload the application against
+   * the reactivated season.
+   */
+
+  await initialize();
+
+}
+  
 async function startAdminSeason() {
 
   const yearInput =
