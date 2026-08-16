@@ -6778,72 +6778,212 @@ if (tdError) {
    * ==========================================================
    */
 
-  async function loadPlayers() {
+async function loadPlayers() {
 
-    if (!currentSeason) return;
+  const body =
+    document.getElementById("players-body");
 
-    const { data, error } =
+  if (!body) {
+    return;
+  }
+
+  body.innerHTML = "";
+
+
+  /*
+   * ==========================================================
+   * NO ACTIVE SEASON
+   * ==========================================================
+   *
+   * Still show all players so historical
+   * profiles remain accessible.
+   */
+
+  if (!currentSeason) {
+
+    const {
+      data: playerRows,
+      error: playerError
+    } =
       await supabaseClient
-        .from("season_standings")
-        .select("*")
-        .eq("season_id", currentSeason.id)
-        .order("win_percentage", {
-          ascending: false
+        .from("players")
+        .select("id, name")
+        .order("name", {
+          ascending: true
         });
 
 
-    if (error) {
+    if (playerError) {
 
-      console.error(error);
+      console.error(
+        "Players load error:",
+        playerError
+      );
+
+      body.innerHTML = `
+        <tr>
+          <td colspan="4" class="empty">
+            Unable to load players.
+          </td>
+        </tr>
+      `;
+
       return;
     }
 
-    players = data.map(row => ({
-  id: row.player_id,
-  name: row.player_name
-}));
 
-    const body =
-      document.getElementById("players-body");
-
-    body.innerHTML = "";
+    players =
+      (playerRows || []).map(player => ({
+        id: player.id,
+        name: player.name
+      }));
 
 
-    data.forEach(row => {
+    if (!playerRows || playerRows.length === 0) {
+
+      body.innerHTML = `
+        <tr>
+          <td colspan="4" class="empty">
+            No players found.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    playerRows.forEach(player => {
 
       const tr =
         document.createElement("tr");
+
 
       tr.innerHTML = `
         <td>
           <button
             class="player-button"
-            onclick="openPlayerProfile(${row.player_id})">
-            ${row.player_name}
+            onclick="openPlayerProfile(${player.id})">
+            ${player.name}
           </button>
         </td>
 
         <td>
-          ${row.wins}-${row.losses}-${row.pushes}
+          —
         </td>
 
         <td>
-          ${row.win_percentage.toFixed(1)}%
+          —
         </td>
 
-        <td class="${
-          Number(row.units) >= 0
-            ? "positive"
-            : "negative"
-        }">
-          ${formatUnits(row.units)}
+        <td>
+          —
         </td>
       `;
+
 
       body.appendChild(tr);
 
     });
+
+
+    return;
   }
+
+
+  /*
+   * ==========================================================
+   * ACTIVE SEASON
+   * ==========================================================
+   */
+
+  const { data, error } =
+    await supabaseClient
+      .from("season_standings")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .order("win_percentage", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(error);
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Unable to load players.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  players =
+    (data || []).map(row => ({
+      id: row.player_id,
+      name: row.player_name
+    }));
+
+
+  if (!data || data.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          No players found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  data.forEach(row => {
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+      <td>
+        <button
+          class="player-button"
+          onclick="openPlayerProfile(${row.player_id})">
+          ${row.player_name}
+        </button>
+      </td>
+
+      <td>
+        ${row.wins}-${row.losses}-${row.pushes}
+      </td>
+
+      <td>
+        ${row.win_percentage.toFixed(1)}%
+      </td>
+
+      <td class="${
+        Number(row.units) > 0
+          ? "positive"
+          : Number(row.units) < 0
+          ? "negative"
+          : ""
+      }">
+        ${formatUnits(row.units)}
+      </td>
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+}
 
 
   /*
