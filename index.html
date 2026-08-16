@@ -2621,6 +2621,39 @@ function toggleSetupCard(
   const selectedSeasonStatus =
     selectedOption?.dataset.status || "";
 
+const leaderLabel =
+  document.getElementById(
+    "leader-label"
+  );
+
+
+if (leaderLabel) {
+
+  if (isAllTime) {
+
+    leaderLabel.textContent =
+      "All-Time Leader";
+
+  }
+
+  else if (
+    selectedSeasonStatus === "active"
+  ) {
+
+    leaderLabel.textContent =
+      "Current Leader";
+
+  }
+
+  else {
+
+    leaderLabel.textContent =
+      "Champion";
+
+  }
+
+}
+   
 
   /*
    * ==========================================================
