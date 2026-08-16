@@ -1644,66 +1644,117 @@
 
     <div class="card">
 
-      <div class="profile-header">
+   <div class="profile-header">
 
-        <div>
+  <div style="width:100%;">
 
-          <h2
-            class="profile-name"
-            id="profile-name"
-          >
-            Player
-          </h2>
-
-          <div
-            class="record"
-            id="profile-record"
-          ></div>
+    <h2
+      class="profile-name"
+      id="profile-name"
+    >
+      Player
+    </h2>
 
 
-          <div class="profile-filters">
+    <div class="profile-stats-grid">
 
-            <div class="profile-filter-group">
+      <div class="profile-stat">
 
-              <label for="profile-season">
-                Season
-              </label>
-
-              <select
-                id="profile-season"
-                onchange="reloadPlayerProfile()"
-              >
-                <option value="all">All</option>
-              </select>
-
-            </div>
-
-
-            <div class="profile-filter-group">
-
-              <label for="profile-sport">
-                Sport
-              </label>
-
-              <select
-                id="profile-sport"
-                onchange="reloadPlayerProfile()"
-              >
-                <option value="all">All</option>
-                <option value="College Football">
-                  College Football
-                </option>
-                <option value="NFL">
-                  NFL
-                </option>
-              </select>
-
-            </div>
-
-          </div>
-
+        <div class="profile-stat-label">
+          Record
         </div>
 
+        <div
+          class="profile-stat-value"
+          id="profile-record"
+        >
+          0-0-0
+        </div>
+
+      </div>
+
+
+      <div class="profile-stat">
+
+        <div class="profile-stat-label">
+          Win %
+        </div>
+
+        <div
+          class="profile-stat-value"
+          id="profile-win-pct"
+        >
+          0.0%
+        </div>
+
+      </div>
+
+
+      <div class="profile-stat">
+
+        <div class="profile-stat-label">
+          Units
+        </div>
+
+        <div
+          class="profile-stat-value"
+          id="profile-units"
+        >
+          0.00u
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="profile-filters">
+
+      <div class="profile-filter-group">
+
+        <label for="profile-season">
+          Season
+        </label>
+
+        <select
+          id="profile-season"
+          onchange="reloadPlayerProfile()"
+        >
+          <option value="all">All</option>
+        </select>
+
+      </div>
+
+
+      <div class="profile-filter-group">
+
+        <label for="profile-sport">
+          Sport
+        </label>
+
+        <select
+          id="profile-sport"
+          onchange="reloadPlayerProfile()"
+        >
+          <option value="all">All</option>
+
+          <option value="College Football">
+            College Football
+          </option>
+
+          <option value="NFL">
+            NFL
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
         <div>
           <strong id="profile-units">
