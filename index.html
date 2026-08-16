@@ -1404,13 +1404,26 @@
      ADMIN PEOPLE MANAGEMENT
      ====================================================== -->
 
-<div class="card">
+<div class="card setup-card">
 
-  <h3>Manage People</h3>
+  <button
+    type="button"
+    class="setup-card-header"
+    onclick="toggleSetupCard('people', this)"
+  >
+    <span>Manage People</span>
+    <span class="setup-card-arrow">▸</span>
+  </button>
 
-  <p class="muted">
-    Add or remove people from the competition.
-  </p>
+  <div
+    id="setup-people-content"
+    class="setup-card-content"
+    style="display:none;"
+  >
+
+    <p class="muted">
+      Add or remove people from the competition.
+    </p>
 
 
   <div class="form-grid">
