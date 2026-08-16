@@ -7962,20 +7962,20 @@ if (tdError) {
 
     tr.innerHTML = `
 
-      <td>
-        ${row.players?.name || ""}
-      </td>
+<td>
+  ${row.players?.name || ""}
+</td>
 
-      <td>
-        ${row.weeks?.week_number || ""}
-      </td>
-
-      <td>
-        ${row.day || ""}
-      </td>
+<td>
+  ${row.weeks?.week_number || ""}
+</td>
 
 <td>
   ${row.sport || ""}
+</td>
+
+<td>
+  ${row.wager_type || "—"}
 </td>
 
 <td>
@@ -8018,25 +8018,25 @@ if (tdError) {
 
     tr.innerHTML = `
 
-      <td>
-        ${row.players?.name || ""}
-      </td>
+<td>
+  ${row.players?.name || ""}
+</td>
 
-      <td>
-        ${row.weeks?.week_number || ""}
-      </td>
+<td>
+  ${row.weeks?.week_number || ""}
+</td>
 
-      <td>
-        Sunday
-      </td>
+<td>
+  NFL
+</td>
 
-      <td>
-        NFL
-      </td>
+<td>
+  NFL Prop
+</td>
 
-      <td>
-        ${row.player_pick || ""}
-      </td>
+<td>
+  ${row.player_pick || ""}
+</td>
 
       <td>
         ${row.odds ?? "—"}
