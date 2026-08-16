@@ -8832,13 +8832,23 @@ async function loadPlayerUnits(playerId) {
 
 
   /*
+   * ==========================================================
    * STANDARD PICKS
+   * ==========================================================
    */
 
   let picksQuery =
     supabaseClient
       .from("picks")
-      .select("*")
+      .select(`
+        *,
+        weeks (
+          week_number
+        ),
+        seasons (
+          year
+        )
+      `)
       .eq("player_id", playerId);
 
 
@@ -8868,11 +8878,7 @@ async function loadPlayerUnits(playerId) {
     data: picks,
     error: picksError
   } =
-    await picksQuery
-      .order(
-        "week_id",
-        { ascending: true }
-      );
+    await picksQuery;
 
 
   if (picksError) {
@@ -8883,7 +8889,9 @@ async function loadPlayerUnits(playerId) {
     );
 
     chart.innerHTML =
-      `<div class="empty">Unable to load weekly units.</div>`;
+      `<div class="empty">
+        Unable to load units trend.
+      </div>`;
 
     return;
 
@@ -8891,9 +8899,12 @@ async function loadPlayerUnits(playerId) {
 
 
   /*
+   * ==========================================================
    * TD PICKS
    *
-   * TD scorer picks are NFL.
+   * TD scorer picks count toward Units only.
+   * They are considered NFL for the Sport filter.
+   * ==========================================================
    */
 
   let tdPicks = [];
@@ -8907,7 +8918,15 @@ async function loadPlayerUnits(playerId) {
     let tdQuery =
       supabaseClient
         .from("touchdown_picks")
-        .select("*")
+        .select(`
+          *,
+          weeks (
+            week_number
+          ),
+          seasons (
+            year
+          )
+        `)
         .eq("player_id", playerId);
 
 
@@ -8923,11 +8942,7 @@ async function loadPlayerUnits(playerId) {
 
 
     const tdResponse =
-      await tdQuery
-        .order(
-          "week_id",
-          { ascending: true }
-        );
+      await tdQuery;
 
 
     if (tdResponse.error) {
@@ -8938,7 +8953,9 @@ async function loadPlayerUnits(playerId) {
       );
 
       chart.innerHTML =
-        `<div class="empty">Unable to load weekly units.</div>`;
+        `<div class="empty">
+          Unable to load units trend.
+        </div>`;
 
       return;
 
@@ -8952,23 +8969,71 @@ async function loadPlayerUnits(playerId) {
 
 
   /*
-   * COMBINE UNITS BY WEEK
+   * ==========================================================
+   * COMBINE UNITS BY SEASON + WEEK
+   *
+   * Important:
+   * We use the actual season year and week_number,
+   * NOT the database week_id.
+   * ==========================================================
    */
 
   const weeklyUnits = {};
 
 
-  (picks || []).forEach(row => {
+  function addWeeklyUnits(
+    seasonYear,
+    weekNumber,
+    units
+  ) {
 
-    const week =
-      Number(row.week_id);
+    if (
+      !seasonYear ||
+      !weekNumber
+    ) {
+      return;
+    }
 
 
-    if (!weeklyUnits[week]) {
+    const key =
+      `${seasonYear}-${weekNumber}`;
 
-      weeklyUnits[week] = 0;
+
+    if (!weeklyUnits[key]) {
+
+      weeklyUnits[key] = {
+        seasonYear:
+          Number(seasonYear),
+
+        weekNumber:
+          Number(weekNumber),
+
+        units:
+          0
+      };
 
     }
+
+
+    weeklyUnits[key].units +=
+      Number(units || 0);
+
+  }
+
+
+  /*
+   * ==========================================================
+   * STANDARD PICK UNITS
+   * ==========================================================
+   */
+
+  (picks || []).forEach(row => {
+
+    const seasonYear =
+      row.seasons?.year;
+
+    const weekNumber =
+      row.weeks?.week_number;
 
 
     let units = 0;
@@ -9009,64 +9074,145 @@ async function loadPlayerUnits(playerId) {
     }
 
 
-    weeklyUnits[week] +=
-      units;
+    addWeeklyUnits(
+      seasonYear,
+      weekNumber,
+      units
+    );
 
   });
 
+
+  /*
+   * ==========================================================
+   * TD PICK UNITS
+   * ==========================================================
+   */
 
   (tdPicks || []).forEach(row => {
 
-    const week =
-      Number(row.week_id);
-
-
-    if (!weeklyUnits[week]) {
-
-      weeklyUnits[week] = 0;
-
-    }
-
-
-    weeklyUnits[week] +=
-      Number(row.units || 0);
+    addWeeklyUnits(
+      row.seasons?.year,
+      row.weeks?.week_number,
+      Number(row.units || 0)
+    );
 
   });
 
 
-  const values =
-    Object.keys(weeklyUnits)
-      .map(week => ({
-        week: Number(week),
-        units: Number(
-          weeklyUnits[week].toFixed(2)
-        )
-      }))
-      .sort(
-        (a, b) =>
-          a.week - b.week
-      );
+  /*
+   * ==========================================================
+   * SORT CHRONOLOGICALLY
+   *
+   * 2026 W1
+   * 2026 W2
+   * ...
+   * 2027 W1
+   * ==========================================================
+   */
+
+  const weeklyValues =
+    Object.values(weeklyUnits)
+      .sort((a, b) => {
+
+        if (
+          a.seasonYear !==
+          b.seasonYear
+        ) {
+
+          return (
+            a.seasonYear -
+            b.seasonYear
+          );
+
+        }
 
 
-  if (values.length === 0) {
+        return (
+          a.weekNumber -
+          b.weekNumber
+        );
+
+      });
+
+
+  if (weeklyValues.length === 0) {
 
     chart.innerHTML =
-      `<div class="empty">No weekly data yet.</div>`;
+      `<div class="empty">
+        No units data yet.
+      </div>`;
 
     return;
 
   }
 
 
+  /*
+   * ==========================================================
+   * CUMULATIVE UNITS
+   * ==========================================================
+   */
+
+  let runningUnits = 0;
+
+
+  const values =
+    weeklyValues.map(value => {
+
+      runningUnits +=
+        value.units;
+
+
+      runningUnits =
+        Number(
+          runningUnits.toFixed(2)
+        );
+
+
+      return {
+
+        seasonYear:
+          value.seasonYear,
+
+        weekNumber:
+          value.weekNumber,
+
+        weeklyUnits:
+          Number(
+            value.units.toFixed(2)
+          ),
+
+        cumulativeUnits:
+          runningUnits
+
+      };
+
+    });
+
+
+  /*
+   * ==========================================================
+   * CHART SCALE
+   * ==========================================================
+   */
+
   const maxAbs =
     Math.max(
-      ...values.map(
-        value =>
-          Math.abs(value.units)
+      ...values.map(value =>
+        Math.abs(
+          value.cumulativeUnits
+        )
       ),
       1
     );
 
+
+  /*
+   * ==========================================================
+   * DRAW CHART
+   * ==========================================================
+   */
 
   values.forEach(value => {
 
@@ -9084,7 +9230,9 @@ async function loadPlayerUnits(playerId) {
       "bar";
 
 
-    if (value.units < 0) {
+    if (
+      value.cumulativeUnits < 0
+    ) {
 
       bar.classList.add(
         "negative"
@@ -9093,19 +9241,24 @@ async function loadPlayerUnits(playerId) {
     }
 
 
-  const maxBarHeight = 105;
+    const maxBarHeight = 105;
 
-  const height =
-  Math.max(
-    4,
-    (
-      Math.abs(value.units) /
-      maxAbs
-    ) * maxBarHeight
-  );
 
-bar.style.height =
-  `${height}px`;
+    const height =
+      Math.max(
+        4,
+        (
+          Math.abs(
+            value.cumulativeUnits
+          ) /
+          maxAbs
+        ) *
+        maxBarHeight
+      );
+
+
+    bar.style.height =
+      `${height}px`;
 
 
     const label =
@@ -9115,18 +9268,56 @@ bar.style.height =
       "bar-label";
 
 
-    label.innerHTML = `
-  <span class="week-label">
-    W${value.week}
-  </span>
+    /*
+     * When viewing ALL seasons,
+     * include the year.
+     *
+     * When viewing one season,
+     * simply show W1, W2, etc.
+     */
 
-  <span class="${unitsClass(value.units)}">
-    ${formatUnits(value.units)}
-  </span>
-`;
+    const weekLabel =
+      selectedProfileSeason === "all"
+        ? `${value.seasonYear} W${value.weekNumber}`
+        : `W${value.weekNumber}`;
+
+
+    label.innerHTML = `
+
+      <span class="week-label">
+        ${weekLabel}
+      </span>
+
+      <span class="${
+        unitsClass(
+          value.cumulativeUnits
+        )
+      }">
+        ${
+          formatUnits(
+            value.cumulativeUnits
+          )
+        }
+      </span>
+
+    `;
+
+
+    /*
+     * Helpful hover information:
+     *
+     * Shows both that week's result
+     * and the cumulative total.
+     */
+
+    container.title =
+      `${value.seasonYear} Week ${value.weekNumber}\n` +
+      `Week: ${formatUnits(value.weeklyUnits)}\n` +
+      `Total: ${formatUnits(value.cumulativeUnits)}`;
 
 
     container.appendChild(bar);
+
     container.appendChild(label);
 
     chart.appendChild(container);
