@@ -2200,6 +2200,53 @@ function showAdminSection(sectionName, button) {
   }
 
 }
+
+function showWeeklySection(sectionName, button) {
+
+  const sections = [
+    "weekly-saturday-section",
+    "weekly-sunday-section",
+    "weekly-td-section"
+  ];
+
+
+  sections.forEach(sectionId => {
+
+    const section =
+      document.getElementById(sectionId);
+
+    if (section) {
+      section.style.display = "none";
+    }
+
+  });
+
+
+  const selectedSection =
+    document.getElementById(
+      `weekly-${sectionName}-section`
+    );
+
+
+  if (selectedSection) {
+    selectedSection.style.display = "block";
+  }
+
+
+  document
+    .querySelectorAll(".weekly-subnav-button")
+    .forEach(btn => {
+
+      btn.classList.remove("active");
+
+    });
+
+
+  if (button) {
+    button.classList.add("active");
+  }
+
+}
   
  async function loadStandings() {
 
