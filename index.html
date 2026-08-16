@@ -6093,16 +6093,17 @@ async function loadManageWeeklyPicks() {
   } =
     await supabaseClient
       .from("picks")
-      .select(`
-        id,
-        player_id,
-        day,
-        sport,
-        pick,
-        odds,
-        result,
-        players(name)
-      `)
+.select(`
+  id,
+  player_id,
+  day,
+  sport,
+  wager_type,
+  pick,
+  odds,
+  result,
+  players(name)
+`)
       .eq("season_id", currentSeason.id)
       .eq("week_id", weekId)
       .order("player_id", {
