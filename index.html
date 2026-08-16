@@ -577,6 +577,50 @@
   color: white;
   border-color: var(--accent);
 }
+
+/* Setup collapsible cards */
+
+.setup-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.setup-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  background: transparent;
+  color: var(--text);
+
+  border: 0;
+  padding: 18px 20px;
+
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.setup-card-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.setup-card-arrow {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.setup-card-header.open
+  .setup-card-arrow {
+  transform: rotate(90deg);
+}
+
+.setup-card-content {
+  padding: 0 20px 20px;
+}
     
   </style>
 </head>
