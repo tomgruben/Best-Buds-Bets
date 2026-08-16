@@ -2592,66 +2592,82 @@ else {
 
 
   /*
-   * Every player with the highest
-   * Win % is a co-leader.
+   * If nobody has actually won yet,
+   * do not show a leader.
    */
 
-  const leaders =
-    eligibleLeaders.filter(row =>
-      Number(
-        row.win_percentage || 0
-      ) === highestWinPercentage
-    );
+  if (highestWinPercentage <= 0) {
 
-
-  const leaderNames =
-    leaders.map(row =>
-      row.player_name
-    );
-
-
-  /*
-   * Format:
-   *
-   * Andy
-   * Andy & Joe
-   * Andy, Joe & Tom
-   * Andy, Bach, Joe & Tom
-   */
-
-  let leaderText = "";
-
-
-  if (leaderNames.length === 1) {
-
-    leaderText =
-      leaderNames[0];
-
-  }
-
-  else if (leaderNames.length === 2) {
-
-    leaderText =
-      `${leaderNames[0]} & ${leaderNames[1]}`;
+    leaderElement.textContent = "—";
 
   }
 
   else {
 
-    leaderText =
-      `${leaderNames
-        .slice(0, -1)
-        .join(", ")} & ${leaderNames[
-          leaderNames.length - 1
-        ]}`;
+    /*
+     * Every player with the highest
+     * Win % is a co-leader.
+     */
+
+    const leaders =
+      eligibleLeaders.filter(row =>
+        Number(
+          row.win_percentage || 0
+        ) === highestWinPercentage
+      );
+
+
+    const leaderNames =
+      leaders.map(row =>
+        row.player_name
+      );
+
+
+    /*
+     * Format:
+     *
+     * Andy
+     * Andy & Joe
+     * Andy, Joe & Tom
+     * Andy, Bach, Joe & Tom
+     */
+
+    let leaderText = "";
+
+
+    if (leaderNames.length === 1) {
+
+      leaderText =
+        leaderNames[0];
+
+    }
+
+    else if (leaderNames.length === 2) {
+
+      leaderText =
+        `${leaderNames[0]} & ${leaderNames[1]}`;
+
+    }
+
+    else {
+
+      leaderText =
+        `${leaderNames
+          .slice(0, -1)
+          .join(", ")} & ${leaderNames[
+            leaderNames.length - 1
+          ]}`;
+
+    }
+
+
+    leaderElement.textContent =
+      leaderText;
 
   }
 
-
-  leaderElement.textContent =
-    leaderText;
-
 }
+
 
 
   /*
