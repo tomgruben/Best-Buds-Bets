@@ -4258,6 +4258,9 @@ async function loadAdminSeason() {
   }
 
 
+  body.innerHTML = "";
+
+
   const activeSeason =
     (seasons || []).find(
       season =>
@@ -4265,78 +4268,151 @@ async function loadAdminSeason() {
     );
 
 
-  body.innerHTML = "";
+  /*
+   * ==========================================================
+   * ACTIVE SEASON
+   * ==========================================================
+   */
+
+  if (activeSeason) {
+
+    const tr =
+      document.createElement("tr");
 
 
-if (!activeSeason) {
+    tr.innerHTML = `
 
-  body.innerHTML = `
-    <tr>
       <td>
+        ${activeSeason.year}
+      </td>
+
+      <td>
+        🟢 Active
+      </td>
+
+      <td>
+
+        <button
+          type="button"
+          onclick="closeAdminSeason(${activeSeason.id}, ${activeSeason.year})"
+        >
+          Close / Archive
+        </button>
+
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  }
+
+
+  /*
+   * ==========================================================
+   * NO ACTIVE SEASON
+   * ==========================================================
+   */
+
+  else {
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+
         <input
           id="new-season-year"
           type="number"
           min="2020"
-          placeholder="Example: 2027"
+          placeholder="Example: 2028"
         >
+
       </td>
 
       <td>
+
         <input
           id="new-season-weeks"
           type="number"
           min="1"
           value="19"
         >
+
       </td>
 
       <td>
+
         <button
           type="button"
           onclick="startAdminSeason()"
         >
           Start New Season
         </button>
+
       </td>
-    </tr>
-  `;
 
-  return;
+    `;
+
+
+    body.appendChild(tr);
+
+  }
+
+
+  /*
+   * ==========================================================
+   * ARCHIVED SEASONS
+   * ==========================================================
+   */
+
+  const archivedSeasons =
+    (seasons || []).filter(
+      season =>
+        season.status === "archived"
+    );
+
+
+  archivedSeasons.forEach(season => {
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${season.year}
+      </td>
+
+      <td>
+        🏆 Closed
+      </td>
+
+      <td>
+
+        <button
+          type="button"
+          onclick="reactivateAdminSeason(${season.id}, ${season.year})"
+        >
+          Reactivate
+        </button>
+
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
 }
-
-
-  const tr =
-    document.createElement("tr");
-
-
-  tr.innerHTML = `
-
-    <td>
-      ${activeSeason.year}
-    </td>
-
-    <td>
-      🟢 Active
-    </td>
-
-    <td>
-
-  <button
-    type="button"
-    onclick="closeAdminSeason(${activeSeason.id}, ${activeSeason.year})"
-  >
-    Close / Archive
-  </button>
-
-</td>
-
-  `;
-
-
-  body.appendChild(tr);
-
-}
-
+  
 async function closeAdminSeason(seasonId, seasonYear) {
 
   /*
