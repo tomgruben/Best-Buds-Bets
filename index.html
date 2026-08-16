@@ -7266,6 +7266,11 @@ async function saveSaturdayPicks() {
       String(player.id);
 
 
+    const typeInput =
+  document.getElementById(
+    `sat-type-${key}`
+  );
+    
     const pickInput =
       document.getElementById(
         `sat-pick-${key}`
@@ -7282,14 +7287,14 @@ async function saveSaturdayPicks() {
       );
 
 
-    if (
-      !pickInput ||
-      !oddsInput ||
-      !resultInput
-    ) {
-      continue;
-    }
-
+if (
+  !typeInput ||
+  !pickInput ||
+  !oddsInput ||
+  !resultInput
+) {
+  continue;
+}
 
     const pick =
       pickInput.value.trim();
