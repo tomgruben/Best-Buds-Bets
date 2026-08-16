@@ -1341,13 +1341,26 @@
      ADMIN SEASON MANAGEMENT
      ====================================================== -->
 
-<div class="card">
+<div class="card setup-card">
 
-  <h3>Manage Seasons</h3>
+  <button
+    type="button"
+    class="setup-card-header"
+    onclick="toggleSetupCard('seasons', this)"
+  >
+    <span>Manage Seasons</span>
+    <span class="setup-card-arrow">▸</span>
+  </button>
 
-  <p class="muted">
-    Close the active season or start a new season.
-  </p>
+  <div
+    id="setup-seasons-content"
+    class="setup-card-content"
+    style="display:none;"
+  >
+
+    <p class="muted">
+      Close the active season or start a new season.
+    </p>
 
 
   <h4>
