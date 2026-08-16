@@ -4395,12 +4395,19 @@ async function loadAdminSeason() {
 
       <td>
 
-        <button
-          type="button"
-          onclick="reactivateAdminSeason(${season.id}, ${season.year})"
-        >
-          Reactivate
-        </button>
+    <button
+  type="button"
+  onclick="reactivateAdminSeason(${season.id}, ${season.year})"
+>
+  Reactivate
+</button>
+
+<button
+  type="button"
+  onclick="deleteAdminSeason(${season.id}, ${season.year})"
+>
+  Delete
+</button>
 
       </td>
 
