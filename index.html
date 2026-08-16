@@ -2530,14 +2530,128 @@ seasonSelect.appendChild(allOption);
   }
 
 
-  /*
-   * Leader.
-   */
+/*
+ * ==========================================================
+ * LEADER / CO-LEADERS
+ * ==========================================================
+ *
+ * A player must have at least one
+ * decision (Win or Loss) to qualify
+ * as a leader.
+ *
+ * Pushes do not count as decisions.
+ */
 
+const eligibleLeaders =
+  data.filter(row => {
+
+    const wins =
+      Number(row.wins || 0);
+
+    const losses =
+      Number(row.losses || 0);
+
+    return (
+      wins + losses > 0
+    );
+
+  });
+
+
+const leaderElement =
   document.getElementById(
     "leader-name"
-  ).textContent =
-    data[0].player_name;
+  );
+
+
+if (eligibleLeaders.length === 0) {
+
+  /*
+   * Nobody has a finalized decision.
+   */
+
+  leaderElement.textContent = "—";
+
+}
+
+else {
+
+  /*
+   * Find the highest Win % among
+   * players with at least one decision.
+   */
+
+  const highestWinPercentage =
+    Math.max(
+      ...eligibleLeaders.map(row =>
+        Number(
+          row.win_percentage || 0
+        )
+      )
+    );
+
+
+  /*
+   * Every player with the highest
+   * Win % is a co-leader.
+   */
+
+  const leaders =
+    eligibleLeaders.filter(row =>
+      Number(
+        row.win_percentage || 0
+      ) === highestWinPercentage
+    );
+
+
+  const leaderNames =
+    leaders.map(row =>
+      row.player_name
+    );
+
+
+  /*
+   * Format:
+   *
+   * Andy
+   * Andy & Joe
+   * Andy, Joe & Tom
+   * Andy, Bach, Joe & Tom
+   */
+
+  let leaderText = "";
+
+
+  if (leaderNames.length === 1) {
+
+    leaderText =
+      leaderNames[0];
+
+  }
+
+  else if (leaderNames.length === 2) {
+
+    leaderText =
+      `${leaderNames[0]} & ${leaderNames[1]}`;
+
+  }
+
+  else {
+
+    leaderText =
+      `${leaderNames
+        .slice(0, -1)
+        .join(", ")} & ${leaderNames[
+          leaderNames.length - 1
+        ]}`;
+
+  }
+
+
+  leaderElement.textContent =
+    leaderText;
+
+}
 
 
   /*
