@@ -2415,6 +2415,44 @@ function showManagePicksSection(sectionName, button) {
   }
 
 }
+
+function toggleSetupCard(
+  sectionName,
+  button
+) {
+
+  const content =
+    document.getElementById(
+      `setup-${sectionName}-content`
+    );
+
+
+  if (!content) {
+    return;
+  }
+
+
+  const isOpen =
+    content.style.display !== "none";
+
+
+  if (isOpen) {
+
+    content.style.display = "none";
+
+    button.classList.remove("open");
+
+  }
+
+  else {
+
+    content.style.display = "block";
+
+    button.classList.add("open");
+
+  }
+
+}
   
  async function loadStandings() {
 
