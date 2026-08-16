@@ -6684,7 +6684,7 @@ async function loadManageWeeks() {
 
 }
   
-async function saveWeeklyStandardPicks() {
+async function saveSaturdayPicks() {
 
   if (!currentSeason) return;
 
@@ -6728,9 +6728,205 @@ async function saveWeeklyStandardPicks() {
   }
 
 
-  /*
-   * Load all current players dynamically.
-   */
+  const {
+    data: playerRows,
+    error: playerError
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
+
+
+  if (playerError) {
+
+    showMessage(
+      "bet-message",
+      playerError.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  const wagers = [];
+
+
+  for (const player of playerRows || []) {
+
+    const key =
+      String(player.id);
+
+
+    const pickInput =
+      document.getElementById(
+        `sat-pick-${key}`
+      );
+
+    const oddsInput =
+      document.getElementById(
+        `sat-odds-${key}`
+      );
+
+    const resultInput =
+      document.getElementById(
+        `sat-result-${key}`
+      );
+
+
+    if (
+      !pickInput ||
+      !oddsInput ||
+      !resultInput
+    ) {
+      continue;
+    }
+
+
+    const pick =
+      pickInput.value.trim();
+
+    const oddsValue =
+      oddsInput.value;
+
+    const result =
+      resultInput.value || "pending";
+
+
+    if (pick) {
+
+      wagers.push({
+
+        player_id:
+          player.id,
+
+        season_id:
+          currentSeason.id,
+
+        week_id:
+          week.id,
+
+        day:
+          "Saturday",
+
+        sport:
+          "College Football",
+
+        game:
+          null,
+
+        pick:
+          pick,
+
+        odds:
+          oddsValue === ""
+            ? null
+            : Number(oddsValue),
+
+        result:
+          result
+
+      });
+
+    }
+
+  }
+
+
+  if (wagers.length === 0) {
+
+    showMessage(
+      "bet-message",
+      "Please enter at least one Saturday pick.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .upsert(
+        wagers,
+        {
+          onConflict:
+            "player_id,week_id,day"
+        }
+      );
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    `${wagers.length} Saturday pick${wagers.length === 1 ? "" : "s"} saved successfully.`,
+    "success"
+  );
+
+
+  await loadStandings();
+
+}
+
+
+async function saveSundayPicks() {
+
+  if (!currentSeason) return;
+
+
+  const weekNumber =
+    Number(
+      document.getElementById("weekly-week").value
+    );
+
+
+  if (!weekNumber) {
+
+    showMessage(
+      "bet-message",
+      "Please select a week.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
 
   const {
     data: playerRows,
@@ -6759,140 +6955,48 @@ async function saveWeeklyStandardPicks() {
   const wagers = [];
 
 
-  /*
-   * Read the dynamic rows.
-   *
-   * The row IDs were built using player.id:
-   * sat-pick-1
-   * sat-odds-1
-   * sat-result-1
-   * etc.
-   */
-
   for (const player of playerRows || []) {
 
     const key =
       String(player.id);
 
 
-    const saturdayPickInput =
-      document.getElementById(
-        `sat-pick-${key}`
-      );
-
-    const saturdayOddsInput =
-      document.getElementById(
-        `sat-odds-${key}`
-      );
-
-    const saturdayResultInput =
-      document.getElementById(
-        `sat-result-${key}`
-      );
-
-
-    const sundayPickInput =
+    const pickInput =
       document.getElementById(
         `sun-pick-${key}`
       );
 
-    const sundayOddsInput =
+    const oddsInput =
       document.getElementById(
         `sun-odds-${key}`
       );
 
-    const sundayResultInput =
+    const resultInput =
       document.getElementById(
         `sun-result-${key}`
       );
 
 
-    /*
-     * Skip safely if a row
-     * somehow is not on the page.
-     */
-
     if (
-      !saturdayPickInput ||
-      !saturdayOddsInput ||
-      !saturdayResultInput ||
-      !sundayPickInput ||
-      !sundayOddsInput ||
-      !sundayResultInput
+      !pickInput ||
+      !oddsInput ||
+      !resultInput
     ) {
-
       continue;
-
     }
 
 
-    const saturdayPick =
-      saturdayPickInput.value.trim();
+    const pick =
+      pickInput.value.trim();
 
-    const saturdayOdds =
-      saturdayOddsInput.value;
+    const oddsValue =
+      oddsInput.value;
 
-    const saturdayResult =
-      saturdayResultInput.value || "pending";
-
-
-    const sundayPick =
-      sundayPickInput.value.trim();
-
-    const sundayOdds =
-      sundayOddsInput.value;
-
-    const sundayResult =
-      sundayResultInput.value || "pending";
+    const result =
+      resultInput.value || "pending";
 
 
-    /*
-     * Saturday — College Football
-     */
-
-    if (saturdayPick) {
-
-      wagers.push({
-
-        player_id:
-          player.id,
-
-        season_id:
-          currentSeason.id,
-
-        week_id:
-          week.id,
-
-        day:
-          "Saturday",
-
-        sport:
-          "College Football",
-
-        game:
-          null,
-
-        pick:
-          saturdayPick,
-
-        odds:
-          saturdayOdds === ""
-            ? null
-            : Number(saturdayOdds),
-
-        result:
-          saturdayResult
-
-      });
-
-    }
-
-
-    /*
-     * Sunday — NFL
-     */
-
-    if (sundayPick) {
+    if (pick) {
 
       wagers.push({
 
@@ -6915,15 +7019,15 @@ async function saveWeeklyStandardPicks() {
           null,
 
         pick:
-          sundayPick,
+          pick,
 
         odds:
-          sundayOdds === ""
+          oddsValue === ""
             ? null
-            : Number(sundayOdds),
+            : Number(oddsValue),
 
         result:
-          sundayResult
+          result
 
       });
 
@@ -6936,17 +7040,13 @@ async function saveWeeklyStandardPicks() {
 
     showMessage(
       "bet-message",
-      "Please enter at least one pick.",
+      "Please enter at least one Sunday pick.",
       "error"
     );
 
     return;
   }
 
-
-  /*
-   * Save or update picks.
-   */
 
   const { error } =
     await supabaseClient
@@ -6974,7 +7074,7 @@ async function saveWeeklyStandardPicks() {
 
   showMessage(
     "bet-message",
-    `${wagers.length} standard pick${wagers.length === 1 ? "" : "s"} saved successfully.`,
+    `${wagers.length} Sunday pick${wagers.length === 1 ? "" : "s"} saved successfully.`,
     "success"
   );
 
