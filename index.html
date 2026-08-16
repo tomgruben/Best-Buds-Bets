@@ -1205,13 +1205,26 @@
      ADMIN WEEK MANAGEMENT
      ====================================================== -->
 
-<div class="card">
+<div class="card setup-card">
 
-  <h3>Manage Weeks</h3>
+  <button
+    type="button"
+    class="setup-card-header"
+    onclick="toggleSetupCard('weeks', this)"
+  >
+    <span>Manage Weeks</span>
+    <span class="setup-card-arrow">▸</span>
+  </button>
 
-  <p class="muted">
-    Add or remove weeks for the active season.
-  </p>
+  <div
+    id="setup-weeks-content"
+    class="setup-card-content"
+    style="display:none;"
+  >
+
+    <p class="muted">
+      Add or remove weeks for the active season.
+    </p>
 
 
   <div class="form-grid">
