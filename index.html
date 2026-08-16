@@ -2063,6 +2063,55 @@ seasonSelect.appendChild(allOption);
   }
 
 }
+
+function showAdminSection(sectionName, button) {
+
+  const sections = [
+    "admin-weekly-section",
+    "admin-manage-section",
+    "admin-setup-section"
+  ];
+
+
+  sections.forEach(sectionId => {
+
+    const section =
+      document.getElementById(sectionId);
+
+    if (section) {
+      section.style.display = "none";
+    }
+
+  });
+
+
+  const selectedSection =
+    document.getElementById(
+      `admin-${sectionName}-section`
+    );
+
+
+  if (selectedSection) {
+    selectedSection.style.display = "block";
+  }
+
+
+  document
+    .querySelectorAll(".admin-subnav-button")
+    .forEach(btn => {
+
+      btn.classList.remove("active");
+
+    });
+
+
+  if (button) {
+
+    button.classList.add("active");
+
+  }
+
+}
   
  async function loadStandings() {
 
