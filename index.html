@@ -4554,14 +4554,16 @@ async function deleteAdminSeason(
    * Delete the season.
    */
 
-  const {
-    error: seasonError
-  } =
-    await supabaseClient
-      .from("seasons")
-      .delete()
-      .eq("id", seasonId)
-      .eq("status", "archived");
+const {
+  data: deletedSeason,
+  error: seasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .delete()
+    .eq("id", seasonId)
+    .eq("status", "archived")
+    .select("id, year, status");
 
 
   if (seasonError) {
@@ -4578,6 +4580,22 @@ async function deleteAdminSeason(
     return;
   }
 
+  if (
+  !deletedSeason ||
+  deletedSeason.length === 0
+) {
+
+  console.error(
+    "Season delete affected zero rows."
+  );
+
+  alert(
+    `The ${seasonYear} season was not deleted.\n\n` +
+    `The database did not allow the delete.`
+  );
+
+  return;
+}
 
   await loadAdminSeason();
 
