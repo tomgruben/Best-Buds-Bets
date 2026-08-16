@@ -3417,6 +3417,36 @@ else {
         : row.rank ?? index + 1;
 
 
+const decisions =
+  Number(row.wins || 0) +
+  Number(row.losses || 0);
+
+
+let winPctClass = "";
+
+
+if (decisions > 0) {
+
+  const winPct =
+    Number(row.win_percentage || 0);
+
+
+  if (winPct > 50) {
+
+    winPctClass =
+      "win-percentage-positive";
+
+  }
+
+  else if (winPct < 50) {
+
+    winPctClass =
+      "win-percentage-negative";
+
+  }
+
+}
+    
     tr.innerHTML = `
 
       <td class="rank">
