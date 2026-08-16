@@ -7476,7 +7476,11 @@ async function saveSundayPicks() {
     const key =
       String(player.id);
 
-
+    const typeInput =
+  document.getElementById(
+    `sun-type-${key}`
+  );
+    
     const pickInput =
       document.getElementById(
         `sun-pick-${key}`
@@ -7493,15 +7497,18 @@ async function saveSundayPicks() {
       );
 
 
-    if (
-      !pickInput ||
-      !oddsInput ||
-      !resultInput
-    ) {
-      continue;
-    }
-
-
+if (
+  !typeInput ||
+  !pickInput ||
+  !oddsInput ||
+  !resultInput
+) {
+  continue;
+}
+  
+const wagerType =
+  typeInput.value;
+    
     const pick =
       pickInput.value.trim();
 
@@ -7531,6 +7538,9 @@ async function saveSundayPicks() {
         sport:
           "NFL",
 
+        wager_type:
+  wagerType,
+        
         game:
           null,
 
