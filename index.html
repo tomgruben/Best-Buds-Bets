@@ -502,6 +502,31 @@
   color: #f04438;
   font-weight: 700;
 }
+
+/* Admin sub-navigation */
+
+.admin-subnav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.admin-subnav-button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-subnav-button.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
     
   </style>
 </head>
