@@ -4242,7 +4242,7 @@ async function buildWeeklyStandardPlayerRows() {
 
     saturdayBody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty">
+        <td colspan="5" class="empty">
           Unable to load players.
         </td>
       </tr>
@@ -4250,7 +4250,7 @@ async function buildWeeklyStandardPlayerRows() {
 
     sundayBody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty">
+        <td colspan="5" class="empty">
           Unable to load players.
         </td>
       </tr>
@@ -4277,35 +4277,63 @@ async function buildWeeklyStandardPlayerRows() {
     const saturdayRow =
       document.createElement("tr");
 
+
     saturdayRow.innerHTML = `
+
       <td>
         <strong>${player.name}</strong>
       </td>
 
+
       <td>
+
+        <select id="sat-type-${key}">
+          <option value="Spread">
+            Spread
+          </option>
+
+          <option value="Total">
+            Total
+          </option>
+        </select>
+
+      </td>
+
+
+      <td>
+
         <input
           id="sat-pick-${key}"
           type="text"
         >
+
       </td>
 
+
       <td>
+
         <input
           id="sat-odds-${key}"
           type="number"
           placeholder="-110"
         >
+
       </td>
 
+
       <td>
+
         <select id="sat-result-${key}">
           <option value="pending">Pending</option>
           <option value="win">Win</option>
           <option value="loss">Loss</option>
           <option value="push">Push</option>
         </select>
+
       </td>
+
     `;
+
 
     saturdayBody.appendChild(
       saturdayRow
@@ -4319,35 +4347,63 @@ async function buildWeeklyStandardPlayerRows() {
     const sundayRow =
       document.createElement("tr");
 
+
     sundayRow.innerHTML = `
+
       <td>
         <strong>${player.name}</strong>
       </td>
 
+
       <td>
+
+        <select id="sun-type-${key}">
+          <option value="Spread">
+            Spread
+          </option>
+
+          <option value="Total">
+            Total
+          </option>
+        </select>
+
+      </td>
+
+
+      <td>
+
         <input
           id="sun-pick-${key}"
           type="text"
         >
+
       </td>
 
+
       <td>
+
         <input
           id="sun-odds-${key}"
           type="number"
           placeholder="-110"
         >
+
       </td>
 
+
       <td>
+
         <select id="sun-result-${key}">
           <option value="pending">Pending</option>
           <option value="win">Win</option>
           <option value="loss">Loss</option>
           <option value="push">Push</option>
         </select>
+
       </td>
+
     `;
+
 
     sundayBody.appendChild(
       sundayRow
