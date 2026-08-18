@@ -7237,6 +7237,85 @@ async function loadManageWeeks() {
     return;
   }
 
+  function formatWeekLabel(week) {
+
+  const baseLabel =
+    `Week ${week.week_number}`;
+
+
+  if (
+    !week.saturday_date ||
+    !week.sunday_date
+  ) {
+    return baseLabel;
+  }
+
+
+  const saturday =
+    new Date(
+      `${week.saturday_date}T12:00:00`
+    );
+
+  const sunday =
+    new Date(
+      `${week.sunday_date}T12:00:00`
+    );
+
+
+  const saturdayMonth =
+    saturday.toLocaleDateString(
+      "en-US",
+      {
+        month: "short"
+      }
+    );
+
+
+  const sundayMonth =
+    sunday.toLocaleDateString(
+      "en-US",
+      {
+        month: "short"
+      }
+    );
+
+
+  const saturdayDay =
+    saturday.getDate();
+
+  const sundayDay =
+    sunday.getDate();
+
+
+  /*
+   * Same month:
+   * Week 1 — Sep 5–6
+   */
+
+  if (
+    saturdayMonth === sundayMonth
+  ) {
+
+    return (
+      `${baseLabel} — ` +
+      `${saturdayMonth} ${saturdayDay}–${sundayDay}`
+    );
+
+  }
+
+
+  /*
+   * Different months:
+   * Week 5 — Sep 30–Oct 1
+   */
+
+  return (
+    `${baseLabel} — ` +
+    `${saturdayMonth} ${saturdayDay}–` +
+    `${sundayMonth} ${sundayDay}`
+  );
+
+}
 
   const manageWeekSelect =
     document.getElementById("manage-week");
@@ -7251,7 +7330,12 @@ async function loadManageWeeks() {
   } =
     await supabaseClient
       .from("weeks")
-      .select("id, week_number")
+      .select(`
+  id,
+  week_number,
+  saturday_date,
+  sunday_date
+`)
       .eq("season_id", currentSeason.id)
       .order("week_number", {
         ascending: true
@@ -7291,8 +7375,8 @@ async function loadManageWeeks() {
       option.value =
         week.id;
 
-      option.textContent =
-        `Week ${week.week_number}`;
+option.textContent =
+  formatWeekLabel(week);
 
       manageWeekSelect.appendChild(option);
 
@@ -7341,8 +7425,8 @@ async function loadManageWeeks() {
       option.value =
         week.week_number;
 
-      option.textContent =
-        `Week ${week.week_number}`;
+option.textContent =
+  formatWeekLabel(week);
 
       weeklyWeekSelect.appendChild(option);
 
