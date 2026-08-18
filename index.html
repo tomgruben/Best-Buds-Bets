@@ -4849,6 +4849,18 @@ async function loadWeeklyTdPicks() {
  * ==========================================================
  */
 
+function openDatePicker(input) {
+
+  if (!input) {
+    return;
+  }
+
+  if (typeof input.showPicker === "function") {
+    input.showPicker();
+  }
+
+}
+  
 async function loadAdminWeeks() {
 
   const body =
