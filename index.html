@@ -6441,12 +6441,10 @@ async function loadManageWeeklyPicks() {
 .select(`
   id,
   player_id,
-  day,
-  sport,
-  wager_type,
-  pick,
+  player_pick,
   odds,
   result,
+  units,
   players(name)
 `)
       .eq("season_id", currentSeason.id)
