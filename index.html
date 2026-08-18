@@ -1410,11 +1410,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       Saturday
     </label>
 
-<input
-  id="admin-week-saturday"
-  type="date"
-  onclick="openDatePicker(this)"
->
+    <div class="date-input-wrap">
+
+      <input
+        id="admin-week-saturday"
+        type="date"
+      >
+
+      <button
+        type="button"
+        class="date-picker-button"
+        onclick="openDatePicker(document.getElementById('admin-week-saturday'))"
+        title="Choose Saturday date"
+      >
+        📅
+      </button>
+
+    </div>
 
   </div>
 
@@ -1425,16 +1437,27 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       Sunday
     </label>
 
-<input
-  id="admin-week-sunday"
-  type="date"
-  onclick="openDatePicker(this)"
->
+    <div class="date-input-wrap">
+
+      <input
+        id="admin-week-sunday"
+        type="date"
+      >
+
+      <button
+        type="button"
+        class="date-picker-button"
+        onclick="openDatePicker(document.getElementById('admin-week-sunday'))"
+        title="Choose Sunday date"
+      >
+        📅
+      </button>
+
+    </div>
 
   </div>
 
 </div>
-
 
   <button
     class="primary-button"
