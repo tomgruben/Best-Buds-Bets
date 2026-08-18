@@ -8461,11 +8461,17 @@ const historyRows = [];
 
 (data || []).forEach(row => {
 
+  const historyDate =
+    row.day === "Sunday"
+      ? row.weeks?.sunday_date
+      : row.weeks?.saturday_date;
+
+
   historyRows.push({
     ...row,
     history_type: "standard",
     history_date:
-      row.weeks?.saturday_date || ""
+      historyDate || ""
   });
 
 });
