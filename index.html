@@ -8514,18 +8514,21 @@ historyRows.sort((a, b) => {
 
 
 /*
- * Render standard picks.
+ * Render all History rows
+ * in combined chronological order.
  */
 
-historyRows
-  .filter(row =>
-    row.history_type === "standard"
-  )
-  .forEach(row => {
+historyRows.forEach(row => {
 
-    const tr =
-      document.createElement("tr");
+  const tr =
+    document.createElement("tr");
 
+
+  /*
+   * STANDARD PICK
+   */
+
+  if (row.history_type === "standard") {
 
     let units = 0;
 
@@ -8567,25 +8570,25 @@ historyRows
 
     tr.innerHTML = `
 
-<td>
-  ${row.players?.name || ""}
-</td>
+      <td>
+        ${row.players?.name || ""}
+      </td>
 
-<td>
-  ${row.weeks?.week_number || ""}
-</td>
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
 
-<td>
-  ${row.sport || ""}
-</td>
+      <td>
+        ${row.sport || ""}
+      </td>
 
-<td>
-  ${row.wager_type || "—"}
-</td>
+      <td>
+        ${row.wager_type || "—"}
+      </td>
 
-<td>
-  ${row.pick || ""}
-</td>
+      <td>
+        ${row.pick || ""}
+      </td>
 
       <td>
         ${row.odds ?? "—"}
@@ -8601,21 +8604,16 @@ historyRows
 
     `;
 
-
-    body.appendChild(tr);
-
-  });
+  }
 
 
   /*
-   * Render TD picks.
+   * NFL PROP
    */
 
-  (tdPicks || []).forEach(row => {
-
-    const tr =
-      document.createElement("tr");
-
+  else if (
+    row.history_type === "nfl_prop"
+  ) {
 
     const units =
       Number(row.units || 0);
@@ -8623,25 +8621,25 @@ historyRows
 
     tr.innerHTML = `
 
-<td>
-  ${row.players?.name || ""}
-</td>
+      <td>
+        ${row.players?.name || ""}
+      </td>
 
-<td>
-  ${row.weeks?.week_number || ""}
-</td>
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
 
-<td>
-  NFL
-</td>
+      <td>
+        NFL
+      </td>
 
-<td>
-  NFL Prop
-</td>
+      <td>
+        NFL Prop
+      </td>
 
-<td>
-  ${row.player_pick || ""}
-</td>
+      <td>
+        ${row.player_pick || ""}
+      </td>
 
       <td>
         ${row.odds ?? "—"}
@@ -8657,11 +8655,12 @@ historyRows
 
     `;
 
+  }
 
-    body.appendChild(tr);
 
-  });
+  body.appendChild(tr);
 
+});
 
   /*
    * Show empty message only if BOTH
