@@ -6655,17 +6655,20 @@ tdBody.innerHTML = `
 </td>
 
 <td>
-  <input
-    id="manage-td-odds-${row.id}"
-    type="number"
-    value="${row.odds ?? ""}"
-  >
+<input
+  id="manage-td-odds-${row.id}"
+  type="number"
+  value="${row.odds ?? ""}"
+  data-original="${row.odds ?? ""}"
+>
 </td>
 
 <td>
 
-  <select id="manage-td-result-${row.id}">
-
+<select
+  id="manage-td-result-${row.id}"
+  data-original="${row.result || "pending"}"
+>
     <option
       value="pending"
       ${row.result === "pending" ? "selected" : ""}
