@@ -4951,22 +4951,24 @@ async function loadAdminWeeks() {
 
       <td>
 
-        <input
-          id="admin-week-saturday-${week.id}"
-          type="date"
-          value="${week.saturday_date || ""}"
-        >
+<input
+  id="admin-week-saturday-${week.id}"
+  type="date"
+  value="${week.saturday_date || ""}"
+  onclick="openDatePicker(this)"
+>
 
       </td>
 
 
       <td>
 
-        <input
-          id="admin-week-sunday-${week.id}"
-          type="date"
-          value="${week.sunday_date || ""}"
-        >
+<input
+  id="admin-week-sunday-${week.id}"
+  type="date"
+  value="${week.sunday_date || ""}"
+  onclick="openDatePicker(this)"
+>
 
       </td>
 
