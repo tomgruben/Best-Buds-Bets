@@ -4967,6 +4967,74 @@ async function loadAdminWeeks() {
   });
 
 }
+
+async function updateAdminWeekDates(
+  weekId,
+  weekNumber
+) {
+
+  const saturdayInput =
+    document.getElementById(
+      `admin-week-saturday-${weekId}`
+    );
+
+  const sundayInput =
+    document.getElementById(
+      `admin-week-sunday-${weekId}`
+    );
+
+
+  const saturdayDate =
+    saturdayInput?.value || null;
+
+  const sundayDate =
+    sundayInput?.value || null;
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("weeks")
+      .update({
+        saturday_date:
+          saturdayDate,
+
+        sunday_date:
+          sundayDate
+      })
+      .eq("id", weekId);
+
+
+  if (error) {
+
+    console.error(
+      "Update week dates error:",
+      error
+    );
+
+    alert(
+      `Unable to update Week ${weekNumber} dates.`
+    );
+
+    return;
+  }
+
+
+  alert(
+    `Week ${weekNumber} dates updated successfully.`
+  );
+
+
+  /*
+   * Refresh anything that displays weeks.
+   */
+
+  await loadAdminWeeks();
+
+  await loadManageWeeks();
+
+}
   
 async function addAdminWeek() {
 
