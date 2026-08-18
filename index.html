@@ -6291,14 +6291,13 @@ async function loadManageWeeklyPicks() {
       tdError
     );
 
-    tdBody.innerHTML = `
-      <tr>
-        <td colspan="6" class="empty">
-          Unable to load TD picks.
-        </td>
-      </tr>
-    `;
-
+tdBody.innerHTML = `
+  <tr>
+    <td colspan="6" class="empty">
+      Unable to load NFL Props.
+    </td>
+  </tr>
+`;
     return;
 
   }
