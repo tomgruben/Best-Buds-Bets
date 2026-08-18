@@ -8514,10 +8514,28 @@ historyRows.sort((a, b) => {
       : new Date(0);
 
 
-  return dateB - dateA;
+  if (dateA.getTime() !== dateB.getTime()) {
+    return dateB - dateA;
+  }
+
+
+  /*
+   * Same date:
+   * standard pick before NFL Prop.
+   */
+
+  const typeOrder = {
+    standard: 1,
+    nfl_prop: 2
+  };
+
+
+  return (
+    (typeOrder[a.history_type] || 99) -
+    (typeOrder[b.history_type] || 99)
+  );
 
 });
-
 
 /*
  * Render all History rows
