@@ -8215,13 +8215,19 @@ const selectedType =
 
   let picksQuery =
     supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        players(name),
-        weeks(week_number)
-      `);
-
+.from("picks")
+.select(`
+  *,
+  players(name),
+  weeks(
+    week_number,
+    saturday_date,
+    sunday_date
+  ),
+  seasons(
+    year
+  )
+`);
 
   if (selectedSeason !== "all") {
 
@@ -8351,13 +8357,19 @@ if (
 
   let tdQuery =
     supabaseClient
-      .from("touchdown_picks")
-      .select(`
-        *,
-        players(name),
-        weeks(week_number)
-      `);
-
+.from("touchdown_picks")
+.select(`
+  *,
+  players(name),
+  weeks(
+    week_number,
+    saturday_date,
+    sunday_date
+  ),
+  seasons(
+    year
+  )
+`);
 
   if (selectedSeason !== "all") {
 
