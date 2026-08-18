@@ -135,9 +135,21 @@
   white-space: nowrap;
 }
    
-    .table-wrap {
-      overflow-x: auto;
-    }
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  padding-bottom: 6px;
+}
+
+.table-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
 
     table {
       width: 100%;
