@@ -6807,6 +6807,133 @@ async function updateStandardPickResult(pickId) {
 
 }
 
+async function saveAllStandardPicks() {
+
+  const rows =
+    document.querySelectorAll(
+      "#manage-standard-body tr"
+    );
+
+
+  const updates = [];
+
+
+  rows.forEach(row => {
+
+    const pickInput =
+      row.querySelector(
+        'input[id^="manage-standard-pick-"]'
+      );
+
+    const oddsInput =
+      row.querySelector(
+        'input[id^="manage-standard-odds-"]'
+      );
+
+    const resultSelect =
+      row.querySelector(
+        'select[id^="manage-standard-result-"]'
+      );
+
+
+    if (
+      !pickInput ||
+      !oddsInput ||
+      !resultSelect
+    ) {
+      return;
+    }
+
+
+    const pickId =
+      Number(
+        pickInput.id.replace(
+          "manage-standard-pick-",
+          ""
+        )
+      );
+
+
+    const newPick =
+      pickInput.value.trim();
+
+
+    const newOdds =
+      oddsInput.value === ""
+        ? null
+        : Number(oddsInput.value);
+
+
+    const newResult =
+      resultSelect.value;
+
+
+    if (!newPick) {
+      return;
+    }
+
+
+    updates.push({
+      id: pickId,
+      pick: newPick,
+      odds: newOdds,
+      result: newResult
+    });
+
+  });
+
+
+  if (updates.length === 0) {
+
+    alert(
+      "No Standard Picks to save."
+    );
+
+    return;
+  }
+
+
+  for (const update of updates) {
+
+    const { error } =
+      await supabaseClient
+        .from("picks")
+        .update({
+          pick: update.pick,
+          odds: update.odds,
+          result: update.result
+        })
+        .eq("id", update.id);
+
+
+    if (error) {
+
+      console.error(
+        "Save all standard picks error:",
+        error
+      );
+
+      alert(
+        "Unable to save all Standard Pick changes."
+      );
+
+      return;
+    }
+
+  }
+
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    `${updates.length} Standard Pick${updates.length === 1 ? "" : "s"} updated successfully.`
+  );
+
+}
+  
 async function deleteStandardPick(pickId) {
 
   const confirmed =
