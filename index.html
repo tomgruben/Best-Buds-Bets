@@ -7427,6 +7427,111 @@ async function loadManageWeeks() {
 
 }
 
+function getDefaultWeek(weeks) {
+
+  if (!weeks || weeks.length === 0) {
+    return null;
+  }
+
+
+  const today =
+    new Date();
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  /*
+   * First choice:
+   * today is inside a week's
+   * Saturday/Sunday date range.
+   */
+
+  const currentWeek =
+    weeks.find(week => {
+
+      if (
+        !week.saturday_date ||
+        !week.sunday_date
+      ) {
+        return false;
+      }
+
+
+      const saturday =
+        new Date(
+          `${week.saturday_date}T00:00:00`
+        );
+
+
+      const sunday =
+        new Date(
+          `${week.sunday_date}T23:59:59`
+        );
+
+
+      return (
+        today >= saturday &&
+        today <= sunday
+      );
+
+    });
+
+
+  if (currentWeek) {
+    return currentWeek;
+  }
+
+
+  /*
+   * Second choice:
+   * next upcoming week.
+   */
+
+  const upcomingWeeks =
+    weeks
+      .filter(week => {
+
+        if (!week.saturday_date) {
+          return false;
+        }
+
+
+        const saturday =
+          new Date(
+            `${week.saturday_date}T00:00:00`
+          );
+
+
+        return saturday > today;
+
+      })
+      .sort((a, b) =>
+        new Date(a.saturday_date) -
+        new Date(b.saturday_date)
+      );
+
+
+  if (upcomingWeeks.length > 0) {
+    return upcomingWeeks[0];
+  }
+
+
+  /*
+   * If the season has ended,
+   * default to the final week.
+   */
+
+  return weeks[
+    weeks.length - 1
+  ];
+
+}
+  
   const manageWeekSelect =
     document.getElementById("manage-week");
 
