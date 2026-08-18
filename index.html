@@ -6478,24 +6478,29 @@ async function loadManageWeeklyPicks() {
 </td>
 
 <td>
-  <input
-    id="manage-standard-pick-${row.id}"
-    type="text"
-    value="${row.pick || ""}"
-  >
+<input
+  id="manage-standard-pick-${row.id}"
+  type="text"
+  value="${row.pick || ""}"
+  data-original="${row.pick || ""}"
+>
 </td>
 
 <td>
-  <input
-    id="manage-standard-odds-${row.id}"
-    type="number"
-    value="${row.odds ?? ""}"
-  >
+<input
+  id="manage-standard-odds-${row.id}"
+  type="number"
+  value="${row.odds ?? ""}"
+  data-original="${row.odds ?? ""}"
+>
 </td>
 
          <td>
 
-  <select id="manage-standard-result-${row.id}">
+  <select
+  id="manage-standard-result-${row.id}"
+  data-original="${row.result || "pending"}"
+>
 
     <option
       value="pending"
