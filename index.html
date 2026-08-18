@@ -8126,6 +8126,9 @@ function resetHistoryFilters() {
   const sportFilter =
     document.getElementById("history-sport");
 
+  const typeFilter =
+  document.getElementById("history-type");
+
 
   if (seasonFilter) {
     seasonFilter.value = "all";
@@ -8147,6 +8150,10 @@ function resetHistoryFilters() {
     sportFilter.value = "all";
   }
 
+if (typeFilter) {
+  typeFilter.value = "all";
+}
+  
 
   loadHistoryWeeks().then(() => {
 
