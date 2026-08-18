@@ -8517,7 +8517,11 @@ historyRows.sort((a, b) => {
  * Render standard picks.
  */
 
-(data || []).forEach(row => {
+historyRows
+  .filter(row =>
+    row.history_type === "standard"
+  )
+  .forEach(row => {
 
     const tr =
       document.createElement("tr");
