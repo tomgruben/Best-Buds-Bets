@@ -8444,6 +8444,91 @@ async function loadPlayers() {
   });
 
 }
+
+async function loadProfileSeasons() {
+
+  const seasonFilter =
+    document.getElementById("profile-season");
+
+  if (!seasonFilter) {
+    return;
+  }
+
+
+  const currentValue =
+    seasonFilter.value || "all";
+
+
+  const {
+    data: seasons,
+    error
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id, year")
+      .order("year", {
+        ascending: false
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Player profile seasons error:",
+      error
+    );
+
+    return;
+  }
+
+
+  seasonFilter.innerHTML =
+    '<option value="all">All</option>';
+
+
+  (seasons || []).forEach(season => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      season.id;
+
+    option.textContent =
+      season.year;
+
+    seasonFilter.appendChild(option);
+
+  });
+
+
+  /*
+   * Preserve the selected season
+   * when reloading the profile.
+   */
+
+  if (
+    currentValue === "all" ||
+    (seasons || []).some(
+      season =>
+        String(season.id) ===
+        String(currentValue)
+    )
+  ) {
+
+    seasonFilter.value =
+      currentValue;
+
+  }
+
+  else {
+
+    seasonFilter.value =
+      "all";
+
+  }
+
+}
   
  async function openPlayerProfile(playerId) {
 
