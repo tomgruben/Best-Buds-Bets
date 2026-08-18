@@ -6631,13 +6631,21 @@ tdBody.innerHTML = `
         ${row.players?.name || ""}
       </td>
 
-      <td>
-        ${row.player_pick || ""}
-      </td>
+<td>
+  <input
+    id="manage-td-pick-${row.id}"
+    type="text"
+    value="${row.player_pick || ""}"
+  >
+</td>
 
-      <td>
-        ${row.odds ?? "—"}
-      </td>
+<td>
+  <input
+    id="manage-td-odds-${row.id}"
+    type="number"
+    value="${row.odds ?? ""}"
+  >
+</td>
 
 <td>
 
