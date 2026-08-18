@@ -6646,11 +6646,12 @@ tdBody.innerHTML = `
       </td>
 
 <td>
-  <input
-    id="manage-td-pick-${row.id}"
-    type="text"
-    value="${row.player_pick || ""}"
-  >
+<input
+  id="manage-td-pick-${row.id}"
+  type="text"
+  value="${row.player_pick || ""}"
+  data-original="${row.player_pick || ""}"
+>
 </td>
 
 <td>
