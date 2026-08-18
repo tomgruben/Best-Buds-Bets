@@ -4999,57 +4999,80 @@ async function loadAdminWeeks() {
       document.createElement("tr");
 
 
-    tr.innerHTML = `
+tr.innerHTML = `
 
-      <td>
-        Week ${week.week_number}
-      </td>
-
-
-      <td>
-
-<input
-  id="admin-week-saturday-${week.id}"
-  type="date"
-  value="${week.saturday_date || ""}"
-  onclick="openDatePicker(this)"
->
-
-      </td>
+  <td>
+    Week ${week.week_number}
+  </td>
 
 
-      <td>
+  <td>
 
-<input
-  id="admin-week-sunday-${week.id}"
-  type="date"
-  value="${week.sunday_date || ""}"
-  onclick="openDatePicker(this)"
->
+    <div class="date-input-wrap">
 
-      </td>
+      <input
+        id="admin-week-saturday-${week.id}"
+        type="date"
+        value="${week.saturday_date || ""}"
+      >
+
+      <button
+        type="button"
+        class="date-picker-button"
+        onclick="openDatePicker(document.getElementById('admin-week-saturday-${week.id}'))"
+        title="Choose Saturday date"
+      >
+        📅
+      </button>
+
+    </div>
+
+  </td>
 
 
-      <td>
+  <td>
 
-        <button
-          type="button"
-          onclick="updateAdminWeekDates(${week.id}, ${week.week_number})"
-        >
-          Save Dates
-        </button>
+    <div class="date-input-wrap">
 
-        <button
-          type="button"
-          onclick="deleteAdminWeek(${week.id}, ${week.week_number})"
-        >
-          Delete
-        </button>
+      <input
+        id="admin-week-sunday-${week.id}"
+        type="date"
+        value="${week.sunday_date || ""}"
+      >
 
-      </td>
+      <button
+        type="button"
+        class="date-picker-button"
+        onclick="openDatePicker(document.getElementById('admin-week-sunday-${week.id}'))"
+        title="Choose Sunday date"
+      >
+        📅
+      </button>
 
-    `;
+    </div>
 
+  </td>
+
+
+  <td>
+
+    <button
+      type="button"
+      onclick="updateAdminWeekDates(${week.id}, ${week.week_number})"
+    >
+      Save Dates
+    </button>
+
+    <button
+      type="button"
+      onclick="deleteAdminWeek(${week.id}, ${week.week_number})"
+    >
+      Delete
+    </button>
+
+  </td>
+
+`;
 
     body.appendChild(tr);
 
