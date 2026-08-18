@@ -6469,13 +6469,21 @@ async function loadManageWeeklyPicks() {
   ${row.wager_type || "—"}
 </td>
 
-          <td>
-            ${row.pick || ""}
-          </td>
+<td>
+  <input
+    id="manage-standard-pick-${row.id}"
+    type="text"
+    value="${row.pick || ""}"
+  >
+</td>
 
-          <td>
-            ${row.odds ?? "—"}
-          </td>
+<td>
+  <input
+    id="manage-standard-odds-${row.id}"
+    type="number"
+    value="${row.odds ?? ""}"
+  >
+</td>
 
          <td>
 
