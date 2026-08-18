@@ -7112,6 +7112,159 @@ async function updateTdPickResult(pickId) {
 
 }
 
+
+async function saveAllTdPicks() {
+
+  const rows =
+    document.querySelectorAll(
+      "#manage-td-body tr"
+    );
+
+
+  const updates = [];
+
+
+  rows.forEach(row => {
+
+    const pickInput =
+      row.querySelector(
+        'input[id^="manage-td-pick-"]'
+      );
+
+    const oddsInput =
+      row.querySelector(
+        'input[id^="manage-td-odds-"]'
+      );
+
+    const resultSelect =
+      row.querySelector(
+        'select[id^="manage-td-result-"]'
+      );
+
+
+    if (
+      !pickInput ||
+      !oddsInput ||
+      !resultSelect
+    ) {
+      return;
+    }
+
+
+    const pickId =
+      Number(
+        pickInput.id.replace(
+          "manage-td-pick-",
+          ""
+        )
+      );
+
+
+    const newPick =
+      pickInput.value.trim();
+
+    const newOdds =
+      oddsInput.value === ""
+        ? null
+        : Number(oddsInput.value);
+
+    const newResult =
+      resultSelect.value;
+
+
+    const originalPick =
+      pickInput.dataset.original || "";
+
+    const originalOdds =
+      oddsInput.dataset.original === ""
+        ? null
+        : Number(oddsInput.dataset.original);
+
+    const originalResult =
+      resultSelect.dataset.original || "pending";
+
+
+    if (!newPick) {
+      return;
+    }
+
+
+    const hasChanged =
+      newPick !== originalPick ||
+      newOdds !== originalOdds ||
+      newResult !== originalResult;
+
+
+    if (!hasChanged) {
+      return;
+    }
+
+
+    updates.push({
+      id: pickId,
+      player_pick: newPick,
+      odds: newOdds,
+      result: newResult
+    });
+
+  });
+
+
+  if (updates.length === 0) {
+
+    alert(
+      "No changes to save."
+    );
+
+    return;
+  }
+
+
+  for (const update of updates) {
+
+    const { error } =
+      await supabaseClient
+        .from("touchdown_picks")
+        .update({
+          player_pick:
+            update.player_pick,
+
+          odds:
+            update.odds,
+
+          result:
+            update.result
+        })
+        .eq("id", update.id);
+
+
+    if (error) {
+
+      console.error(
+        "Save all NFL Props error:",
+        error
+      );
+
+      alert(
+        "Unable to save all NFL Prop changes."
+      );
+
+      return;
+    }
+
+  }
+
+
+  await loadManageWeeklyPicks();
+
+  await loadStandings();
+
+
+  alert(
+    `${updates.length} NFL Prop${updates.length === 1 ? "" : "s"} updated successfully.`
+  );
+
+}  
   
 async function deleteTdPick(pickId) {
 
