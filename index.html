@@ -6852,24 +6852,59 @@ async function deleteStandardPick(pickId) {
 
 async function updateTdPickResult(pickId) {
 
+  const pickInput =
+    document.getElementById(
+      `manage-td-pick-${pickId}`
+    );
+
+  const oddsInput =
+    document.getElementById(
+      `manage-td-odds-${pickId}`
+    );
+
   const resultSelect =
     document.getElementById(
       `manage-td-result-${pickId}`
     );
 
-  if (!resultSelect) {
+
+  if (
+    !pickInput ||
+    !oddsInput ||
+    !resultSelect
+  ) {
     return;
   }
 
 
+  const newPick =
+    pickInput.value.trim();
+
+  const newOdds =
+    oddsInput.value === ""
+      ? null
+      : Number(oddsInput.value);
+
   const newResult =
     resultSelect.value;
+
+
+  if (!newPick) {
+
+    alert(
+      "Please enter an NFL Prop pick."
+    );
+
+    return;
+  }
 
 
   const { error } =
     await supabaseClient
       .from("touchdown_picks")
       .update({
+        player_pick: newPick,
+        odds: newOdds,
         result: newResult
       })
       .eq("id", pickId);
@@ -6878,12 +6913,12 @@ async function updateTdPickResult(pickId) {
   if (error) {
 
     console.error(
-      "Update TD pick result error:",
+      "Update TD pick error:",
       error
     );
 
     alert(
-      "Unable to update the NFL Prop result."
+      "Unable to update the NFL Prop."
     );
 
     return;
@@ -6891,9 +6926,9 @@ async function updateTdPickResult(pickId) {
 
 
   /*
-   * Refresh Admin table and standings.
-   * Your existing database trigger
-   * recalculates TD units automatically.
+   * The existing database trigger
+   * recalculates Units automatically
+   * when odds/result change.
    */
 
   await loadManageWeeklyPicks();
@@ -6902,11 +6937,12 @@ async function updateTdPickResult(pickId) {
 
 
   alert(
-    "NFL Prop result updated successfully."
+    "NFL Prop updated successfully."
   );
 
 }
 
+  
 async function deleteTdPick(pickId) {
 
   const confirmed =
