@@ -706,14 +706,20 @@
 
 }
 
+/* Date picker visibility */
+
 input[type="date"] {
-  color-scheme: dark;
+  color-scheme: dark !important;
+  cursor: pointer;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+  display: block;
+  opacity: 1 !important;
+  filter: invert(1) brightness(2) !important;
   cursor: pointer;
-  opacity: 0.85;
+  width: 20px;
+  height: 20px;
 }
     
   </style>
