@@ -6855,21 +6855,53 @@ async function saveAllStandardPicks() {
         : Number(oddsInput.value);
 
 
-    const newResult =
-      resultSelect.value;
+const newResult =
+  resultSelect.value;
 
 
-    if (!newPick) {
-      return;
-    }
+/*
+ * Original values when the row loaded.
+ */
+
+const originalPick =
+  pickInput.dataset.original || "";
+
+const originalOdds =
+  oddsInput.dataset.original === ""
+    ? null
+    : Number(oddsInput.dataset.original);
+
+const originalResult =
+  resultSelect.dataset.original || "pending";
 
 
-    updates.push({
-      id: pickId,
-      pick: newPick,
-      odds: newOdds,
-      result: newResult
-    });
+if (!newPick) {
+  return;
+}
+
+
+/*
+ * Only save this row if
+ * something actually changed.
+ */
+
+const hasChanged =
+  newPick !== originalPick ||
+  newOdds !== originalOdds ||
+  newResult !== originalResult;
+
+
+if (!hasChanged) {
+  return;
+}
+
+
+updates.push({
+  id: pickId,
+  pick: newPick,
+  odds: newOdds,
+  result: newResult
+});
 
   });
 
@@ -6877,7 +6909,7 @@ async function saveAllStandardPicks() {
   if (updates.length === 0) {
 
     alert(
-      "No Standard Picks to save."
+      "No Changes to save."
     );
 
     return;
