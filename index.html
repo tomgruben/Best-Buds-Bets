@@ -8451,11 +8451,73 @@ if (tdError) {
   body.innerHTML = "";
 
 
-  /*
-   * Render standard picks.
-   */
+/*
+ * Combine standard picks and NFL Props
+ * so History can be sorted together.
+ */
 
-  (data || []).forEach(row => {
+const historyRows = [];
+
+
+(data || []).forEach(row => {
+
+  historyRows.push({
+    ...row,
+    history_type: "standard",
+    history_date:
+      row.weeks?.saturday_date || ""
+  });
+
+});
+
+
+(tdPicks || []).forEach(row => {
+
+  historyRows.push({
+    ...row,
+    history_type: "nfl_prop",
+    history_date:
+      row.weeks?.sunday_date || ""
+  });
+
+});
+
+
+historyRows.sort((a, b) => {
+
+  const yearA =
+    Number(a.seasons?.year || 0);
+
+  const yearB =
+    Number(b.seasons?.year || 0);
+
+
+  if (yearA !== yearB) {
+    return yearB - yearA;
+  }
+
+
+  const dateA =
+    a.history_date
+      ? new Date(`${a.history_date}T12:00:00`)
+      : new Date(0);
+
+  const dateB =
+    b.history_date
+      ? new Date(`${b.history_date}T12:00:00`)
+      : new Date(0);
+
+
+  return dateB - dateA;
+
+});
+
+
+/*
+ * Render standard picks.
+ */
+
+(data || []).forEach(row => {
 
     const tr =
       document.createElement("tr");
