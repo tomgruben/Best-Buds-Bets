@@ -4936,9 +4936,21 @@ async function addAdminWeek() {
   const input =
     document.getElementById("admin-week-number");
 
+  const saturdayInput =
+  document.getElementById("admin-week-saturday");
+
+const sundayInput =
+  document.getElementById("admin-week-sunday");
+
   const weekNumber =
     Number(input?.value);
 
+const saturdayDate =
+  saturdayInput?.value || null;
+
+const sundayDate =
+  sundayInput?.value || null;
+  
 
   if (
     !weekNumber ||
@@ -5004,10 +5016,12 @@ async function addAdminWeek() {
   } =
     await supabaseClient
       .from("weeks")
-      .insert({
-        season_id: currentSeason.id,
-        week_number: weekNumber
-      });
+.insert({
+  season_id: currentSeason.id,
+  week_number: weekNumber,
+  saturday_date: saturdayDate,
+  sunday_date: sundayDate
+});
 
 
   if (insertError) {
@@ -5029,7 +5043,15 @@ async function addAdminWeek() {
    * Clear the input.
    */
 
-  input.value = "";
+input.value = "";
+
+if (saturdayInput) {
+  saturdayInput.value = "";
+}
+
+if (sundayInput) {
+  sundayInput.value = "";
+}
 
 
   /*
