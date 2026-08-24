@@ -4401,13 +4401,16 @@ async function buildWeeklyTdPlayerRows() {
         >
       </td>
 
-      <td>
-        <input
-          id="td-odds-${key}"
-          type="number"
-          placeholder="+175"
-        >
-      </td>
+<td class="weekly-odds-cell">
+
+  <input
+    id="td-odds-${...}"
+    class="weekly-odds-input"
+    type="number"
+    placeholder="+175"
+  >
+
+</td>
 
       <td>
         <select id="td-result-${key}">
