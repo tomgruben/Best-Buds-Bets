@@ -726,10 +726,17 @@
   white-space: nowrap;
 }
 
-.manage-odds-input {
+.manage-odds-cell {
   width: 90px;
   min-width: 90px;
-}  
+  max-width: 90px;
+}
+
+.manage-odds-input {
+  width: 90px !important;
+  min-width: 90px;
+  max-width: 90px;
+}
 
 }
 
@@ -6714,7 +6721,8 @@ tdBody.innerHTML = `
 >
 </td>
 
-<td>
+<td class="manage-odds-cell">
+
 <input
   id="manage-td-odds-${row.id}"
   class="manage-odds-input"
@@ -6722,6 +6730,7 @@ tdBody.innerHTML = `
   value="${row.odds ?? ""}"
   data-original="${row.odds ?? ""}"
 >
+
 </td>
 
 <td>
