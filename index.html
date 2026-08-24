@@ -4365,6 +4365,26 @@ showMessage(
   
 async function buildWeeklyTdPlayerRows() {
 
+    if (!currentSeason) {
+
+    const tdBody =
+      document.getElementById("weekly-td-body");
+
+    if (tdBody) {
+
+      tdBody.innerHTML = `
+        <tr>
+          <td colspan="4" class="empty">
+            No active season. Reactivate or create a season before entering picks.
+          </td>
+        </tr>
+      `;
+
+    }
+
+    return;
+  }
+
   const tdBody =
     document.getElementById("weekly-td-body");
 
