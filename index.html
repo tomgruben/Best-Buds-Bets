@@ -4456,6 +4456,44 @@ async function buildWeeklyTdPlayerRows() {
   
 async function buildWeeklyStandardPlayerRows() {
 
+    if (!currentSeason) {
+
+    const saturdayBody =
+      document.getElementById("weekly-saturday-body");
+
+    const sundayBody =
+      document.getElementById("weekly-sunday-body");
+
+
+    if (saturdayBody) {
+
+      saturdayBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty">
+            No active season. Reactivate or create a season before entering picks.
+          </td>
+        </tr>
+      `;
+
+    }
+
+
+    if (sundayBody) {
+
+      sundayBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty">
+            No active season. Reactivate or create a season before entering picks.
+          </td>
+        </tr>
+      `;
+
+    }
+
+
+    return;
+  }
+
   const saturdayBody =
     document.getElementById("weekly-saturday-body");
 
