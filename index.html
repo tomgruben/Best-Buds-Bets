@@ -6865,6 +6865,16 @@ async function saveAllStandardPicks() {
 
   rows.forEach(row => {
 
+   const sportSelect =
+  row.querySelector(
+    'select[id^="manage-standard-sport-"]'
+  );
+
+const typeSelect =
+  row.querySelector(
+    'select[id^="manage-standard-type-"]'
+  );
+    
     const pickInput =
       row.querySelector(
         'input[id^="manage-standard-pick-"]'
@@ -6881,13 +6891,15 @@ async function saveAllStandardPicks() {
       );
 
 
-    if (
-      !pickInput ||
-      !oddsInput ||
-      !resultSelect
-    ) {
-      return;
-    }
+if (
+  !sportSelect ||
+  !typeSelect ||
+  !pickInput ||
+  !oddsInput ||
+  !resultSelect
+) {
+  return;
+}
 
 
     const pickId =
