@@ -7000,15 +7000,17 @@ updates.push({
 
   for (const update of updates) {
 
-    const { error } =
-      await supabaseClient
-        .from("picks")
-        .update({
-          pick: update.pick,
-          odds: update.odds,
-          result: update.result
-        })
-        .eq("id", update.id);
+const { error } =
+  await supabaseClient
+    .from("picks")
+    .update({
+      sport: update.sport,
+      wager_type: update.wager_type,
+      pick: update.pick,
+      odds: update.odds,
+      result: update.result
+    })
+    .eq("id", update.id);
 
 
     if (error) {
