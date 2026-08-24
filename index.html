@@ -6560,13 +6560,16 @@ async function loadManageWeeklyPicks() {
 >
 </td>
 
-<td>
-<input
-  id="manage-standard-odds-${row.id}"
-  type="number"
-  value="${row.odds ?? ""}"
-  data-original="${row.odds ?? ""}"
->
+<td class="manage-odds-cell">
+
+  <input
+    id="manage-standard-odds-${row.id}"
+    class="manage-odds-input"
+    type="number"
+    value="${row.odds ?? ""}"
+    data-original="${row.odds ?? ""}"
+  >
+
 </td>
 
          <td>
