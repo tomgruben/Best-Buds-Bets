@@ -6910,7 +6910,13 @@ if (
         )
       );
 
+const newSport =
+  sportSelect.value;
 
+const newType =
+  typeSelect.value;
+
+    
     const newPick =
       pickInput.value.trim();
 
@@ -6929,7 +6935,13 @@ const newResult =
  * Original values when the row loaded.
  */
 
-const originalPick =
+const originalSport =
+  sportSelect.dataset.original || "";
+
+const originalType =
+  typeSelect.dataset.original || "";
+    
+    const originalPick =
   pickInput.dataset.original || "";
 
 const originalOdds =
@@ -6952,6 +6964,8 @@ if (!newPick) {
  */
 
 const hasChanged =
+  newSport !== originalSport ||
+  newType !== originalType ||
   newPick !== originalPick ||
   newOdds !== originalOdds ||
   newResult !== originalResult;
@@ -6964,6 +6978,8 @@ if (!hasChanged) {
 
 updates.push({
   id: pickId,
+  sport: newSport,
+  wager_type: newType,
   pick: newPick,
   odds: newOdds,
   result: newResult
