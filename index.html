@@ -2486,6 +2486,8 @@ async function initialize() {
 
 currentSeason = null;
 
+updateWeeklySaveButtons();      
+
 await loadStandingsSeasons();
 
 await loadAdminPeople();
@@ -2511,6 +2513,8 @@ return;
     currentSeason =
       seasons[0];
 
+updateWeeklySaveButtons();
+    
 
     const standingsTitle =
       document.querySelector(
