@@ -4480,6 +4480,45 @@ async function buildWeeklyTdPlayerRows() {
   });
 
 }
+
+function updateWeeklySaveButtons() {
+
+  const saturdayButton =
+    document.getElementById(
+      "save-saturday-picks-button"
+    );
+
+  const sundayButton =
+    document.getElementById(
+      "save-sunday-picks-button"
+    );
+
+  const nflPropButton =
+    document.getElementById(
+      "save-nfl-props-button"
+    );
+
+
+  const shouldShow =
+    Boolean(currentSeason);
+
+
+  if (saturdayButton) {
+    saturdayButton.style.display =
+      shouldShow ? "" : "none";
+  }
+
+  if (sundayButton) {
+    sundayButton.style.display =
+      shouldShow ? "" : "none";
+  }
+
+  if (nflPropButton) {
+    nflPropButton.style.display =
+      shouldShow ? "" : "none";
+  }
+
+}
   
 async function buildWeeklyStandardPlayerRows() {
 
