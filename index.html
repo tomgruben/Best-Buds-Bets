@@ -6478,7 +6478,28 @@ async function loadManageWeeklyPicks() {
           </td>
 
 <td>
-  ${row.sport || ""}
+
+  <select
+    id="manage-standard-sport-${row.id}"
+    data-original="${row.sport || ""}"
+  >
+
+    <option
+      value="College Football"
+      ${row.sport === "College Football" ? "selected" : ""}
+    >
+      College Football
+    </option>
+
+    <option
+      value="NFL"
+      ${row.sport === "NFL" ? "selected" : ""}
+    >
+      NFL
+    </option>
+
+  </select>
+
 </td>
 
 <td>
