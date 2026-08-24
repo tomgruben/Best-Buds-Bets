@@ -1229,6 +1229,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   </div>
 
 <button
+  id="save-saturday-picks-button"
   class="primary-button"
   onclick="saveSaturdayPicks()">
   Save Saturday Picks
@@ -1264,7 +1265,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
      <tbody id="weekly-sunday-body">
 
   <tr>
-    <td colspan="4" class="empty">
+    <td colspan="5" class="empty">
       Loading players...
     </td>
   </tr>
@@ -1275,11 +1276,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   </div>
 
-  <button
-    class="primary-button"
-    onclick="saveSundayPicks()">
-    Save Sunday Picks
-  </button>
+<button
+  id="save-sunday-picks-button"
+  class="primary-button"
+  onclick="saveSundayPicks()">
+  Save Sunday Picks
+</button>
 
 </div>
 <!-- END SUNDAY SECTION -->
@@ -1321,11 +1323,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   </div>
 
-  <button
-    class="primary-button"
-    onclick="saveWeeklyTdPicks()">
-    Save NFL Props
-  </button>
+<button
+  id="save-nfl-props-button"
+  class="primary-button"
+  onclick="saveWeeklyTdPicks()">
+  Save NFL Props
+</button>
 
 </div>
 <!-- END NFL Prop SECTION -->
