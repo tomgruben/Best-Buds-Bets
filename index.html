@@ -6503,7 +6503,28 @@ async function loadManageWeeklyPicks() {
 </td>
 
 <td>
-  ${row.wager_type || "—"}
+
+  <select
+    id="manage-standard-type-${row.id}"
+    data-original="${row.wager_type || ""}"
+  >
+
+    <option
+      value="Spread"
+      ${row.wager_type === "Spread" ? "selected" : ""}
+    >
+      Spread
+    </option>
+
+    <option
+      value="Total"
+      ${row.wager_type === "Total" ? "selected" : ""}
+    >
+      Total
+    </option>
+
+  </select>
+
 </td>
 
 <td>
