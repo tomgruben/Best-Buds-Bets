@@ -8226,7 +8226,146 @@ const defaultWeek =
   getDefaultWeek(weeks || []);
 
   let defaultManageWeek = null;
-  
+
+/*
+ * Manage Picks default week:
+ *
+ * 1. Most recent week containing
+ *    at least one pending wager.
+ *
+ * 2. If nothing is pending,
+ *    most recent week containing
+ *    any saved wager.
+ */
+
+const {
+  data: manageStandardPicks,
+  error: manageStandardError
+} =
+  await supabaseClient
+    .from("picks")
+    .select("week_id, result")
+    .eq("season_id", currentSeason.id);
+
+
+const {
+  data: manageTdPicks,
+  error: manageTdError
+} =
+  await supabaseClient
+    .from("touchdown_picks")
+    .select("week_id, result")
+    .eq("season_id", currentSeason.id);
+
+
+if (
+  manageStandardError ||
+  manageTdError
+) {
+
+  console.error(
+    "Manage Picks default week error:",
+    manageStandardError ||
+    manageTdError
+  );
+
+}
+
+else {
+
+  const allManagePicks = [
+    ...(manageStandardPicks || []),
+    ...(manageTdPicks || [])
+  ];
+
+
+  /*
+   * Find every week containing
+   * at least one pending wager.
+   */
+
+  const pendingWeekIds =
+    new Set(
+      allManagePicks
+        .filter(
+          pick =>
+            pick.result === "pending"
+        )
+        .map(
+          pick =>
+            String(pick.week_id)
+        )
+    );
+
+
+  /*
+   * Most recent pending week.
+   */
+
+  const pendingWeeks =
+    (weeks || [])
+      .filter(
+        week =>
+          pendingWeekIds.has(
+            String(week.id)
+          )
+      )
+      .sort(
+        (a, b) =>
+          b.week_number -
+          a.week_number
+      );
+
+
+  if (pendingWeeks.length > 0) {
+
+    defaultManageWeek =
+      pendingWeeks[0];
+
+  }
+
+  else {
+
+    /*
+     * Nothing is pending.
+     * Find the most recent week
+     * containing any saved wager.
+     */
+
+    const populatedWeekIds =
+      new Set(
+        allManagePicks.map(
+          pick =>
+            String(pick.week_id)
+        )
+      );
+
+
+    const populatedWeeks =
+      (weeks || [])
+        .filter(
+          week =>
+            populatedWeekIds.has(
+              String(week.id)
+            )
+        )
+        .sort(
+          (a, b) =>
+            b.week_number -
+            a.week_number
+        );
+
+
+    if (populatedWeeks.length > 0) {
+
+      defaultManageWeek =
+        populatedWeeks[0];
+
+    }
+
+  }
+
+}
 
   /*
    * Populate Manage Weekly Picks dropdown.
