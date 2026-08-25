@@ -8760,6 +8760,289 @@ showMessage(
 
 }
 
+async function saveSundayPicks() {
+
+  if (!currentSeason) return;
+
+
+  const weekNumber =
+    Number(
+      document.getElementById("weekly-week").value
+    );
+
+
+  if (!weekNumber) {
+
+    showMessage(
+      "bet-message",
+      "Please select a week.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { data: week, error: weekError } =
+    await supabaseClient
+      .from("weeks")
+      .select("*")
+      .eq("season_id", currentSeason.id)
+      .eq("week_number", weekNumber)
+      .single();
+
+
+  if (weekError || !week) {
+
+    showMessage(
+      "bet-message",
+      "That week has not been created in the database yet.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const {
+    data: playerRows,
+    error: playerError
+  } =
+    await supabaseClient
+      .from("players")
+      .select("id, name")
+      .order("name", {
+        ascending: true
+      });
+
+
+  if (playerError) {
+
+    showMessage(
+      "bet-message",
+      playerError.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  const wagers = [];
+
+
+  for (const player of playerRows || []) {
+
+    const key =
+      String(player.id);
+
+
+    const typeInput =
+      document.getElementById(
+        `sun-type-${key}`
+      );
+
+    const pickInput =
+      document.getElementById(
+        `sun-pick-${key}`
+      );
+
+    const oddsInput =
+      document.getElementById(
+        `sun-odds-${key}`
+      );
+
+    const resultInput =
+      document.getElementById(
+        `sun-result-${key}`
+      );
+
+
+    if (
+      !typeInput ||
+      !pickInput ||
+      !oddsInput ||
+      !resultInput
+    ) {
+      continue;
+    }
+
+
+    const wagerType =
+      typeInput.value;
+
+    const pick =
+      pickInput.value.trim();
+
+    const oddsValue =
+      oddsInput.value;
+
+    const result =
+      resultInput.value || "pending";
+
+
+    if (pick) {
+
+      wagers.push({
+
+        player_id:
+          player.id,
+
+        season_id:
+          currentSeason.id,
+
+        week_id:
+          week.id,
+
+        day:
+          "Sunday",
+
+        sport:
+          "NFL",
+
+        wager_type:
+          wagerType,
+
+        game:
+          null,
+
+        pick:
+          pick,
+
+        odds:
+          oddsValue === ""
+            ? null
+            : Number(oddsValue),
+
+        result:
+          result
+
+      });
+
+    }
+
+  }
+
+
+  if (wagers.length === 0) {
+
+    showMessage(
+      "bet-message",
+      "Please enter at least one Sunday pick.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  /*
+   * Prevent overwriting an existing
+   * Sunday pick.
+   */
+
+  const playerIds =
+    wagers.map(
+      wager => wager.player_id
+    );
+
+
+  const {
+    data: existingSundayPicks,
+    error: existingSundayError
+  } =
+    await supabaseClient
+      .from("picks")
+      .select("player_id")
+      .eq("season_id", currentSeason.id)
+      .eq("week_id", week.id)
+      .eq("day", "Sunday")
+      .in("player_id", playerIds);
+
+
+  if (existingSundayError) {
+
+    console.error(
+      "Existing Sunday picks check error:",
+      existingSundayError
+    );
+
+    showMessage(
+      "bet-message",
+      "Unable to verify existing Sunday picks.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if (
+    existingSundayPicks &&
+    existingSundayPicks.length > 0
+  ) {
+
+    const existingPlayerIds =
+      new Set(
+        existingSundayPicks.map(
+          row => Number(row.player_id)
+        )
+      );
+
+
+    const existingNames =
+      (playerRows || [])
+        .filter(
+          player =>
+            existingPlayerIds.has(
+              Number(player.id)
+            )
+        )
+        .map(
+          player => player.name
+        )
+        .join(", ");
+
+
+    showMessage(
+      "bet-message",
+      `${existingNames || "That player"} already has a Sunday pick for Week ${weekNumber}. Use Manage Picks to edit it.`,
+      "error"
+    );
+
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("picks")
+      .insert(wagers);
+
+
+  if (error) {
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "bet-message",
+    `${wagers.length} Sunday pick${wagers.length === 1 ? "" : "s"} saved successfully.`,
+    "success"
+  );
+
+
+  await loadStandings();
+
+}
+  
   /*
    * ==========================================================
    * HISTORY
