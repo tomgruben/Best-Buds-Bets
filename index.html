@@ -6366,15 +6366,21 @@ alert(
    * Archive the season.
    */
 
-  const { error } =
-    await supabaseClient
-      .from("seasons")
-      .update({
-        status: "archived",
-        archived_at:
-          new Date().toISOString()
-      })
-      .eq("id", seasonId);
+const {
+  data: archivedSeason,
+  error
+} =
+  await supabaseClient
+    .from("seasons")
+    .update({
+      status: "archived",
+      archived_at:
+        new Date().toISOString()
+    })
+    .eq("id", seasonId)
+    .eq("status", "active")
+    .select("id, year, status")
+    .maybeSingle();
 
 
   if (error) {
