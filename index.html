@@ -8654,6 +8654,73 @@ if (
   }
 
 
+/*
+ * Prevent overwriting an existing
+ * Saturday pick.
+ */
+
+const playerIds =
+  wagers.map(
+    wager => wager.player_id
+  );
+
+
+const {
+  data: existingSaturdayPicks,
+  error: existingSaturdayError
+} =
+  await supabaseClient
+    .from("picks")
+    .select(`
+      player_id,
+      players(name)
+    `)
+    .eq("season_id", currentSeason.id)
+    .eq("week_id", week.id)
+    .eq("day", "Saturday")
+    .in("player_id", playerIds);
+
+
+if (existingSaturdayError) {
+
+  console.error(
+    "Existing Saturday picks check error:",
+    existingSaturdayError
+  );
+
+  showMessage(
+    "bet-message",
+    "Unable to verify existing Saturday picks.",
+    "error"
+  );
+
+  return;
+}
+
+
+if (
+  existingSaturdayPicks &&
+  existingSaturdayPicks.length > 0
+) {
+
+  const existingNames =
+    existingSaturdayPicks
+      .map(
+        row =>
+          row.players?.name || "A player"
+      )
+      .join(", ");
+
+
+  showMessage(
+    "bet-message",
+    `${existingNames} already has a Saturday pick for Week ${weekNumber}. Use Manage Picks to edit it.`,
+    "error"
+  );
+
+  return;
+}
+  
 const { error } =
   await supabaseClient
     .from("picks")
