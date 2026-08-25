@@ -10073,10 +10073,13 @@ async function loadPlayers() {
       </td>
 
 
-      <td class="${winPctClass}">
-        ${row.win_percentage.toFixed(1)}%
-      </td>
-
+<td class="${winPctClass}">
+  ${
+    decisions > 0
+      ? row.win_percentage.toFixed(1) + "%"
+      : "—"
+  }
+</td>
 
       <td class="${unitClass}">
         ${formatUnits(row.units)}
