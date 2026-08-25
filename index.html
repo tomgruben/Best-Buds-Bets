@@ -4335,16 +4335,10 @@ showMessage(
    * continue calculating Units.
    */
 
-  const { error } =
-    await supabaseClient
-      .from("touchdown_picks")
-      .upsert(
-        tdWagers,
-        {
-          onConflict:
-            "player_id,week_id"
-        }
-      );
+const { error } =
+  await supabaseClient
+    .from("touchdown_picks")
+    .insert(tdWagers);
 
 
   if (error) {
