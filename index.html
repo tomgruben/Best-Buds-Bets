@@ -11587,24 +11587,39 @@ for (const season of data) {
     ? "negative"
     : "";
 
-  /*
-   * Leader information.
-   */
+/*
+ * Leader information.
+ *
+ * Do not declare a season leader
+ * until at least one standard pick
+ * has been decided as a win or loss.
+ *
+ * NFL Props do not affect standings.
+ */
 
-  const leaderName =
-    leader?.player_name || "—";
+const hasStandingsResults =
+  combinedGraded > 0;
 
 
-  const leaderWinPct =
-    leader
-      ? Number(
-          leader.win_percentage || 0
-        ).toFixed(1) + "%"
-      : "—";
+const leaderName =
+  hasStandingsResults && leader
+    ? leader.player_name
+    : "—";
 
-  const leaderWinPctNumber =
-  leader
-    ? Number(leader.win_percentage || 0)
+
+const leaderWinPct =
+  hasStandingsResults && leader
+    ? Number(
+        leader.win_percentage || 0
+      ).toFixed(1) + "%"
+    : "—";
+
+
+const leaderWinPctNumber =
+  hasStandingsResults && leader
+    ? Number(
+        leader.win_percentage || 0
+      )
     : null;
 
 
@@ -11617,11 +11632,11 @@ const leaderWinPctClass =
     ? "negative"
     : "";
 
-  const leaderRecord =
-    leader
-      ? `${leader.wins}-${leader.losses}-${leader.pushes}`
-      : "—";
 
+const leaderRecord =
+  hasStandingsResults && leader
+    ? `${leader.wins}-${leader.losses}-${leader.pushes}`
+    : "0-0-0";
 
   /*
    * Build the row.
