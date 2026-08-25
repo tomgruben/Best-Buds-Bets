@@ -10376,23 +10376,37 @@ profileRecord.textContent =
 
 let winPercentageClass = "";
 
-if (winPercentage > 50) {
 
-  winPercentageClass =
-    "win-percentage-positive";
+/*
+ * Only evaluate Win %
+ * once the player has at least
+ * one decided standard pick.
+ */
 
-}
+if (gradedPicks > 0) {
 
-else if (winPercentage < 50) {
+  if (winPercentage > 50) {
 
-  winPercentageClass =
-    "win-percentage-negative";
+    winPercentageClass =
+      "win-percentage-positive";
+
+  }
+
+  else if (winPercentage < 50) {
+
+    winPercentageClass =
+      "win-percentage-negative";
+
+  }
 
 }
 
 
 profileWinPct.textContent =
-  `${winPercentage.toFixed(1)}%`;
+  gradedPicks > 0
+    ? `${winPercentage.toFixed(1)}%`
+    : "—";
+
 
 profileWinPct.className =
   `profile-stat-value ${winPercentageClass}`;
