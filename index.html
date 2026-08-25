@@ -4417,17 +4417,50 @@ const { error } =
     .insert(tdWagers);
 
 
-  if (error) {
+if (error) {
+
+  /*
+   * Friendly message if the database
+   * catches a duplicate NFL Prop.
+   */
+
+  if (error.code === "23505") {
+
+    const duplicateNames =
+      (playerRows || [])
+        .filter(player =>
+          playerIds.includes(
+            Number(player.id)
+          )
+        )
+        .map(player => player.name)
+        .join(", ");
+
 
     showMessage(
       "bet-message",
-      error.message,
+      `${duplicateNames || "That player"} already has an NFL Prop for Week ${weekNumber}. Use Manage Picks to edit it.`,
       "error"
     );
 
     return;
   }
 
+
+  console.error(
+    "Save NFL Props error:",
+    error
+  );
+
+
+  showMessage(
+    "bet-message",
+    error.message,
+    "error"
+  );
+
+  return;
+}
 
 showMessage(
   "bet-message",
