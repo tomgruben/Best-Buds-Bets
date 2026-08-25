@@ -4328,8 +4328,84 @@ showMessage(
   }
 
 
+/*
+ * Prevent overwriting an existing
+ * NFL Prop.
+ */
+
+const playerIds =
+  tdWagers.map(
+    wager => wager.player_id
+  );
+
+
+const {
+  data: existingTdPicks,
+  error: existingTdError
+} =
+  await supabaseClient
+    .from("touchdown_picks")
+    .select("player_id")
+    .eq("season_id", currentSeason.id)
+    .eq("week_id", week.id)
+    .in("player_id", playerIds);
+
+
+if (existingTdError) {
+
+  console.error(
+    "Existing NFL Props check error:",
+    existingTdError
+  );
+
+  showMessage(
+    "bet-message",
+    "Unable to verify existing NFL Props.",
+    "error"
+  );
+
+  return;
+}
+
+
+if (
+  existingTdPicks &&
+  existingTdPicks.length > 0
+) {
+
+  const existingPlayerIds =
+    new Set(
+      existingTdPicks.map(
+        row => Number(row.player_id)
+      )
+    );
+
+
+  const existingNames =
+    (playerRows || [])
+      .filter(
+        player =>
+          existingPlayerIds.has(
+            Number(player.id)
+          )
+      )
+      .map(
+        player => player.name
+      )
+      .join(", ");
+
+
+  showMessage(
+    "bet-message",
+    `${existingNames || "That player"} already has an NFL Prop for Week ${weekNumber}. Use Manage Picks to edit it.`,
+    "error"
+  );
+
+  return;
+}
+  
   /*
-   * Save or update TD wagers.
+   * Save new NFL Props.
    *
    * Your database trigger will
    * continue calculating Units.
