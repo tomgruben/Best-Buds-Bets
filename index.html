@@ -5442,6 +5442,206 @@ tr.innerHTML = `
 
 }
 
+async function saveAllWeekChanges() {
+
+  if (!currentSeason) {
+
+    alert(
+      "No active season is selected."
+    );
+
+    return;
+  }
+
+
+  const {
+    data: weeks,
+    error: weeksError
+  } =
+    await supabaseClient
+      .from("weeks")
+      .select(`
+        id,
+        week_number
+      `)
+      .eq(
+        "season_id",
+        currentSeason.id
+      )
+      .order(
+        "week_number",
+        {
+          ascending: true
+        }
+      );
+
+
+  if (weeksError) {
+
+    console.error(
+      "Load weeks for bulk save error:",
+      weeksError
+    );
+
+    alert(
+      "Unable to load the current weeks."
+    );
+
+    return;
+  }
+
+
+  const updates = [];
+
+
+  for (const week of weeks || []) {
+
+    const saturdayInput =
+      document.getElementById(
+        `admin-week-saturday-${week.id}`
+      );
+
+    const sundayInput =
+      document.getElementById(
+        `admin-week-sunday-${week.id}`
+      );
+
+
+    if (
+      !saturdayInput ||
+      !sundayInput
+    ) {
+      continue;
+    }
+
+
+    const newSaturday =
+      saturdayInput.value || "";
+
+    const newSunday =
+      sundayInput.value || "";
+
+
+    const originalSaturday =
+      saturdayInput.dataset.original || "";
+
+    const originalSunday =
+      sundayInput.dataset.original || "";
+
+
+    /*
+     * Only save weeks whose
+     * dates actually changed.
+     */
+
+    if (
+      newSaturday === originalSaturday &&
+      newSunday === originalSunday
+    ) {
+      continue;
+    }
+
+
+    /*
+     * Require both dates if
+     * either one is being used.
+     */
+
+    if (
+      (newSaturday && !newSunday) ||
+      (!newSaturday && newSunday)
+    ) {
+
+      alert(
+        `Week ${week.week_number} must have both a Saturday and Sunday date.`
+      );
+
+      return;
+    }
+
+
+    updates.push({
+      id:
+        week.id,
+
+      week_number:
+        week.week_number,
+
+      saturday_date:
+        newSaturday || null,
+
+      sunday_date:
+        newSunday || null
+    });
+
+  }
+
+
+  if (updates.length === 0) {
+
+    alert(
+      "No changes to save."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Save only changed weeks.
+   */
+
+  for (const update of updates) {
+
+    const { error } =
+      await supabaseClient
+        .from("weeks")
+        .update({
+          saturday_date:
+            update.saturday_date,
+
+          sunday_date:
+            update.sunday_date
+        })
+        .eq(
+          "id",
+          update.id
+        );
+
+
+    if (error) {
+
+      console.error(
+        `Save Week ${update.week_number} error:`,
+        error
+      );
+
+      alert(
+        `Unable to save changes for Week ${update.week_number}.`
+      );
+
+      return;
+    }
+
+  }
+
+
+  /*
+   * Reload the week-dependent
+   * parts of the application.
+   */
+
+  await loadAdminWeeks();
+
+  await loadManageWeeks();
+  
+
+  alert(
+    `${updates.length} week${updates.length === 1 ? "" : "s"} updated successfully.`
+  );
+
+}
+  
 async function updateAdminWeekDates(
   weekId,
   weekNumber
