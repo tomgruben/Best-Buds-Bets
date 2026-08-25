@@ -5367,11 +5367,12 @@ tr.innerHTML = `
 
     <div class="date-input-wrap">
 
-      <input
-        id="admin-week-saturday-${week.id}"
-        type="date"
-        value="${week.saturday_date || ""}"
-      >
+<input
+  id="admin-week-saturday-${week.id}"
+  type="date"
+  value="${week.saturday_date || ""}"
+  data-original="${week.saturday_date || ""}"
+>
 
       <button
         type="button"
@@ -5391,11 +5392,12 @@ tr.innerHTML = `
 
     <div class="date-input-wrap">
 
-      <input
-        id="admin-week-sunday-${week.id}"
-        type="date"
-        value="${week.sunday_date || ""}"
-      >
+<input
+  id="admin-week-sunday-${week.id}"
+  type="date"
+  value="${week.sunday_date || ""}"
+  data-original="${week.sunday_date || ""}"
+>
 
       <button
         type="button"
@@ -5411,23 +5413,16 @@ tr.innerHTML = `
   </td>
 
 
-  <td>
+<td>
 
-    <button
-      type="button"
-      onclick="updateAdminWeekDates(${week.id}, ${week.week_number})"
-    >
-      Save Dates
-    </button>
+  <button
+    type="button"
+    onclick="deleteAdminWeek(${week.id}, ${week.week_number})"
+  >
+    Delete
+  </button>
 
-    <button
-      type="button"
-      onclick="deleteAdminWeek(${week.id}, ${week.week_number})"
-    >
-      Delete
-    </button>
-
-  </td>
+</td>
 
 `;
 
