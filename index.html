@@ -6499,9 +6499,8 @@ async function reactivateAdminSeason(
       })
       .eq("id", seasonId)
       .eq("status", "archived")
-      .select()
-      .single();
-
+.select()
+.maybeSingle();
 
   if (error || !reactivatedSeason) {
 
