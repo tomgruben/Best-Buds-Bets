@@ -8654,16 +8654,10 @@ if (
   }
 
 
-  const { error } =
-    await supabaseClient
-      .from("picks")
-      .upsert(
-        wagers,
-        {
-          onConflict:
-            "player_id,week_id,day"
-        }
-      );
+const { error } =
+  await supabaseClient
+    .from("picks")
+    .insert(wagers);
 
 
   if (error) {
