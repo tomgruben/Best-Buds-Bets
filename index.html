@@ -11176,13 +11176,14 @@ async function loadPlayerUnits(playerId) {
 
  async function loadSeasons() {
 
-  const { data, error } =
-    await supabaseClient
-      .from("seasons")
-      .select("*")
-      .order("year", {
-        ascending: false
-      });
+const { data, error } =
+  await supabaseClient
+    .from("seasons")
+    .select("*")
+    .eq("league_id", currentLeague.id)
+    .order("year", {
+      ascending: false
+    });
 
 
   if (error) {
