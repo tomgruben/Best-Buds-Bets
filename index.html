@@ -9625,13 +9625,49 @@ const playerRows =
    * every season.
    */
 
-  const {
-    data: standingsRows,
-    error: standingsError
-  } =
-    await supabaseClient
-      .from("season_standings")
-      .select("*");
+const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "League seasons load error:",
+    leagueSeasonError
+  );
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="4" class="empty">
+        Unable to load career statistics.
+      </td>
+    </tr>
+  `;
+
+  return;
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+
+
+const {
+  data: standingsRows,
+  error: standingsError
+} =
+  await supabaseClient
+    .from("season_standings")
+    .select("*")
+    .in("season_id", leagueSeasonIds);
 
 
   if (standingsError) {
