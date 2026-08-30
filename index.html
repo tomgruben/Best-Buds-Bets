@@ -2489,6 +2489,19 @@ async function initialize() {
 
   try {
 
+    const { data: league, error: leagueError } =
+  await supabaseClient
+    .from("leagues")
+    .select("*")
+    .eq("slug", "best-bets-triple-threat")
+    .maybeSingle();
+
+if (leagueError) {
+  throw leagueError;
+}
+
+currentLeague = league;
+
     const { data: seasons, error } =
       await supabaseClient
         .from("seasons")
