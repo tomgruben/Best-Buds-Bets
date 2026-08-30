@@ -2502,13 +2502,14 @@ if (leagueError) {
 
 currentLeague = league;
 
-    const { data: seasons, error } =
-      await supabaseClient
-        .from("seasons")
-        .select("*")
-        .eq("status", "active")
-        .order("year", { ascending: false })
-        .limit(1);
+const { data: seasons, error } =
+  await supabaseClient
+    .from("seasons")
+    .select("*")
+    .eq("status", "active")
+    .eq("league_id", currentLeague.id)
+    .order("year", { ascending: false })
+    .limit(1);
 
 
     if (error) {
