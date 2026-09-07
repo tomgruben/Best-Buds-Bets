@@ -3089,21 +3089,52 @@ if (leaderLabel) {
    * ==========================================================
    */
 
-  let standingsQuery =
-    supabaseClient
-      .from("season_standings")
-      .select("*");
+const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
 
 
-  if (!isAllTime) {
+if (leagueSeasonError) {
 
-    standingsQuery =
-      standingsQuery.eq(
-        "season_id",
-        selectedSeasonId
-      );
+  console.error(
+    "Standings league seasons error:",
+    leagueSeasonError
+  );
 
-  }
+  return;
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+
+
+let standingsQuery =
+  supabaseClient
+    .from("season_standings")
+    .select("*")
+    .in(
+      "season_id",
+      leagueSeasonIds
+    );
+
+
+if (!isAllTime) {
+
+  standingsQuery =
+    standingsQuery.eq(
+      "season_id",
+      selectedSeasonId
+    );
+
+}
 
 
   const {
