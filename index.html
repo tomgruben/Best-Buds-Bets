@@ -11263,16 +11263,28 @@ if (profileSeasonFilter) {
 
   if (playerFilter) {
 
-    const {
-      data: players,
-      error: playersError
-    } =
-      await supabaseClient
-        .from("players")
-        .select("id, name")
-        .order("name", {
-          ascending: true
-        });
+const {
+  data: memberRows,
+  error: playersError
+} =
+  await supabaseClient
+    .from("league_members")
+    .select(`
+      player:players (
+        id,
+        name
+      )
+    `)
+    .eq("league_id", currentLeague.id);
+
+
+const players =
+  (memberRows || [])
+    .map(row => row.player)
+    .filter(Boolean)
+    .sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
 
     if (playersError) {
