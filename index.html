@@ -9045,6 +9045,32 @@ const typeFilter =
 const selectedType =
   typeFilter?.value || "all";  
 
+  const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "History league seasons error:",
+    leagueSeasonError
+  );
+
+  return;
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+
   /*
    * Get standard picks.
    */
@@ -9065,6 +9091,12 @@ const selectedType =
   )
 `);
 
+picksQuery =
+  picksQuery.in(
+    "season_id",
+    leagueSeasonIds
+  );
+  
   if (selectedSeason !== "all") {
 
     picksQuery =
@@ -9207,6 +9239,12 @@ if (
   )
 `);
 
+tdQuery =
+  tdQuery.in(
+    "season_id",
+    leagueSeasonIds
+  );
+  
   if (selectedSeason !== "all") {
 
     tdQuery =
