@@ -6610,17 +6610,28 @@ async function loadAdminPeople() {
   `;
 
 
-  const {
-    data: people,
-    error
-  } =
-    await supabaseClient
-      .from("players")
-      .select("id, name")
-      .order("name", {
-        ascending: true
-      });
+const {
+  data: memberRows,
+  error
+} =
+  await supabaseClient
+    .from("league_members")
+    .select(`
+      player:players (
+        id,
+        name
+      )
+    `)
+    .eq("league_id", currentLeague.id);
 
+
+const people =
+  (memberRows || [])
+    .map(row => row.player)
+    .filter(Boolean)
+    .sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
   if (error) {
 
