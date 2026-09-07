@@ -11548,6 +11548,11 @@ const leaderRecord =
 
 if (sportFilter) {
 
+  const leagueSeasonIds =
+  (data || []).map(
+    season => season.id
+  );
+
   /*
    * Get sports from regular picks.
    */
@@ -11556,9 +11561,10 @@ if (sportFilter) {
     data: regularSports,
     error: regularSportError
   } =
-    await supabaseClient
-      .from("picks")
-      .select("sport");
+await supabaseClient
+  .from("picks")
+  .select("sport")
+  .in("season_id", leagueSeasonIds);
 
 
   /*
@@ -11569,9 +11575,10 @@ if (sportFilter) {
     data: touchdownSports,
     error: touchdownSportError
   } =
-    await supabaseClient
-      .from("touchdown_picks")
-      .select("id");
+await supabaseClient
+  .from("touchdown_picks")
+  .select("id")
+  .in("season_id", leagueSeasonIds);
 
 
   if (regularSportError) {
