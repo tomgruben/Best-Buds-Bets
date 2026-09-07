@@ -2646,16 +2646,17 @@ async function loadStandingsSeasons() {
   }
 
 
-  const {
-    data: seasons,
-    error
-  } =
-    await supabaseClient
-      .from("seasons")
-      .select("id, year, status")
-      .order("year", {
-        ascending: false
-      });
+const {
+  data: seasons,
+  error
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id, year, status")
+    .eq("league_id", currentLeague.id)
+    .order("year", {
+      ascending: false
+    });
 
 
   if (error) {
