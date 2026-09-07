@@ -10215,11 +10215,15 @@ let picksQuery =
     selectedProfileSport === "NFL"
   ) {
 
-    let tdQuery =
-      supabaseClient
-        .from("touchdown_picks")
-        .select("*")
-        .eq("player_id", playerId);
+let tdQuery =
+  supabaseClient
+    .from("touchdown_picks")
+    .select("*")
+    .eq("player_id", playerId)
+    .in(
+      "season_id",
+      leagueSeasonIds
+    );
 
 
     if (selectedProfileSeason !== "all") {
