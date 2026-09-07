@@ -7764,13 +7764,14 @@ async function deleteAdminPerson(personId, personName) {
    * Remove person.
    */
 
-  const {
-    error: deleteError
-  } =
-    await supabaseClient
-      .from("players")
-      .delete()
-      .eq("id", personId);
+const {
+  error: deleteError
+} =
+  await supabaseClient
+    .from("league_members")
+    .delete()
+    .eq("league_id", currentLeague.id)
+    .eq("player_id", personId);
 
 
   if (deleteError) {
