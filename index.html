@@ -10491,19 +10491,50 @@ async function loadPlayerPicks(playerId) {
   const selectedProfileSport =
     profileSportFilter?.value || "all";
 
+const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "Historical picks league seasons error:",
+    leagueSeasonError
+  );
+
+  return;
+
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+  
 
   /*
    * STANDARD PICKS
    */
 
-  let picksQuery =
-    supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        weeks(week_number)
-      `)
-      .eq("player_id", playerId);
+let picksQuery =
+  supabaseClient
+    .from("picks")
+    .select(`
+      *,
+      weeks(week_number)
+    `)
+    .eq("player_id", playerId)
+    .in(
+      "season_id",
+      leagueSeasonIds
+    );
 
 
   if (selectedProfileSeason !== "all") {
