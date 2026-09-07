@@ -10785,12 +10785,43 @@ async function loadPlayerUnits(playerId) {
   const selectedProfileSeason =
     profileSeasonFilter?.value || "all";
 
-
   const profileSportFilter =
     document.getElementById("profile-sport");
 
   const selectedProfileSport =
     profileSportFilter?.value || "all";
+
+  const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "Player units league seasons error:",
+    leagueSeasonError
+  );
+
+  chart.innerHTML =
+    `<div class="empty">
+      Unable to load units trend.
+    </div>`;
+
+  return;
+
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
 
 
   /*
@@ -10799,19 +10830,23 @@ async function loadPlayerUnits(playerId) {
    * ==========================================================
    */
 
-  let picksQuery =
-    supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        weeks (
-          week_number
-        ),
-        seasons (
-          year
-        )
-      `)
-      .eq("player_id", playerId);
+let picksQuery =
+  supabaseClient
+    .from("picks")
+    .select(`
+      *,
+      weeks (
+        week_number
+      ),
+      seasons (
+        year
+      )
+    `)
+    .eq("player_id", playerId)
+    .in(
+      "season_id",
+      leagueSeasonIds
+    );
 
 
   if (selectedProfileSeason !== "all") {
