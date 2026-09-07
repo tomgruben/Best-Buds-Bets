@@ -10427,6 +10427,18 @@ profileWinPct.className =
 
 }
 
+async function reloadPlayerProfile() {
+
+  if (currentProfilePlayerId === null) {
+    return;
+  }
+
+  await openPlayerProfile(
+    currentProfilePlayerId
+  );
+
+}
+
 function showPlayerList() {
 
   document.getElementById("player-profile")
