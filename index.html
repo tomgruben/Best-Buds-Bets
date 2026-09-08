@@ -12314,17 +12314,20 @@ const leagueSeasonIds =
     Math.max(...enteredWeekNumbers);
 
 
-  let weeksQuery =
-    supabaseClient
-      .from("weeks")
-      .select(
-        "id, season_id, week_number"
-      )
-      .lte(
-        "week_number",
-        maxWeek
-      );
-
+let weeksQuery =
+  supabaseClient
+    .from("weeks")
+    .select(
+      "id, season_id, week_number"
+    )
+    .in(
+      "season_id",
+      leagueSeasonIds
+    )
+    .lte(
+      "week_number",
+      maxWeek
+    );
 
   if (selectedSeason !== "all") {
 
