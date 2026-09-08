@@ -12086,32 +12086,60 @@ if (sportFilter) {
     season => season.id
   );
 
-  /*
-   * Get sports from regular picks.
-   */
+/*
+ * Get sports from regular picks
+ * and TD picks.
+ */
 
-  const {
-    data: regularSports,
-    error: regularSportError
-  } =
-await supabaseClient
-  .from("picks")
-  .select("sport")
-  .in("season_id", leagueSeasonIds);
+let regularSports = [];
+let regularSportError = null;
+
+let touchdownSports = [];
+let touchdownSportError = null;
 
 
-  /*
-   * Get sports represented by TD picks.
-   */
+if (
+  hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
 
-  const {
-    data: touchdownSports,
-    error: touchdownSportError
-  } =
-await supabaseClient
-  .from("touchdown_picks")
-  .select("id")
-  .in("season_id", leagueSeasonIds);
+  const regularResponse =
+    await supabaseClient
+      .from("picks")
+      .select("sport")
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  regularSports =
+    regularResponse.data || [];
+
+
+  regularSportError =
+    regularResponse.error;
+
+
+  const touchdownResponse =
+    await supabaseClient
+      .from("touchdown_picks")
+      .select("id")
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  touchdownSports =
+    touchdownResponse.data || [];
+
+
+  touchdownSportError =
+    touchdownResponse.error;
+
+}
 
 
   if (regularSportError) {
