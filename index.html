@@ -7668,6 +7668,36 @@ async function deleteAdminPerson(personId, personName) {
    * Check for standard picks.
    */
 
+const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq("league_id", currentLeague.id);
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "Delete person league seasons error:",
+    leagueSeasonError
+  );
+
+  alert(
+    "Unable to check whether this person can be removed."
+  );
+
+  return;
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+  
   const {
     count: standardCount,
     error: standardError
@@ -7678,7 +7708,11 @@ async function deleteAdminPerson(personId, personName) {
         count: "exact",
         head: true
       })
-      .eq("player_id", personId);
+     .eq("player_id", personId)
+.in(
+  "season_id",
+  leagueSeasonIds
+);
 
 
   if (standardError) {
