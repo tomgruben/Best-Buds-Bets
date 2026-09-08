@@ -7937,21 +7937,41 @@ const leagueSeasonIds =
     season => season.id
   );
   
-  const {
-    count: standardCount,
-    error: standardError
-  } =
+let standardCount = 0;
+let standardError = null;
+
+
+if (
+  hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  const response =
     await supabaseClient
       .from("picks")
       .select("*", {
         count: "exact",
         head: true
       })
-     .eq("player_id", personId)
-.in(
-  "season_id",
-  leagueSeasonIds
-);
+      .eq(
+        "player_id",
+        personId
+      )
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  standardCount =
+    response.count || 0;
+
+
+  standardError =
+    response.error;
+
+}
 
 
   if (standardError) {
