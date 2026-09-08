@@ -10935,6 +10935,28 @@ const leagueSeasonIds =
   (leagueSeasonRows || []).map(
     season => season.id
   );
+
+
+if (
+  !hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  body.innerHTML = `
+    <tr>
+      <td
+        colspan="8"
+        class="empty"
+      >
+        No picks have been entered.
+      </td>
+    </tr>
+  `;
+
+  return;
+
+}
   
 
   /*
