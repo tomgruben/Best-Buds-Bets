@@ -11298,6 +11298,21 @@ const leagueSeasonIds =
     season => season.id
   );
 
+  if (
+  !hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  chart.innerHTML =
+    `<div class="empty">
+      No units history yet.
+    </div>`;
+
+  return;
+
+}
+
 
   /*
    * ==========================================================
