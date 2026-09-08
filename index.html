@@ -6101,6 +6101,51 @@ const {
 async function closeAdminSeason(seasonId, seasonYear) {
 
   /*
+   * Verify this season belongs
+   * to the current league.
+   */
+
+  const {
+    data: seasonToClose,
+    error: seasonCheckError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id")
+      .eq("id", seasonId)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq("status", "active")
+      .maybeSingle();
+
+
+  if (seasonCheckError) {
+
+    console.error(
+      "Close season ownership check error:",
+      seasonCheckError
+    );
+
+    alert(
+      "Unable to verify this season."
+    );
+
+    return;
+  }
+
+
+  if (!seasonToClose) {
+
+    alert(
+      "That season cannot be closed from this league."
+    );
+
+    return;
+  }
+  
+  /*
    * Check for pending standard picks.
    */
 
