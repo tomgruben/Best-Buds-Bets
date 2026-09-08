@@ -7433,12 +7433,15 @@ async function deleteStandardPick(pickId) {
   }
 
 
-  const { error } =
-    await supabaseClient
-      .from("picks")
-      .delete()
-      .eq("id", pickId);
-
+const { error } =
+  await supabaseClient
+    .from("picks")
+    .delete()
+    .eq("id", pickId)
+    .eq(
+      "season_id",
+      currentSeason.id
+    );
 
   if (error) {
 
