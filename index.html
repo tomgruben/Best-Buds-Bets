@@ -3116,7 +3116,8 @@ const leagueSeasonIds =
   );
 
 
-let standingsQuery = null;
+let standingsRows = [];
+let error = null;
 
 
 if (
@@ -3125,7 +3126,7 @@ if (
   )
 ) {
 
-  standingsQuery =
+  let standingsQuery =
     supabaseClient
       .from("season_standings")
       .select("*")
@@ -3134,26 +3135,30 @@ if (
         leagueSeasonIds
       );
 
-}
+
+  if (!isAllTime) {
+
+    standingsQuery =
+      standingsQuery.eq(
+        "season_id",
+        selectedSeasonId
+      );
+
+  }
 
 
-if (!isAllTime) {
-
-  standingsQuery =
-    standingsQuery.eq(
-      "season_id",
-      selectedSeasonId
-    );
-
-}
-
-
-  const {
-    data: standingsRows,
-    error
-  } =
+  const response =
     await standingsQuery;
 
+
+  standingsRows =
+    response.data || [];
+
+
+  error =
+    response.error;
+
+}
 
   if (error) {
 
