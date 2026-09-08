@@ -12374,6 +12374,19 @@ const leagueSeasonIds =
     season => season.id
   );
 
+if (
+  !hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  weekFilter.innerHTML =
+    '<option value="all">All</option>';
+
+  return;
+
+}  
+
 
   let picksQuery =
     supabaseClient
