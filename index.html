@@ -10549,11 +10549,22 @@ const leagueSeasonIds =
   (leagueSeasonRows || []).map(
     season => season.id
   );
-   
 
-  /*
-   * STANDARD PICKS
-   */
+
+if (
+  !hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  return;
+
+}
+
+
+/*
+ * STANDARD PICKS
+ */
 
 let picksQuery =
   supabaseClient
