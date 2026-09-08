@@ -5464,10 +5464,14 @@ async function saveAllWeekChanges() {
           sunday_date:
             update.sunday_date
         })
-        .eq(
-          "id",
-          update.id
-        );
+.eq(
+  "id",
+  update.id
+)
+.eq(
+  "season_id",
+  currentSeason.id
+);
 
 
     if (error) {
