@@ -7597,8 +7597,11 @@ async function saveAllTdPicks() {
           result:
             update.result
         })
-        .eq("id", update.id);
-
+        .eq("id", update.id)
+        .eq(
+          "season_id",
+          currentSeason.id
+        );
 
     if (error) {
 
