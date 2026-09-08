@@ -7644,11 +7644,15 @@ async function deleteTdPick(pickId) {
   }
 
 
-  const { error } =
-    await supabaseClient
-      .from("touchdown_picks")
-      .delete()
-      .eq("id", pickId);
+const { error } =
+  await supabaseClient
+    .from("touchdown_picks")
+    .delete()
+    .eq("id", pickId)
+    .eq(
+      "season_id",
+      currentSeason.id
+    );
 
 
   if (error) {
