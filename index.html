@@ -9462,27 +9462,36 @@ const leagueSeasonIds =
    * Get standard picks.
    */
 
-  let picksQuery =
-    supabaseClient
-.from("picks")
-.select(`
-  *,
-  players(name),
-  weeks(
-    week_number,
-    saturday_date,
-    sunday_date
-  ),
-  seasons(
-    year
-  )
-`);
+let picksQuery = null;
 
-picksQuery =
-  picksQuery.in(
-    "season_id",
+
+if (
+  hasLeagueSeasons(
     leagueSeasonIds
-  );
+  )
+) {
+
+  picksQuery =
+    supabaseClient
+      .from("picks")
+      .select(`
+        *,
+        players(name),
+        weeks(
+          week_number,
+          saturday_date,
+          sunday_date
+        ),
+        seasons(
+          year
+        )
+      `)
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+}
   
   if (selectedSeason !== "all") {
 
