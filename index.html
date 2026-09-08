@@ -8613,16 +8613,31 @@ async function saveSaturdayPicks() {
   }
 
 
-  const {
-    data: playerRows,
-    error: playerError
-  } =
-    await supabaseClient
-      .from("players")
-      .select("id, name")
-      .order("name", {
-        ascending: true
-      });
+const {
+  data: memberRows,
+  error: playerError
+} =
+  await supabaseClient
+    .from("league_members")
+    .select(`
+      player:players (
+        id,
+        name
+      )
+    `)
+    .eq(
+      "league_id",
+      currentLeague.id
+    );
+
+
+const playerRows =
+  (memberRows || [])
+    .map(row => row.player)
+    .filter(Boolean)
+    .sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
 
   if (playerError) {
