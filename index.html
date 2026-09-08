@@ -7582,7 +7582,8 @@ async function addAdminPerson() {
 
 
   /*
-   * Check for duplicate name.
+   * Look for an existing platform player
+   * with this name.
    */
 
   const {
@@ -7591,7 +7592,7 @@ async function addAdminPerson() {
   } =
     await supabaseClient
       .from("players")
-      .select("id")
+      .select("id, name")
       .ilike("name", name)
       .maybeSingle();
 
@@ -7611,39 +7612,133 @@ async function addAdminPerson() {
   }
 
 
+  let personId = null;
+
+
+  /*
+   * Existing platform player:
+   * reuse the same player record.
+   */
+
   if (existingPerson) {
 
-    alert(
-      `${name} already exists.`
-    );
+    personId =
+      existingPerson.id;
 
-    return;
+
+    const {
+      data: existingMembership,
+      error: membershipCheckError
+    } =
+      await supabaseClient
+        .from("league_members")
+        .select("id")
+        .eq(
+          "league_id",
+          currentLeague.id
+        )
+        .eq(
+          "player_id",
+          personId
+        )
+        .maybeSingle();
+
+
+    if (membershipCheckError) {
+
+      console.error(
+        "Check league membership error:",
+        membershipCheckError
+      );
+
+      alert(
+        "Unable to check league membership."
+      );
+
+      return;
+    }
+
+
+    if (existingMembership) {
+
+      alert(
+        `${existingPerson.name} is already in this league.`
+      );
+
+      return;
+    }
+
   }
 
 
   /*
-   * Add the person.
+   * Brand-new platform player:
+   * create the player record first.
+   */
+
+  else {
+
+    const {
+      data: newPerson,
+      error: insertError
+    } =
+      await supabaseClient
+        .from("players")
+        .insert({
+          name: name
+        })
+        .select("id, name")
+        .single();
+
+
+    if (insertError) {
+
+      console.error(
+        "Add person error:",
+        insertError
+      );
+
+      alert(
+        "Unable to add the person."
+      );
+
+      return;
+    }
+
+
+    personId =
+      newPerson.id;
+
+  }
+
+
+  /*
+   * Add the person to the current league.
    */
 
   const {
-    error: insertError
+    error: membershipError
   } =
     await supabaseClient
-      .from("players")
+      .from("league_members")
       .insert({
-        name: name
+        league_id:
+          currentLeague.id,
+
+        player_id:
+          personId
       });
 
 
-  if (insertError) {
+  if (membershipError) {
 
     console.error(
-      "Add person error:",
-      insertError
+      "Add league membership error:",
+      membershipError
     );
 
     alert(
-      "Unable to add the person."
+      "Unable to add the person to this league."
     );
 
     return;
@@ -7660,7 +7755,7 @@ async function addAdminPerson() {
     `${name} added successfully.`
   );
 
-}  
+}
 
 async function deleteAdminPerson(personId, personName) {
 
