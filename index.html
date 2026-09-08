@@ -7744,7 +7744,11 @@ const leagueSeasonIds =
         count: "exact",
         head: true
       })
-      .eq("player_id", personId);
+    .eq("player_id", personId)
+.in(
+  "season_id",
+  leagueSeasonIds
+);
 
 
   if (tdError) {
