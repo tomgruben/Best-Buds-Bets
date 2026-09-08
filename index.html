@@ -6528,15 +6528,19 @@ const {
    * Prevent duplicate season years.
    */
 
-  const {
-    data: existingSeason,
-    error: existingError
-  } =
-    await supabaseClient
-      .from("seasons")
-      .select("id, year")
-      .eq("year", seasonYear)
-      .maybeSingle();
+const {
+  data: existingSeason,
+  error: existingError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id, year")
+    .eq(
+      "league_id",
+      currentLeague.id
+    )
+    .eq("year", seasonYear)
+    .maybeSingle();
 
 
   if (existingError) {
