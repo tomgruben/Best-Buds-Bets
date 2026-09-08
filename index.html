@@ -3116,14 +3116,25 @@ const leagueSeasonIds =
   );
 
 
-let standingsQuery =
-  supabaseClient
-    .from("season_standings")
-    .select("*")
-    .in(
-      "season_id",
-      leagueSeasonIds
-    );
+let standingsQuery = null;
+
+
+if (
+  hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  standingsQuery =
+    supabaseClient
+      .from("season_standings")
+      .select("*")
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+}
 
 
 if (!isAllTime) {
