@@ -6311,14 +6311,18 @@ async function reactivateAdminSeason(
    * is not already active.
    */
 
-  const {
-    data: activeSeasons,
-    error: activeError
-  } =
-    await supabaseClient
-      .from("seasons")
-      .select("id, year")
-      .eq("status", "active");
+const {
+  data: activeSeasons,
+  error: activeError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id, year")
+    .eq(
+      "league_id",
+      currentLeague.id
+    )
+    .eq("status", "active");
 
 
   if (activeError) {
