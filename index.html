@@ -12415,13 +12415,28 @@ let weeksQuery =
    * ==========================================================
    */
 
- function formatUnits(value) {
+function formatUnits(value) {
 
   const number = Number(value || 0);
 
-return (
-  number >= 0 ? "+" : ""
-) + number.toFixed(2);
+  return (
+    number >= 0 ? "+" : ""
+  ) + number.toFixed(2);
+}
+
+
+
+function hasLeagueSeasons(
+  leagueSeasonIds
+) {
+
+  return (
+    Array.isArray(
+      leagueSeasonIds
+    ) &&
+    leagueSeasonIds.length > 0
+  );
+
 }
 
 
