@@ -6587,18 +6587,19 @@ const {
    * Create the season.
    */
 
-  const {
-    data: newSeason,
-    error: seasonError
-  } =
-    await supabaseClient
-      .from("seasons")
-      .insert({
-        year: seasonYear,
-        status: "active"
-      })
-      .select()
-      .single();
+const {
+  data: newSeason,
+  error: seasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .insert({
+      year: seasonYear,
+      status: "active",
+      league_id: currentLeague.id
+    })
+    .select()
+    .single();
 
 
   if (seasonError || !newSeason) {
