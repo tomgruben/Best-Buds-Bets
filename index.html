@@ -7385,7 +7385,11 @@ const { error } =
       odds: update.odds,
       result: update.result
     })
-    .eq("id", update.id);
+    .eq("id", update.id)
+    .eq(
+      "season_id",
+      currentSeason.id
+    );
 
 
     if (error) {
