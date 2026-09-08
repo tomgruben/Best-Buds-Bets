@@ -10049,14 +10049,34 @@ const leagueSeasonIds =
   );
 
 
-const {
-  data: standingsRows,
-  error: standingsError
-} =
-  await supabaseClient
-    .from("season_standings")
-    .select("*")
-    .in("season_id", leagueSeasonIds);
+let standingsRows = [];
+let standingsError = null;
+
+
+if (
+  hasLeagueSeasons(
+    leagueSeasonIds
+  )
+) {
+
+  const response =
+    await supabaseClient
+      .from("season_standings")
+      .select("*")
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  standingsRows =
+    response.data || [];
+
+
+  standingsError =
+    response.error;
+
+}
 
 
   if (standingsError) {
