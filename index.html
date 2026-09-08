@@ -9458,40 +9458,63 @@ const leagueSeasonIds =
     season => season.id
   );
 
-  /*
-   * Get standard picks.
-   */
-
-let picksQuery = null;
-
 
 if (
-  hasLeagueSeasons(
+  !hasLeagueSeasons(
     leagueSeasonIds
   )
 ) {
 
-  picksQuery =
-    supabaseClient
-      .from("picks")
-      .select(`
-        *,
-        players(name),
-        weeks(
-          week_number,
-          saturday_date,
-          sunday_date
-        ),
-        seasons(
-          year
-        )
-      `)
-      .in(
-        "season_id",
-        leagueSeasonIds
-      );
+  const body =
+    document.getElementById(
+      "history-body"
+    );
+
+
+  if (body) {
+
+    body.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          class="empty"
+        >
+          No picks have been entered.
+        </td>
+      </tr>
+    `;
+
+  }
+
+
+  return;
 
 }
+
+
+  /*
+   * Get standard picks.
+   */
+
+let picksQuery =
+  supabaseClient
+    .from("picks")
+    .select(`
+      *,
+      players(name),
+      weeks(
+        week_number,
+        saturday_date,
+        sunday_date
+      ),
+      seasons(
+        year
+      )
+    `)
+    .in(
+      "season_id",
+      leagueSeasonIds
+    );
   
   if (selectedSeason !== "all") {
 
