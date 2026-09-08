@@ -10305,16 +10305,20 @@ async function loadProfileSeasons() {
     seasonFilter.value || "all";
 
 
-  const {
-    data: seasons,
-    error
-  } =
-    await supabaseClient
-      .from("seasons")
-      .select("id, year")
-      .order("year", {
-        ascending: false
-      });
+const {
+  data: seasons,
+  error
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id, year")
+    .eq(
+      "league_id",
+      currentLeague.id
+    )
+    .order("year", {
+      ascending: false
+    });
 
 
   if (error) {
