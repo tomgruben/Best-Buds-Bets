@@ -5870,6 +5870,51 @@ async function deleteAdminSeason(
 ) {
 
   /*
+   * Verify this season belongs
+   * to the current league.
+   */
+
+  const {
+    data: seasonToDelete,
+    error: seasonCheckError
+  } =
+    await supabaseClient
+      .from("seasons")
+      .select("id")
+      .eq("id", seasonId)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq("status", "archived")
+      .maybeSingle();
+
+
+  if (seasonCheckError) {
+
+    console.error(
+      "Delete season ownership check error:",
+      seasonCheckError
+    );
+
+    alert(
+      "Unable to verify this season."
+    );
+
+    return;
+  }
+
+
+  if (!seasonToDelete) {
+
+    alert(
+      "That season cannot be deleted from this league."
+    );
+
+    return;
+  }
+  
+  /*
    * Check for standard picks.
    */
 
