@@ -6390,6 +6390,10 @@ const {
         archived_at: null
       })
       .eq("id", seasonId)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
       .eq("status", "archived")
 .select()
 .maybeSingle();
