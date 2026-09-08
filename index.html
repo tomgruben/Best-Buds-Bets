@@ -12170,6 +12170,35 @@ async function loadHistoryWeeks() {
   const selectedSeason =
     seasonFilter?.value || "all";
 
+  const {
+  data: leagueSeasonRows,
+  error: leagueSeasonError
+} =
+  await supabaseClient
+    .from("seasons")
+    .select("id")
+    .eq(
+      "league_id",
+      currentLeague.id
+    );
+
+
+if (leagueSeasonError) {
+
+  console.error(
+    "History weeks league seasons error:",
+    leagueSeasonError
+  );
+
+  return;
+}
+
+
+const leagueSeasonIds =
+  (leagueSeasonRows || []).map(
+    season => season.id
+  );
+
 
   let picksQuery =
     supabaseClient
@@ -12181,7 +12210,11 @@ async function loadHistoryWeeks() {
           id,
           week_number
         )
-      `);
+            `)
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
 
 
   let tdQuery =
@@ -12194,7 +12227,11 @@ async function loadHistoryWeeks() {
           id,
           week_number
         )
-      `);
+            `)
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
 
 
   if (selectedSeason !== "all") {
