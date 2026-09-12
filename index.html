@@ -3467,6 +3467,46 @@ data.forEach((row, index) => {
   }
 
 
+if (!isAllTime && isPropfecta) {
+
+  let previousUnits = null;
+  let previousRank = 0;
+
+
+  data.forEach((row, index) => {
+
+    const units =
+      Number(row.units || 0);
+
+
+    if (
+      previousUnits !== null &&
+      units === previousUnits
+    ) {
+
+      row.rank =
+        previousRank;
+
+    }
+
+    else {
+
+      row.rank =
+        index + 1;
+
+      previousRank =
+        row.rank;
+
+    }
+
+
+    previousUnits =
+      units;
+
+  });
+
+}
+   
   /*
    * ==========================================================
    * LOAD STANDARD PICKS FOR LAST 5
