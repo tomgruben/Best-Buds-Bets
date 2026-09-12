@@ -4118,7 +4118,60 @@ if (decisions > 0) {
 
 }
     
-    tr.innerHTML = `
+    tr.innerHTML =
+      isPropfecta
+        ? `
+
+      <td class="rank">
+        ${displayRank}
+      </td>
+
+
+      <td>
+
+        <button
+          class="player-button"
+          onclick="openPlayerProfile(${row.player_id})"
+        >
+          ${row.player_name}
+        </button>
+
+      </td>
+
+
+      <td class="${unitClass}">
+        ${formatUnits(row.units)}
+      </td>
+
+
+      <td>
+        ${row.wins}
+      </td>
+
+
+      <td>
+        ${row.losses}
+      </td>
+
+
+      <td>
+        ${row.pushes}
+      </td>
+
+
+      <td class="${winPctClass}">
+        ${Number(
+          row.win_percentage || 0
+        ).toFixed(1)}%
+      </td>
+
+
+      <td>
+        ${last5Map[row.player_id] || "0-0-0"}
+      </td>
+
+    `
+        : `
 
       <td class="rank">
         ${displayRank}
@@ -4152,11 +4205,11 @@ if (decisions > 0) {
       </td>
 
 
-<td class="${winPctClass}">
-  ${Number(
-    row.win_percentage || 0
-  ).toFixed(1)}%
-</td>
+      <td class="${winPctClass}">
+        ${Number(
+          row.win_percentage || 0
+        ).toFixed(1)}%
+      </td>
 
 
       <td class="${unitClass}">
