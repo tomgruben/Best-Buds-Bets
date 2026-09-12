@@ -3427,44 +3427,43 @@ data =
      * Equal Win % = equal rank.
      */
 
-    let previousWinPct = null;
-    let previousRank = 0;
+  let previousMetric = null;
+let previousRank = 0;
 
 
-    data.forEach((row, index) => {
+data.forEach((row, index) => {
 
-      const winPct =
-        Number(
-          row.win_percentage || 0
-        );
-
-
-      if (
-        previousWinPct !== null &&
-        winPct === previousWinPct
-      ) {
-
-        row.rank =
-          previousRank;
-
-      }
-
-      else {
-
-        row.rank =
-          index + 1;
-
-        previousRank =
-          row.rank;
-
-      }
+  const rankingMetric =
+    isPropfecta
+      ? Number(row.units || 0)
+      : Number(row.win_percentage || 0);
 
 
-      previousWinPct =
-        winPct;
+  if (
+    previousMetric !== null &&
+    rankingMetric === previousMetric
+  ) {
 
-    });
+    row.rank =
+      previousRank;
 
+  }
+
+  else {
+
+    row.rank =
+      index + 1;
+
+    previousRank =
+      row.rank;
+
+  }
+
+
+  previousMetric =
+    rankingMetric;
+
+});
   }
 
 
