@@ -3681,7 +3681,53 @@ let recentPicksQuery =
 
   });
 
+if (isPropfecta) {
 
+  data.forEach(row => {
+
+    const playerPicks =
+      (recentPicks || []).filter(pick =>
+        Number(pick.player_id) ===
+        Number(row.player_id)
+      );
+
+
+    const wins =
+      playerPicks.filter(
+        pick => pick.result === "win"
+      ).length;
+
+
+    const losses =
+      playerPicks.filter(
+        pick => pick.result === "loss"
+      ).length;
+
+
+    const pushes =
+      playerPicks.filter(
+        pick => pick.result === "push"
+      ).length;
+
+
+    const decisions =
+      wins + losses;
+
+
+    row.wins = wins;
+    row.losses = losses;
+    row.pushes = pushes;
+
+    row.win_percentage =
+      decisions > 0
+        ? (wins / decisions) * 100
+        : 0;
+
+  });
+
+}
+
+   
   /*
    * ==========================================================
    * RENDER STANDINGS
