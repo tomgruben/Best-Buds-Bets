@@ -3029,6 +3029,39 @@ function toggleSetupCard(
 
 const isPropfecta =
   currentLeague?.slug === "propfecta";
+
+   const standingsHeader =
+  document.querySelector(
+    "#standings table thead tr"
+  );
+
+
+if (standingsHeader) {
+
+  standingsHeader.innerHTML =
+    isPropfecta
+      ? `
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Units</th>
+          <th>W</th>
+          <th>L</th>
+          <th>P</th>
+          <th>Win %</th>
+          <th>Last 5</th>
+        `
+      : `
+          <th>Rank</th>
+          <th>Player</th>
+          <th>W</th>
+          <th>L</th>
+          <th>P</th>
+          <th>Win %</th>
+          <th>Units</th>
+          <th>Last 5</th>
+        `;
+
+}
    
    const seasonSelect =
     document.getElementById("standings-season");
