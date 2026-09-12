@@ -2252,6 +2252,32 @@ let currentLeague = null;
 let currentSeason = null;
 let isAdmin = false;
 let currentProfilePlayerId = null;
+
+
+/*
+ * ==========================================================
+ * LEAGUE NAVIGATION
+ * ==========================================================
+ */
+
+function switchLeague(leagueSlug) {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  params.set(
+    "league",
+    leagueSlug
+  );
+
+
+  window.location.search =
+    params.toString();
+
+}
   
 
 /*
@@ -2537,6 +2563,21 @@ if (leagueError) {
 }
 
 currentLeague = league;
+
+if (!currentLeague) {
+  throw new Error(
+    `League "${leagueSlug}" was not found.`
+  );
+}
+
+const leagueSwitcher =
+  document.getElementById(
+    "league-switcher"
+  );
+
+if (leagueSwitcher) {
+  leagueSwitcher.value = leagueSlug;
+}
 
 const leagueSubtitle =
   document.getElementById(
