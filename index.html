@@ -3517,15 +3517,29 @@ if (!isAllTime && isPropfecta) {
 
 let recentPicksQuery =
   supabaseClient
-    .from("picks")
-    .select(`
-      player_id,
-      season_id,
-      week_id,
-      day,
-      result,
-      seasons(year)
-    `)
+    .from(
+      isPropfecta
+        ? "touchdown_picks"
+        : "picks"
+    )
+    .select(
+      isPropfecta
+        ? `
+          player_id,
+          season_id,
+          week_id,
+          result,
+          seasons(year)
+        `
+        : `
+          player_id,
+          season_id,
+          week_id,
+          day,
+          result,
+          seasons(year)
+        `
+    )
     .in(
       "season_id",
       leagueSeasonIds
@@ -3534,7 +3548,6 @@ let recentPicksQuery =
       "result",
       ["win", "loss", "push"]
     );
-
 
   if (!isAllTime) {
 
