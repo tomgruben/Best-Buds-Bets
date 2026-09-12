@@ -865,12 +865,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 <header>
   <div class="header-inner">
     <h1>🏈Best Buds &amp; Bets</h1>
-<div
-  id="league-subtitle"
-  class="subtitle"
->
-  Best Bets Triple Threat
-</div>
+
+    <div
+      id="league-subtitle"
+      class="subtitle"
+    >
+      Best Bets Triple Threat
+    </div>
+
+    <select
+      id="league-switcher"
+      onchange="switchLeague(this.value)"
+      style="
+        margin-top:10px;
+        padding:8px 10px;
+        border-radius:8px;
+      "
+    >
+      <option value="best-bets-triple-threat">
+        Best Bets Triple Threat
+      </option>
+
+      <option value="propfecta">
+        Propfecta
+      </option>
+    </select>
   </div>
 </header>
 <div id="auth-area" style="max-width:1200px;margin:auto;padding:10px 24px;text-align:right;">
