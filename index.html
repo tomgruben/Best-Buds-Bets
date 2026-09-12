@@ -3792,26 +3792,35 @@ if (eligibleLeaders.length === 0) {
 else {
 
   /*
-   * Find the highest Win % among
-   * players with at least one decision.
+   * Propfecta leaders are determined
+   * by Units.
+   *
+   * Triple Threat leaders remain
+   * determined by Win %.
    */
 
-  const highestWinPercentage =
+  const highestRankingMetric =
     Math.max(
       ...eligibleLeaders.map(row =>
-        Number(
-          row.win_percentage || 0
-        )
+        isPropfecta
+          ? Number(row.units || 0)
+          : Number(row.win_percentage || 0)
       )
     );
 
 
   /*
-   * If nobody has actually won yet,
-   * do not show a leader.
+   * Triple Threat does not display
+   * a leader until somebody wins.
+   *
+   * Propfecta may have a leader with
+   * negative Units after wagers settle.
    */
 
-  if (highestWinPercentage <= 0) {
+  if (
+    !isPropfecta &&
+    highestRankingMetric <= 0
+  ) {
 
     leaderElement.textContent = "—";
 
@@ -3819,17 +3828,21 @@ else {
 
   else {
 
-    /*
-     * Every player with the highest
-     * Win % is a co-leader.
-     */
-
     const leaders =
-      eligibleLeaders.filter(row =>
-        Number(
-          row.win_percentage || 0
-        ) === highestWinPercentage
-      );
+      eligibleLeaders.filter(row => {
+
+        const rankingMetric =
+          isPropfecta
+            ? Number(row.units || 0)
+            : Number(row.win_percentage || 0);
+
+
+        return (
+          rankingMetric ===
+          highestRankingMetric
+        );
+
+      });
 
 
     const leaderNames =
