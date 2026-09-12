@@ -2337,11 +2337,15 @@ function setAdminMode(admin) {
     logoutButton.style.display = "inline-block";
     enterBets.style.display = "inline-block";
 
+    leagueSwitcher.style.display = "inline-block";
+
   } else {
 
     loginButton.style.display = "inline-block";
     logoutButton.style.display = "none";
     enterBets.style.display = "none";
+
+    leagueSwitcher.style.display = "none";
 
     /*
      * If a user logs out while viewing Enter Bets,
