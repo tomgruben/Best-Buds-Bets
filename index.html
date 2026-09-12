@@ -3554,11 +3554,11 @@ if (!isAllTime && isPropfecta) {
 
 let recentPicksQuery =
   supabaseClient
-    .from(
-      isPropfecta
-        ? "touchdown_picks"
-        : "picks"
-    )
+.from(
+  isPropfecta
+    ? "league_wagers"
+    : "picks"
+)
     .select(
       isPropfecta
         ? `
