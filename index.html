@@ -4014,13 +4014,105 @@ else {
     );
 
 
-  const combinedUnits =
+  let combinedUnits =
     data.reduce(
       (total, row) =>
         total +
         Number(row.units || 0),
       0
     );
+
+
+  if (isPropfecta) {
+
+    if (isAllTime) {
+
+      const combinedResponses =
+        await Promise.all(
+          leagueSeasonIds.map(
+            seasonId =>
+              supabaseClient.rpc(
+                "calculate_propfecta_combined_units",
+                {
+                  p_league_id:
+                    currentLeague.id,
+
+                  p_season_id:
+                    seasonId
+                }
+              )
+          )
+        );
+
+
+      const combinedError =
+        combinedResponses.find(
+          response => response.error
+        )?.error;
+
+
+      if (combinedError) {
+
+        console.error(
+          "Propfecta Combined Units error:",
+          combinedError
+        );
+
+      }
+
+      else {
+
+        combinedUnits =
+          combinedResponses.reduce(
+            (total, response) =>
+              total +
+              Number(response.data || 0),
+            0
+          );
+
+      }
+
+    }
+
+    else {
+
+      const {
+        data: propfectaCombinedUnits,
+        error: combinedError
+      } =
+        await supabaseClient.rpc(
+          "calculate_propfecta_combined_units",
+          {
+            p_league_id:
+              currentLeague.id,
+
+            p_season_id:
+              selectedSeasonId
+          }
+        );
+
+
+      if (combinedError) {
+
+        console.error(
+          "Propfecta Combined Units error:",
+          combinedError
+        );
+
+      }
+
+      else {
+
+        combinedUnits =
+          Number(
+            propfectaCombinedUnits || 0
+          );
+
+      }
+
+    }
+
+  }
 
 
   const totalDecisions =
