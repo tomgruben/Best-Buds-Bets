@@ -2489,11 +2489,23 @@ async function initialize() {
 
   try {
 
-    const { data: league, error: leagueError } =
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const leagueSlug =
+  params.get("league") ||
+  "best-bets-triple-threat";
+
+const { data: league, error: leagueError } =
   await supabaseClient
     .from("leagues")
     .select("*")
-    .eq("slug", "best-bets-triple-threat")
+    .eq(
+      "slug",
+      leagueSlug
+    )
     .maybeSingle();
 
 if (leagueError) {
