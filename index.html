@@ -2720,7 +2720,7 @@ async function loadPropfectaWeeklyForm() {
       supabaseClient
         .from("weeks")
         .select(
-          "id, week_number"
+          "id, week_number, sunday_date"
         )
         .eq(
           "season_id",
