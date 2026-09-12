@@ -3747,11 +3747,24 @@ let recentPicksQuery =
 const eligibleLeaders =
   data.filter(row => {
 
+    if (isPropfecta) {
+
+      return (
+        recentPicks || []
+      ).some(pick =>
+        Number(pick.player_id) ===
+          Number(row.player_id)
+      );
+
+    }
+
+
     const wins =
       Number(row.wins || 0);
 
     const losses =
       Number(row.losses || 0);
+
 
     return (
       wins + losses > 0
