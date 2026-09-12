@@ -2580,23 +2580,71 @@ supabaseClient.auth.onAuthStateChange(
 
 if (pageId === "bets") {
 
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
 
 
-  const weeklyButton =
-    document.querySelector(
-      `.admin-subnav-button[onclick*="'weekly'"]`
+  const propfectaPanel =
+    document.getElementById(
+      "propfecta-weekly-panel"
     );
 
 
-  showAdminSection(
-    "weekly",
-    weeklyButton
-  );
+  const adminSubnav =
+    document.querySelector(
+      ".admin-subnav"
+    );
 
 
-  loadWeeklyStandardPicks();
+  if (isPropfecta) {
 
-  loadWeeklyTdPicks();
+    propfectaPanel.style.display =
+      "block";
+
+    adminSubnav.style.display =
+      "none";
+
+
+    document
+      .querySelectorAll(
+        "#bets .admin-section"
+      )
+      .forEach(section => {
+
+        section.style.display =
+          "none";
+
+      });
+
+  }
+
+  else {
+
+    propfectaPanel.style.display =
+      "none";
+
+    adminSubnav.style.display =
+      "flex";
+
+
+    const weeklyButton =
+      document.querySelector(
+        `.admin-subnav-button[onclick*="'weekly'"]`
+      );
+
+
+    showAdminSection(
+      "weekly",
+      weeklyButton
+    );
+
+
+    loadWeeklyStandardPicks();
+
+    loadWeeklyTdPicks();
+
+  }
+
 }
 
   if (pageId === "standings") {
