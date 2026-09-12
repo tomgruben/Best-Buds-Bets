@@ -2775,25 +2775,90 @@ async function loadPropfectaWeeklyForm() {
     '<option value="">Select Week</option>';
 
 
-  (weeksResponse.data || [])
-    .forEach(week => {
+    const weeks =
+    weeksResponse.data || [];
 
-      const option =
-        document.createElement(
-          "option"
-        );
 
-      option.value =
-        week.id;
+  weeks.forEach(week => {
 
-      option.textContent =
-        `Week ${week.week_number}`;
-
-      weekSelect.appendChild(
-        option
+    const option =
+      document.createElement(
+        "option"
       );
 
+    option.value =
+      week.id;
+
+    option.textContent =
+      `Week ${week.week_number}`;
+
+    weekSelect.appendChild(
+      option
+    );
+
+  });
+
+
+  if (weeks.length > 0) {
+
+    const today =
+      new Date();
+
+
+    const todayValue =
+      Date.UTC(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+
+
+    let defaultWeek =
+      weeks[0];
+
+
+    weeks.forEach(week => {
+
+      if (!week.sunday_date) {
+        return;
+      }
+
+
+      const [
+        year,
+        month,
+        day
+      ] =
+        week.sunday_date
+          .split("-")
+          .map(Number);
+
+
+      const weekStartsTuesday =
+        Date.UTC(
+          year,
+          month - 1,
+          day - 5
+        );
+
+
+      if (
+        todayValue >=
+        weekStartsTuesday
+      ) {
+
+        defaultWeek =
+          week;
+
+      }
+
     });
+
+
+    weekSelect.value =
+      defaultWeek.id;
+
+  }
 
 
   const players =
