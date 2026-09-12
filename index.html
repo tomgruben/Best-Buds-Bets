@@ -3259,7 +3259,11 @@ if (
 
   let standingsQuery =
     supabaseClient
-      .from("season_standings")
+      .from(
+        isPropfecta
+          ? "propfecta_standings"
+          : "season_standings"
+      )
       .select("*")
       .in(
         "season_id",
