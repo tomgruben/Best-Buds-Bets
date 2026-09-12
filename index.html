@@ -2519,6 +2519,16 @@ if (leagueError) {
 
 currentLeague = league;
 
+const leagueSubtitle =
+  document.getElementById(
+    "league-subtitle"
+  );
+
+if (leagueSubtitle) {
+  leagueSubtitle.textContent =
+    currentLeague.name;
+}    
+
 const { data: seasons, error } =
   await supabaseClient
     .from("seasons")
