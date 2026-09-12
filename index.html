@@ -3027,7 +3027,10 @@ function toggleSetupCard(
   
  async function loadStandings() {
 
-  const seasonSelect =
+const isPropfecta =
+  currentLeague?.slug === "propfecta";
+   
+   const seasonSelect =
     document.getElementById("standings-season");
 
   if (!seasonSelect) {
@@ -3288,13 +3291,25 @@ if (
 
   if (!isAllTime) {
 
-    data =
-      (standingsRows || [])
-        .sort(
-          (a, b) =>
-            Number(b.win_percentage || 0) -
-            Number(a.win_percentage || 0)
+data =
+  (standingsRows || [])
+    .sort((a, b) => {
+
+      if (isPropfecta) {
+
+        return (
+          Number(b.units || 0) -
+          Number(a.units || 0)
         );
+
+      }
+
+      return (
+        Number(b.win_percentage || 0) -
+        Number(a.win_percentage || 0)
+      );
+
+    });
 
   }
 
@@ -3378,34 +3393,34 @@ if (
           };
 
         })
-        .sort((a, b) => {
+.sort((a, b) => {
 
-          const winPctDifference =
-            Number(b.win_percentage) -
-            Number(a.win_percentage);
+  if (isPropfecta) {
 
+    return (
+      Number(b.units || 0) -
+      Number(a.units || 0)
+    );
 
-          if (winPctDifference !== 0) {
-            return winPctDifference;
-          }
+  }
 
-
-          /*
-           * Keep tied Win % players
-           * ordered by Units for display.
-           *
-           * Win % remains the ranking
-           * measurement.
-           */
-
-          return (
-            Number(b.units || 0) -
-            Number(a.units || 0)
-          );
-
-        });
+  const winPctDifference =
+    Number(b.win_percentage) -
+    Number(a.win_percentage);
 
 
+  if (winPctDifference !== 0) {
+    return winPctDifference;
+  }
+
+
+  return (
+    Number(b.units || 0) -
+    Number(a.units || 0)
+  );
+
+});
+        
     /*
      * Assign all-time ranks.
      *
