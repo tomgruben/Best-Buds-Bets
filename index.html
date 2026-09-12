@@ -1133,6 +1133,95 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
     <div id="bet-message" class="message"></div>
 
+
+    <!-- ======================================================
+         PROPFECTA WEEKLY PROPS
+         ====================================================== -->
+
+    <div
+      id="propfecta-weekly-panel"
+      class="card"
+      style="display:none;"
+    >
+
+      <h3>Weekly Props</h3>
+
+      <div class="form-grid">
+
+        <div>
+          <label for="propfecta-week">
+            Week
+          </label>
+
+          <select id="propfecta-week">
+            <option value="">
+              Select Week
+            </option>
+          </select>
+        </div>
+
+
+        <div>
+          <label for="propfecta-slot">
+            Wager Slot
+          </label>
+
+          <input
+            id="propfecta-slot"
+            type="number"
+            min="1"
+            step="1"
+            value="1"
+          >
+        </div>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Type</th>
+              <th>Athlete</th>
+              <th>Pick</th>
+              <th>Odds</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+
+          <tbody id="propfecta-weekly-body">
+
+            <tr>
+              <td colspan="6" class="empty">
+                Loading players...
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <button
+        id="save-propfecta-slot-button"
+        type="button"
+        class="primary-button"
+        onclick="savePropfectaSlot()"
+      >
+        Save Matching Slot
+      </button>
+
+    </div>
+
+    <!-- END PROPFECTA WEEKLY PROPS -->
+
+
     <div class="admin-subnav">
 
   <button
