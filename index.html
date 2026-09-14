@@ -2710,6 +2710,20 @@ if (pageId === "bets") {
     }
 
 
+    if (
+      adminSubnav &&
+      propfectaPanel &&
+      propfectaPanel.parentNode
+    ) {
+
+      propfectaPanel.parentNode.insertBefore(
+        adminSubnav,
+        propfectaPanel
+      );
+
+    }
+
+
     showAdminSection(
       "weekly",
       weeklyButton
