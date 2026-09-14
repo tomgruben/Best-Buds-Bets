@@ -3007,6 +3007,147 @@ async function loadPropfectaWeeklyForm() {
 
   /*
    * ==========================================================
+   * LOAD PROPFECTA MATCHING SLOT
+   * ==========================================================
+   */
+
+async function loadPropfectaSlot() {
+
+  if (
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+    return;
+  }
+
+
+  const weekId =
+    Number(
+      document.getElementById(
+        "propfecta-week"
+      ).value
+    );
+
+
+  const wagerSlot =
+    Number(
+      document.getElementById(
+        "propfecta-slot"
+      ).value
+    );
+
+
+  if (
+    !weekId ||
+    !wagerSlot
+  ) {
+    return;
+  }
+
+
+  const {
+    data: wagers,
+    error
+  } =
+    await supabaseClient
+      .from("league_wagers")
+      .select(`
+        player_id,
+        wager_type,
+        athlete_name,
+        pick,
+        odds,
+        result
+      `)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq(
+        "season_id",
+        currentSeason.id
+      )
+      .eq(
+        "week_id",
+        weekId
+      )
+      .eq(
+        "wager_slot",
+        wagerSlot
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Load Propfecta slot error:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  const wagerMap =
+    new Map(
+      (wagers || []).map(wager => [
+        Number(wager.player_id),
+        wager
+      ])
+    );
+
+
+  document
+    .querySelectorAll(
+      "#propfecta-weekly-body tr[data-player-id]"
+    )
+    .forEach(row => {
+
+      const playerId =
+        Number(row.dataset.playerId);
+
+
+      const wager =
+        wagerMap.get(playerId);
+
+
+      row.querySelector(
+        ".propfecta-wager-type"
+      ).value =
+        wager?.wager_type || "";
+
+
+      row.querySelector(
+        ".propfecta-athlete"
+      ).value =
+        wager?.athlete_name || "";
+
+
+      row.querySelector(
+        ".propfecta-pick"
+      ).value =
+        wager?.pick || "";
+
+
+      row.querySelector(
+        ".propfecta-odds"
+      ).value =
+        wager?.odds ?? "";
+
+
+      row.querySelector(
+        ".propfecta-result"
+      ).value =
+        wager?.result || "pending";
+
+    });
+
+}
+
+
+  /*
+   * ==========================================================
    * SAVE PROPFECTA MATCHING SLOT
    * ==========================================================
    */
