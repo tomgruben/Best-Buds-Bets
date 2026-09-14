@@ -1264,6 +1264,122 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <!-- END PROPFECTA WEEKLY PROPS -->
 
 
+    <!-- ======================================================
+         PROPFECTA MANAGE PROPS
+         ====================================================== -->
+
+    <div
+      id="propfecta-manage-panel"
+      class="card"
+      style="display:none;"
+    >
+
+      <h3>Manage Props</h3>
+
+      <p class="muted">
+        View, grade, edit, or delete a saved matching wager slot.
+      </p>
+
+
+      <div class="form-grid">
+
+        <div>
+          <label for="propfecta-manage-week">
+            Week
+          </label>
+
+          <select
+            id="propfecta-manage-week"
+            onchange="loadPropfectaManageSlot()"
+          >
+            <option value="">
+              Select Week
+            </option>
+          </select>
+        </div>
+
+
+        <div>
+          <label for="propfecta-manage-slot">
+            Wager Slot
+          </label>
+
+          <select
+            id="propfecta-manage-slot"
+            onchange="loadPropfectaManageSlot()"
+          >
+            <option value="1">Slot 1</option>
+            <option value="2">Slot 2</option>
+            <option value="3">Slot 3</option>
+            <option value="4">Slot 4</option>
+            <option value="5">Slot 5</option>
+            <option value="6">Slot 6</option>
+            <option value="7">Slot 7</option>
+            <option value="8">Slot 8</option>
+            <option value="9">Slot 9</option>
+            <option value="10">Slot 10</option>
+          </select>
+        </div>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Type</th>
+              <th>Athlete</th>
+              <th>Pick</th>
+              <th>Odds</th>
+              <th>Result</th>
+              <th>Units</th>
+            </tr>
+          </thead>
+
+          <tbody id="propfecta-manage-body">
+
+            <tr>
+              <td colspan="7" class="empty">
+                Select a saved week and slot.
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <button
+        id="save-propfecta-changes-button"
+        type="button"
+        class="primary-button"
+        onclick="savePropfectaChanges()"
+      >
+        Save All Changes
+      </button>
+
+
+      <button
+        id="delete-propfecta-slot-button"
+        type="button"
+        class="back-button"
+        onclick="deletePropfectaSlot()"
+        style="margin-left:10px;"
+      >
+        Delete Matching Slot
+      </button>
+
+    </div>
+
+    <!-- END PROPFECTA MANAGE PROPS -->
+
+
     <div class="admin-subnav">
 
   <button
