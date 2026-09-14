@@ -14926,6 +14926,215 @@ const players =
 for (const season of data) {
 
   /*
+   * PROPfecta SEASON HISTORY
+   *
+   * Propfecta is ranked by individual Units.
+   * Combined Units also include matching-slot
+   * parlay results.
+   */
+
+  if (isPropfecta) {
+
+    const {
+      data: propfectaStandings,
+      error: propfectaStandingsError
+    } =
+      await supabaseClient
+        .from("propfecta_standings")
+        .select(`
+          player_name,
+          graded_wagers,
+          wins,
+          losses,
+          pushes,
+          units
+        `)
+        .eq(
+          "season_id",
+          season.id
+        );
+
+
+    if (propfectaStandingsError) {
+
+      console.error(
+        `Propfecta season ${season.year} standings error:`,
+        propfectaStandingsError
+      );
+
+    }
+
+
+    const finalizedPlayers =
+      (propfectaStandings || [])
+        .filter(row =>
+          Number(
+            row.graded_wagers || 0
+          ) > 0
+        )
+        .sort((a, b) =>
+          Number(b.units || 0) -
+          Number(a.units || 0)
+        );
+
+
+    const allSeasonUnitsAreZero =
+      (propfectaStandings || [])
+        .every(row =>
+          Number(row.units || 0) === 0
+        );
+
+
+    const hasLeader =
+      finalizedPlayers.length > 0 &&
+      !allSeasonUnitsAreZero;
+
+
+    const highestUnits =
+      hasLeader
+        ? Number(
+            finalizedPlayers[0].units || 0
+          )
+        : 0;
+
+
+    const leaders =
+      hasLeader
+        ? finalizedPlayers.filter(row =>
+            Number(row.units || 0) ===
+            highestUnits
+          )
+        : [];
+
+
+    const leaderNames =
+      leaders.length > 0
+        ? leaders
+            .map(row => row.player_name)
+            .join(", ")
+        : "—";
+
+
+    const leader =
+      leaders[0] || null;
+
+
+    const leaderDecisions =
+      leader
+        ? Number(leader.wins || 0) +
+          Number(leader.losses || 0)
+        : 0;
+
+
+    const leaderWinPct =
+      leaderDecisions > 0
+        ? (
+            Number(leader.wins || 0) /
+            leaderDecisions
+          ) * 100
+        : null;
+
+
+    const {
+      data: combinedUnitsData,
+      error: combinedUnitsError
+    } =
+      await supabaseClient.rpc(
+        "calculate_propfecta_combined_units",
+        {
+          p_league_id:
+            currentLeague.id,
+
+          p_season_id:
+            season.id
+        }
+      );
+
+
+    if (combinedUnitsError) {
+
+      console.error(
+        `Propfecta season ${season.year} combined units error:`,
+        combinedUnitsError
+      );
+
+    }
+
+
+    const combinedUnits =
+      combinedUnitsError
+        ? 0
+        : Number(
+            combinedUnitsData || 0
+          );
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${season.year}
+      </td>
+
+      <td>
+        ${leaderNames}
+      </td>
+
+      <td class="${
+        unitsClass(highestUnits)
+      }">
+        ${
+          hasLeader
+            ? formatUnits(highestUnits)
+            : "—"
+        }
+      </td>
+
+      <td class="${
+        leaderWinPct === null
+          ? ""
+          : leaderWinPct > 50
+            ? "positive"
+            : leaderWinPct < 50
+              ? "negative"
+              : ""
+      }">
+        ${
+          leaderWinPct === null
+            ? "—"
+            : leaderWinPct.toFixed(1) + "%"
+        }
+      </td>
+
+      <td class="${
+        unitsClass(combinedUnits)
+      }">
+        ${formatUnits(combinedUnits)}
+      </td>
+
+      <td>
+        ${
+          season.status === "active"
+            ? "🟢 Active"
+            : "🏆 Closed"
+        }
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+
+    continue;
+
+  }
+
+
+  /*
    * Get the current leader / final leader
    * for this season.
    */
