@@ -5955,10 +5955,70 @@ else {
    * ==========================================================
    */
 
+
+  const propfectaLeaderUnits =
+    isPropfecta &&
+    eligibleLeaders.length > 0 &&
+    !allPropfectaUnitsAreZero
+      ? Math.max(
+          ...eligibleLeaders.map(row =>
+            Number(row.units || 0)
+          )
+        )
+      : null;
+
+
+  const tripleThreatLeader =
+    !isPropfecta &&
+    data.length > 0
+      ? data[0]
+      : null;
+
+
   data.forEach((row, index) => {
 
     const tr =
       document.createElement("tr");
+
+
+    const unitsBehind =
+      propfectaLeaderUnits === null
+        ? null
+        : Math.max(
+            0,
+            propfectaLeaderUnits -
+              Number(row.units || 0)
+          );
+
+
+    const gamesBack =
+      tripleThreatLeader
+        ? Math.max(
+            0,
+            (
+              (
+                Number(
+                  tripleThreatLeader.wins || 0
+                ) -
+                Number(row.wins || 0)
+              ) +
+              (
+                Number(row.losses || 0) -
+                Number(
+                  tripleThreatLeader.losses || 0
+                )
+              )
+            ) / 2
+          )
+        : null;
+
+
+    const gamesBackDisplay =
+      gamesBack === null
+        ? "—"
+        : Number.isInteger(gamesBack)
+          ? gamesBack.toFixed(0)
+          : gamesBack.toFixed(1);
 
 
     const unitClass =
