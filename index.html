@@ -4810,6 +4810,75 @@ if (leaderLabel) {
   }
 
 }
+
+
+const statsGrid =
+  document.querySelector(
+    "#standings .stats-grid"
+  );
+
+
+const combinedRecordStat =
+  document.getElementById(
+    "combined-record-stat"
+  );
+
+
+const combinedWinPctStat =
+  document.getElementById(
+    "combined-win-pct-stat"
+  );
+
+
+const combinedUnitsStat =
+  document.getElementById(
+    "combined-units-stat"
+  );
+
+
+const combinedRecordLabel =
+  document.getElementById(
+    "combined-record-label"
+  );
+
+
+if (
+  statsGrid &&
+  combinedRecordStat &&
+  combinedWinPctStat &&
+  combinedUnitsStat &&
+  combinedRecordLabel
+) {
+
+  if (isPropfecta) {
+
+    combinedRecordLabel.textContent =
+      "Leader's Units";
+
+
+    statsGrid.append(
+      combinedRecordStat,
+      combinedUnitsStat,
+      combinedWinPctStat
+    );
+
+  }
+
+  else {
+
+    combinedRecordLabel.textContent =
+      "Combined Record";
+
+
+    statsGrid.append(
+      combinedRecordStat,
+      combinedWinPctStat,
+      combinedUnitsStat
+    );
+
+  }
+
+}
    
 
   /*
