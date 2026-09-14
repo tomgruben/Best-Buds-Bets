@@ -12914,9 +12914,80 @@ const {
 
 }
   
- async function openPlayerProfile(playerId) {
+async function openPlayerProfile(playerId) {
 
   currentProfilePlayerId = playerId;
+
+
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
+  const profileSportGroup =
+    document.getElementById(
+      "profile-sport-group"
+    );
+
+
+  const profileSportFilter =
+    document.getElementById(
+      "profile-sport"
+    );
+
+
+  const profilePicksHeader =
+    document.getElementById(
+      "profile-picks-header"
+    );
+
+
+  if (profileSportGroup) {
+
+    profileSportGroup.style.display =
+      isPropfecta
+        ? "none"
+        : "block";
+
+  }
+
+
+  if (
+    isPropfecta &&
+    profileSportFilter
+  ) {
+
+    profileSportFilter.value =
+      "all";
+
+  }
+
+
+  if (profilePicksHeader) {
+
+    profilePicksHeader.innerHTML =
+      isPropfecta
+        ? `
+          <th>Week</th>
+          <th>Slot</th>
+          <th>Type</th>
+          <th>Athlete</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Units</th>
+        `
+        : `
+          <th>Week</th>
+          <th>Sport</th>
+          <th>Type</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Units</th>
+        `;
+
+  }
+
 
   await loadProfileSeasons();
 
