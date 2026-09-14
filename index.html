@@ -2019,7 +2019,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     </select>
   </div>
   
-  <div class="filter-group">
+  <div
+    id="history-sport-group"
+    class="filter-group"
+  >
     <label for="history-sport">Sport</label>
     <select id="history-sport" onchange="loadHistory()">
       <option value="all">All</option>
@@ -2047,7 +2050,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   <table>
 
     <thead>
-<tr>
+<tr id="history-table-header">
   <th>Player</th>
   <th>Week</th>
   <th>Sport</th>
