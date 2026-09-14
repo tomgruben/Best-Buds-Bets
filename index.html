@@ -14004,7 +14004,11 @@ const leagueSeasonIds =
 
 let picksQuery =
   supabaseClient
-    .from("picks")
+    .from(
+      isPropfecta
+        ? "league_wagers"
+        : "picks"
+    )
     .select(`
       *,
       weeks (
@@ -14014,11 +14018,25 @@ let picksQuery =
         year
       )
     `)
-    .eq("player_id", playerId)
+    .eq(
+      "player_id",
+      playerId
+    )
     .in(
       "season_id",
       leagueSeasonIds
     );
+
+
+  if (isPropfecta) {
+
+    picksQuery =
+      picksQuery.eq(
+        "league_id",
+        currentLeague.id
+      );
+
+  }
 
 
   if (selectedProfileSeason !== "all") {
