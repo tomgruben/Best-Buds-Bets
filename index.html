@@ -11536,9 +11536,43 @@ const selectedSport =
 const typeFilter =
   document.getElementById("history-type");
 
-const selectedType =
-  typeFilter?.value || "all";  
 
+const historyLeagueSlug =
+  currentLeague?.slug || "";
+
+
+if (
+  typeFilter &&
+  typeFilter.dataset.league !==
+    historyLeagueSlug
+) {
+
+  typeFilter.innerHTML =
+    isPropfecta
+      ? `
+        <option value="all">All</option>
+        <option value="Passing">Passing</option>
+        <option value="Rushing">Rushing</option>
+        <option value="Receiving">Receiving</option>
+        <option value="Touchdown">Touchdown</option>
+        <option value="Other">Other</option>
+      `
+      : `
+        <option value="all">All</option>
+        <option value="Spread">Spread</option>
+        <option value="Total">Total</option>
+        <option value="NFL Prop">NFL Prop</option>
+      `;
+
+
+  typeFilter.dataset.league =
+    historyLeagueSlug;
+
+}
+
+
+const selectedType =
+  typeFilter?.value || "all";
   const {
   data: leagueSeasonRows,
   error: leagueSeasonError
