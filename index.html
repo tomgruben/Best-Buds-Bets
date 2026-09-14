@@ -3892,6 +3892,303 @@ seasonSelect.appendChild(allOption);
 
 }
 
+async function loadPropfectaManageSlot() {
+
+  if (
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+    return;
+  }
+
+
+  const weekId =
+    Number(
+      document.getElementById(
+        "propfecta-manage-week"
+      ).value
+    );
+
+
+  const wagerSlot =
+    Number(
+      document.getElementById(
+        "propfecta-manage-slot"
+      ).value
+    );
+
+
+  const body =
+    document.getElementById(
+      "propfecta-manage-body"
+    );
+
+
+  if (
+    !weekId ||
+    !wagerSlot
+  ) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Select a saved week and slot.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  const {
+    data: wagers,
+    error
+  } =
+    await supabaseClient
+      .from("league_wagers")
+      .select(`
+        id,
+        player_id,
+        wager_type,
+        athlete_name,
+        pick,
+        odds,
+        result,
+        units,
+        players (
+          name
+        )
+      `)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq(
+        "season_id",
+        currentSeason.id
+      )
+      .eq(
+        "week_id",
+        weekId
+      )
+      .eq(
+        "wager_slot",
+        wagerSlot
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Load Propfecta manage slot error:",
+      error
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          Unable to load this slot.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  const sortedWagers =
+    (wagers || []).sort((a, b) =>
+      (a.players?.name || "")
+        .localeCompare(
+          b.players?.name || ""
+        )
+    );
+
+
+  body.innerHTML = "";
+
+
+  if (sortedWagers.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty">
+          No wagers saved in this slot.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  sortedWagers.forEach(wager => {
+
+    const row =
+      document.createElement("tr");
+
+
+    row.dataset.wagerId =
+      wager.id;
+
+
+    row.innerHTML = `
+
+      <td class="propfecta-manage-player">
+      </td>
+
+
+      <td>
+
+        <select
+          class="propfecta-manage-type"
+        >
+          <option value="Passing">
+            Passing
+          </option>
+
+          <option value="Rushing">
+            Rushing
+          </option>
+
+          <option value="Receiving">
+            Receiving
+          </option>
+
+          <option value="Touchdown">
+            Touchdown
+          </option>
+
+          <option value="Other">
+            Other
+          </option>
+        </select>
+
+      </td>
+
+
+      <td>
+
+        <input
+          class="propfecta-manage-athlete"
+          type="text"
+        >
+
+      </td>
+
+
+      <td>
+
+        <input
+          class="propfecta-manage-pick"
+          type="text"
+        >
+
+      </td>
+
+
+      <td>
+
+        <input
+          class="propfecta-manage-odds"
+          type="number"
+        >
+
+      </td>
+
+
+      <td>
+
+        <select
+          class="propfecta-manage-result"
+        >
+          <option value="pending">
+            Pending
+          </option>
+
+          <option value="win">
+            Win
+          </option>
+
+          <option value="loss">
+            Loss
+          </option>
+
+          <option value="push">
+            Push
+          </option>
+        </select>
+
+      </td>
+
+
+      <td class="propfecta-manage-units">
+      </td>
+
+    `;
+
+
+    row.querySelector(
+      ".propfecta-manage-player"
+    ).textContent =
+      wager.players?.name || "—";
+
+
+    row.querySelector(
+      ".propfecta-manage-type"
+    ).value =
+      wager.wager_type;
+
+
+    row.querySelector(
+      ".propfecta-manage-athlete"
+    ).value =
+      wager.athlete_name;
+
+
+    row.querySelector(
+      ".propfecta-manage-pick"
+    ).value =
+      wager.pick;
+
+
+    row.querySelector(
+      ".propfecta-manage-odds"
+    ).value =
+      wager.odds;
+
+
+    row.querySelector(
+      ".propfecta-manage-result"
+    ).value =
+      wager.result;
+
+
+    const unitsCell =
+      row.querySelector(
+        ".propfecta-manage-units"
+      );
+
+
+    unitsCell.textContent =
+      formatUnits(wager.units);
+
+
+    unitsCell.className =
+      `propfecta-manage-units ${unitsClass(wager.units)}`;
+
+
+    body.appendChild(row);
+
+  });
+
+}
+
+
 async function loadPropfectaManageForm() {
 
   if (
