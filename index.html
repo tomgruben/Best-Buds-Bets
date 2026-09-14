@@ -4702,9 +4702,9 @@ const isPropfecta =
   currentLeague?.slug === "propfecta";
 
    const standingsHeader =
-  document.querySelector(
-    "#standings table thead tr"
-  );
+    document.getElementById(
+      "standings-table-header"
+    );
 
 
 if (standingsHeader) {
@@ -4715,6 +4715,7 @@ if (standingsHeader) {
           <th>Rank</th>
           <th>Player</th>
           <th>Units</th>
+          <th>Units Behind</th>
           <th>W</th>
           <th>L</th>
           <th>P</th>
@@ -4728,6 +4729,7 @@ if (standingsHeader) {
           <th>L</th>
           <th>P</th>
           <th>Win %</th>
+          <th>GB</th>
           <th>Units</th>
           <th>Last 5</th>
         `;
