@@ -13621,13 +13621,174 @@ if (
   body.innerHTML = `
     <tr>
       <td
-        colspan="8"
+        colspan="${
+          currentLeague?.slug === "propfecta"
+            ? 8
+            : 7
+        }"
         class="empty"
       >
         No picks have been entered.
       </td>
     </tr>
   `;
+
+  return;
+
+}
+
+
+/*
+ * PROPfecta HISTORICAL PICKS
+ *
+ * Propfecta wagers come from league_wagers.
+ * Return afterward so Triple Threat remains
+ * on its existing data path.
+ */
+
+if (
+  currentLeague?.slug === "propfecta"
+) {
+
+  let propfectaPicksQuery =
+    supabaseClient
+      .from("league_wagers")
+      .select(`
+        *,
+        weeks(
+          week_number
+        )
+      `)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq(
+        "player_id",
+        playerId
+      )
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  if (selectedProfileSeason !== "all") {
+
+    propfectaPicksQuery =
+      propfectaPicksQuery.eq(
+        "season_id",
+        selectedProfileSeason
+      );
+
+  }
+
+
+  const {
+    data: propfectaPicks,
+    error: propfectaPicksError
+  } =
+    await propfectaPicksQuery
+      .order(
+        "week_id",
+        { ascending: true }
+      )
+      .order(
+        "wager_slot",
+        { ascending: true }
+      );
+
+
+  if (propfectaPicksError) {
+
+    console.error(
+      "Propfecta historical picks error:",
+      propfectaPicksError
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          class="empty"
+        >
+          Unable to load historical picks.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  (propfectaPicks || []).forEach(row => {
+
+    const units =
+      Number(row.units || 0);
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.weeks?.week_number ?? ""}
+      </td>
+
+      <td>
+        ${row.wager_slot ?? ""}
+      </td>
+
+      <td>
+        ${row.wager_type || "—"}
+      </td>
+
+      <td>
+        ${row.athlete_name || "—"}
+      </td>
+
+      <td>
+        ${row.pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+
+  if (body.children.length === 0) {
+
+    body.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          class="empty"
+        >
+          No historical picks yet.
+        </td>
+      </tr>
+    `;
+
+  }
+
 
   return;
 
