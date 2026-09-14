@@ -14755,6 +14755,41 @@ const { data, error } =
   const body =
     document.getElementById("seasons-body");
 
+
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
+  const seasonsTableHeader =
+    document.getElementById(
+      "seasons-table-header"
+    );
+
+
+  if (seasonsTableHeader) {
+
+    seasonsTableHeader.innerHTML =
+      isPropfecta
+        ? `
+          <th>Season</th>
+          <th>Leader</th>
+          <th>Units</th>
+          <th>Win %</th>
+          <th>Combined Units</th>
+          <th>Status</th>
+        `
+        : `
+          <th>Season</th>
+          <th>Leader</th>
+          <th>Win %</th>
+          <th>Record</th>
+          <th>Combined Win Pct.</th>
+          <th>Status</th>
+        `;
+
+  }
+
+
   body.innerHTML = "";
 
 
