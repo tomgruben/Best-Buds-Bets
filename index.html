@@ -3892,6 +3892,89 @@ seasonSelect.appendChild(allOption);
 
 }
 
+async function deletePropfectaWager(
+  wagerId
+) {
+
+  if (
+    !isAdmin ||
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+
+    showMessage(
+      "bet-message",
+      "Admin access is required.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    window.confirm(
+      "Delete this wager? The matching parlay will not calculate unless all three player wagers exist."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("league_wagers")
+      .delete()
+      .eq(
+        "id",
+        wagerId
+      )
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq(
+        "season_id",
+        currentSeason.id
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Delete Propfecta wager error:",
+      error
+    );
+
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "bet-message",
+    "Wager deleted successfully.",
+    "success"
+  );
+
+
+  await loadPropfectaManageSlot();
+
+  await loadStandings();
+
+}
+
+
 async function loadPropfectaManageSlot() {
 
   if (
