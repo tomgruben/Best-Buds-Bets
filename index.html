@@ -14100,8 +14100,11 @@ let picksQuery =
 
 
   if (
-    selectedProfileSport === "all" ||
-    selectedProfileSport === "NFL"
+    !isPropfecta &&
+    (
+      selectedProfileSport === "all" ||
+      selectedProfileSport === "NFL"
+    )
   ) {
 
 let tdQuery =
