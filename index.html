@@ -11447,6 +11447,61 @@ if (typeFilter) {
   
 async function loadHistory() {
 
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
+  const sportFilterGroup =
+    document.getElementById(
+      "history-sport-group"
+    );
+
+
+  const historyTableHeader =
+    document.getElementById(
+      "history-table-header"
+    );
+
+
+  if (sportFilterGroup) {
+
+    sportFilterGroup.style.display =
+      isPropfecta
+        ? "none"
+        : "block";
+
+  }
+
+
+  if (historyTableHeader) {
+
+    historyTableHeader.innerHTML =
+      isPropfecta
+        ? `
+          <th>Player</th>
+          <th>Week</th>
+          <th>Slot</th>
+          <th>Type</th>
+          <th>Athlete</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Units</th>
+        `
+        : `
+          <th>Player</th>
+          <th>Week</th>
+          <th>Sport</th>
+          <th>Type</th>
+          <th>Pick</th>
+          <th>Odds</th>
+          <th>Result</th>
+          <th>Units</th>
+        `;
+
+  }
+
+
   const seasonFilter =
     document.getElementById("history-season");
 
