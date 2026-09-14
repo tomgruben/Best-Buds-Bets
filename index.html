@@ -4518,6 +4518,10 @@ function showPropfectaAdminSection(
 
 function showAdminSection(sectionName, button) {
 
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
   const sections = [
     "admin-weekly-section",
     "admin-manage-section",
@@ -4537,19 +4541,59 @@ function showAdminSection(sectionName, button) {
   });
 
 
-  const selectedSection =
+  const propfectaPanel =
     document.getElementById(
-      `admin-${sectionName}-section`
+      "propfecta-weekly-panel"
     );
 
 
-  if (selectedSection) {
-    selectedSection.style.display = "block";
+  if (propfectaPanel) {
+
+    propfectaPanel.style.display =
+      "none";
+
+  }
+
+
+  if (
+    isPropfecta &&
+    sectionName === "weekly"
+  ) {
+
+    if (propfectaPanel) {
+
+      propfectaPanel.style.display =
+        "block";
+
+    }
+
+
+    loadPropfectaWeeklyForm();
+
+  }
+
+  else {
+
+    const selectedSection =
+      document.getElementById(
+        `admin-${sectionName}-section`
+      );
+
+
+    if (selectedSection) {
+
+      selectedSection.style.display =
+        "block";
+
+    }
+
   }
 
 
   document
-    .querySelectorAll(".admin-subnav-button")
+    .querySelectorAll(
+      ".admin-subnav-button"
+    )
     .forEach(btn => {
 
       btn.classList.remove("active");
