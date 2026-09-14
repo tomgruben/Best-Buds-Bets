@@ -12695,7 +12695,30 @@ if (
         return row;
 
       })
-      .sort((a, b) => {
+         .sort((a, b) => {
+
+        if (isPropfecta) {
+
+          const unitsDifference =
+            Number(b.units || 0) -
+            Number(a.units || 0);
+
+
+          if (unitsDifference !== 0) {
+            return unitsDifference;
+          }
+
+
+          return String(
+            a.player_name || ""
+          ).localeCompare(
+            String(
+              b.player_name || ""
+            )
+          );
+
+        }
+
 
         const winPctDifference =
           b.win_percentage -
