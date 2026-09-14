@@ -3860,6 +3860,59 @@ seasonSelect.appendChild(allOption);
 
 }
 
+function showPropfectaAdminSection(
+  sectionName,
+  button
+) {
+
+  const weeklyPanel =
+    document.getElementById(
+      "propfecta-weekly-panel"
+    );
+
+
+  const managePanel =
+    document.getElementById(
+      "propfecta-manage-panel"
+    );
+
+
+  weeklyPanel.style.display =
+    sectionName === "weekly"
+      ? "block"
+      : "none";
+
+
+  managePanel.style.display =
+    sectionName === "manage"
+      ? "block"
+      : "none";
+
+
+  document
+    .querySelectorAll(
+      "#propfecta-admin-subnav .weekly-subnav-button"
+    )
+    .forEach(navButton => {
+
+      navButton.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  if (button) {
+
+    button.classList.add(
+      "active"
+    );
+
+  }
+
+}
+
+
 function showAdminSection(sectionName, button) {
 
   const sections = [
