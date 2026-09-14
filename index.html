@@ -3007,10 +3007,262 @@ async function loadPropfectaWeeklyForm() {
 
   /*
    * ==========================================================
-   * INITIAL LOAD
+   * SAVE PROPFECTA MATCHING SLOT
    * ==========================================================
    */
 
+async function savePropfectaSlot() {
+
+  if (
+    !isAdmin ||
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+
+    showMessage(
+      "bet-message",
+      "Admin access is required.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const weekId =
+    Number(
+      document.getElementById(
+        "propfecta-week"
+      ).value
+    );
+
+
+  const wagerSlot =
+    Number(
+      document.getElementById(
+        "propfecta-slot"
+      ).value
+    );
+
+
+  if (!weekId) {
+
+    showMessage(
+      "bet-message",
+      "Select a week.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !Number.isInteger(wagerSlot) ||
+    wagerSlot < 1 ||
+    wagerSlot > 10
+  ) {
+
+    showMessage(
+      "bet-message",
+      "Select a valid wager slot.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const rows =
+    Array.from(
+      document.querySelectorAll(
+        "#propfecta-weekly-body tr[data-player-id]"
+      )
+    );
+
+
+  if (rows.length !== 3) {
+
+    showMessage(
+      "bet-message",
+      "All three Propfecta players are required.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const wagers = [];
+
+
+  for (const row of rows) {
+
+    const playerId =
+      Number(row.dataset.playerId);
+
+
+    const wagerType =
+      row.querySelector(
+        ".propfecta-wager-type"
+      ).value;
+
+
+    const athleteName =
+      row.querySelector(
+        ".propfecta-athlete"
+      ).value.trim();
+
+
+    const pick =
+      row.querySelector(
+        ".propfecta-pick"
+      ).value.trim();
+
+
+    const odds =
+      Number(
+        row.querySelector(
+          ".propfecta-odds"
+        ).value
+      );
+
+
+    const result =
+      row.querySelector(
+        ".propfecta-result"
+      ).value;
+
+
+    if (
+      !wagerType ||
+      !athleteName ||
+      !pick ||
+      !Number.isInteger(odds) ||
+      odds === 0
+    ) {
+
+      showMessage(
+        "bet-message",
+        "Complete Type, Athlete, Pick, and valid Odds for all three players.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    wagers.push({
+
+      league_id:
+        currentLeague.id,
+
+      season_id:
+        currentSeason.id,
+
+      week_id:
+        weekId,
+
+      player_id:
+        playerId,
+
+      wager_slot:
+        wagerSlot,
+
+      sport:
+        "NFL",
+
+      wager_type:
+        wagerType,
+
+      athlete_name:
+        athleteName,
+
+      pick:
+        pick,
+
+      odds:
+        odds,
+
+      result:
+        result
+
+    });
+
+  }
+
+
+  const saveButton =
+    document.getElementById(
+      "save-propfecta-slot-button"
+    );
+
+
+  saveButton.disabled = true;
+
+  saveButton.textContent =
+    "Saving...";
+
+
+  const { error } =
+    await supabaseClient
+      .from("league_wagers")
+      .upsert(
+        wagers,
+        {
+          onConflict:
+            "league_id,season_id,week_id,player_id,wager_slot"
+        }
+      );
+
+
+  saveButton.disabled = false;
+
+  saveButton.textContent =
+    "Save Matching Slot";
+
+
+  if (error) {
+
+    console.error(
+      "Save Propfecta slot error:",
+      error
+    );
+
+
+    showMessage(
+      "bet-message",
+      error.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "bet-message",
+    `Wager slot ${wagerSlot} saved successfully.`,
+    "success"
+  );
+
+
+  await loadStandings();
+
+}
+
+
+  /*
+   * ==========================================================
+   * INITIAL LOAD
+   * ==========================================================
+   */
 async function initialize() {
 
   try {
