@@ -11634,6 +11634,258 @@ if (
 
 
   /*
+   * PROPfecta HISTORY
+   *
+   * Load NFL props from league_wagers.
+   * Return afterward so the live
+   * Triple Threat history is unchanged.
+   */
+
+if (isPropfecta) {
+
+  let propfectaHistoryQuery =
+    supabaseClient
+      .from("league_wagers")
+      .select(`
+        *,
+        players(name),
+        weeks(
+          week_number,
+          sunday_date
+        ),
+        seasons(
+          year
+        )
+      `)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  if (selectedSeason !== "all") {
+
+    propfectaHistoryQuery =
+      propfectaHistoryQuery.eq(
+        "season_id",
+        selectedSeason
+      );
+
+  }
+
+
+  if (selectedPlayer !== "all") {
+
+    propfectaHistoryQuery =
+      propfectaHistoryQuery.eq(
+        "player_id",
+        selectedPlayer
+      );
+
+  }
+
+
+  if (selectedWeek !== "all") {
+
+    propfectaHistoryQuery =
+      propfectaHistoryQuery.eq(
+        "week_id",
+        selectedWeek
+      );
+
+  }
+
+
+  if (selectedResult !== "all") {
+
+    propfectaHistoryQuery =
+      propfectaHistoryQuery.eq(
+        "result",
+        selectedResult
+      );
+
+  }
+
+
+  if (selectedType !== "all") {
+
+    propfectaHistoryQuery =
+      propfectaHistoryQuery.eq(
+        "wager_type",
+        selectedType
+      );
+
+  }
+
+
+  const {
+    data: propfectaHistoryRows,
+    error: propfectaHistoryError
+  } =
+    await propfectaHistoryQuery;
+
+
+  if (propfectaHistoryError) {
+
+    console.error(
+      "Propfecta history error:",
+      propfectaHistoryError
+    );
+
+    return;
+
+  }
+
+
+  const body =
+    document.getElementById(
+      "history-body"
+    );
+
+
+  if (!body) {
+    return;
+  }
+
+
+  body.innerHTML = "";
+
+
+  const sortedPropfectaRows =
+    [...(propfectaHistoryRows || [])]
+      .sort((a, b) => {
+
+        const yearDifference =
+          Number(b.seasons?.year || 0) -
+          Number(a.seasons?.year || 0);
+
+
+        if (yearDifference !== 0) {
+          return yearDifference;
+        }
+
+
+        const weekDifference =
+          Number(
+            b.weeks?.week_number || 0
+          ) -
+          Number(
+            a.weeks?.week_number || 0
+          );
+
+
+        if (weekDifference !== 0) {
+          return weekDifference;
+        }
+
+
+        const slotDifference =
+          Number(a.wager_slot || 0) -
+          Number(b.wager_slot || 0);
+
+
+        if (slotDifference !== 0) {
+          return slotDifference;
+        }
+
+
+        return String(
+          a.players?.name || ""
+        ).localeCompare(
+          String(
+            b.players?.name || ""
+          )
+        );
+
+      });
+
+
+  sortedPropfectaRows.forEach(row => {
+
+    const units =
+      Number(row.units || 0);
+
+
+    const tr =
+      document.createElement("tr");
+
+
+    tr.innerHTML = `
+
+      <td>
+        ${row.players?.name || ""}
+      </td>
+
+      <td>
+        ${row.weeks?.week_number || ""}
+      </td>
+
+      <td>
+        ${row.wager_slot || ""}
+      </td>
+
+      <td>
+        ${row.wager_type || "—"}
+      </td>
+
+      <td>
+        ${row.athlete_name || "—"}
+      </td>
+
+      <td>
+        ${row.pick || ""}
+      </td>
+
+      <td>
+        ${row.odds ?? "—"}
+      </td>
+
+      <td>
+        ${formatResult(row.result)}
+      </td>
+
+      <td class="${unitsClass(units)}">
+        ${formatUnits(units)}
+      </td>
+
+    `;
+
+
+    body.appendChild(tr);
+
+  });
+
+
+  if (sortedPropfectaRows.length === 0) {
+
+    body.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="empty"
+        >
+          No picks have been entered.
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+
+
+  return;
+
+}
+
+
+  /*
    * Get standard picks.
    */
 
