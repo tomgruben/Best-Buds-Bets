@@ -13943,6 +13943,11 @@ async function loadPlayerUnits(playerId) {
   const selectedProfileSport =
     profileSportFilter?.value || "all";
 
+
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
   const {
   data: leagueSeasonRows,
   error: leagueSeasonError
