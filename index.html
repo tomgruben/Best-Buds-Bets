@@ -5883,10 +5883,50 @@ else {
       : 0;
 
 
-  document.getElementById(
-    "combined-record"
-  ).textContent =
-    `${combinedWins}-${combinedLosses}-${combinedPushes}`;
+  const combinedRecordElement =
+    document.getElementById(
+      "combined-record"
+    );
+
+
+  if (isPropfecta) {
+
+    const leaderUnits =
+      eligibleLeaders.length > 0 &&
+      !allPropfectaUnitsAreZero
+        ? Math.max(
+            ...eligibleLeaders.map(row =>
+              Number(row.units || 0)
+            )
+          )
+        : null;
+
+
+    combinedRecordElement.textContent =
+      leaderUnits === null
+        ? "—"
+        : formatUnits(leaderUnits);
+
+
+    combinedRecordElement.className =
+      leaderUnits === null
+        ? "stat-value"
+        : `stat-value ${
+            unitsClass(leaderUnits)
+          }`;
+
+  }
+
+  else {
+
+    combinedRecordElement.textContent =
+      `${combinedWins}-${combinedLosses}-${combinedPushes}`;
+
+
+    combinedRecordElement.className =
+      "stat-value";
+
+  }
 
 
   document.getElementById(
