@@ -14781,96 +14781,161 @@ if (
 }  
 
 
-  let picksQuery =
-    supabaseClient
-      .from("picks")
-      .select(`
-        week_id,
-        season_id,
-        weeks(
-          id,
-          week_number
+  const isPropfecta =
+    currentLeague?.slug === "propfecta";
+
+
+  let allEnteredPicks = [];
+
+
+  if (isPropfecta) {
+
+    let propfectaQuery =
+      supabaseClient
+        .from("league_wagers")
+        .select(`
+          week_id,
+          season_id,
+          weeks(
+            id,
+            week_number
+          )
+        `)
+        .eq(
+          "league_id",
+          currentLeague.id
         )
-            `)
-      .in(
-        "season_id",
-        leagueSeasonIds
+        .in(
+          "season_id",
+          leagueSeasonIds
+        );
+
+
+    if (selectedSeason !== "all") {
+
+      propfectaQuery =
+        propfectaQuery.eq(
+          "season_id",
+          selectedSeason
+        );
+
+    }
+
+
+    const propfectaResponse =
+      await propfectaQuery;
+
+
+    if (propfectaResponse.error) {
+
+      console.error(
+        "Propfecta history weeks error:",
+        propfectaResponse.error
       );
 
+      return;
 
-  let tdQuery =
-    supabaseClient
-      .from("touchdown_picks")
-      .select(`
-        week_id,
-        season_id,
-        weeks(
-          id,
-          week_number
-        )
-            `)
-      .in(
-        "season_id",
-        leagueSeasonIds
-      );
+    }
 
 
-  if (selectedSeason !== "all") {
-
-    picksQuery =
-      picksQuery.eq(
-        "season_id",
-        selectedSeason
-      );
-
-    tdQuery =
-      tdQuery.eq(
-        "season_id",
-        selectedSeason
-      );
+    allEnteredPicks =
+      propfectaResponse.data || [];
 
   }
 
+  else {
 
-  const [
-    picksResponse,
-    tdResponse
-  ] =
-    await Promise.all([
-      picksQuery,
-      tdQuery
-    ]);
+    let picksQuery =
+      supabaseClient
+        .from("picks")
+        .select(`
+          week_id,
+          season_id,
+          weeks(
+            id,
+            week_number
+          )
+        `)
+        .in(
+          "season_id",
+          leagueSeasonIds
+        );
 
 
-  if (picksResponse.error) {
+    let tdQuery =
+      supabaseClient
+        .from("touchdown_picks")
+        .select(`
+          week_id,
+          season_id,
+          weeks(
+            id,
+            week_number
+          )
+        `)
+        .in(
+          "season_id",
+          leagueSeasonIds
+        );
 
-    console.error(
-      "History week standard picks error:",
-      picksResponse.error
-    );
 
-    return;
+    if (selectedSeason !== "all") {
+
+      picksQuery =
+        picksQuery.eq(
+          "season_id",
+          selectedSeason
+        );
+
+      tdQuery =
+        tdQuery.eq(
+          "season_id",
+          selectedSeason
+        );
+
+    }
+
+
+    const [
+      picksResponse,
+      tdResponse
+    ] =
+      await Promise.all([
+        picksQuery,
+        tdQuery
+      ]);
+
+
+    if (picksResponse.error) {
+
+      console.error(
+        "History week standard picks error:",
+        picksResponse.error
+      );
+
+      return;
+
+    }
+
+
+    if (tdResponse.error) {
+
+      console.error(
+        "History week TD picks error:",
+        tdResponse.error
+      );
+
+      return;
+
+    }
+
+
+    allEnteredPicks = [
+      ...(picksResponse.data || []),
+      ...(tdResponse.data || [])
+    ];
 
   }
-
-
-  if (tdResponse.error) {
-
-    console.error(
-      "History week TD picks error:",
-      tdResponse.error
-    );
-
-    return;
-
-  }
-
-
-  const allEnteredPicks = [
-    ...(picksResponse.data || []),
-    ...(tdResponse.data || [])
-  ];
-
 
   const enteredWeekNumbers =
     allEnteredPicks
