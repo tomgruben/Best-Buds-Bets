@@ -13062,6 +13062,185 @@ if (
 
 
 /*
+ * PROPfecta PROFILE STATISTICS
+ *
+ * Propfecta records and Units come
+ * entirely from league_wagers.
+ */
+
+if (isPropfecta) {
+
+  let propfectaWagersQuery =
+    supabaseClient
+      .from("league_wagers")
+      .select(`
+        result,
+        units
+      `)
+      .eq(
+        "league_id",
+        currentLeague.id
+      )
+      .eq(
+        "player_id",
+        playerId
+      )
+      .in(
+        "season_id",
+        leagueSeasonIds
+      );
+
+
+  if (selectedProfileSeason !== "all") {
+
+    propfectaWagersQuery =
+      propfectaWagersQuery.eq(
+        "season_id",
+        selectedProfileSeason
+      );
+
+  }
+
+
+  const {
+    data: propfectaWagers,
+    error: propfectaWagersError
+  } =
+    await propfectaWagersQuery;
+
+
+  if (propfectaWagersError) {
+
+    console.error(
+      "Propfecta player profile error:",
+      propfectaWagersError
+    );
+
+    return;
+
+  }
+
+
+  let wins = 0;
+  let losses = 0;
+  let pushes = 0;
+  let totalUnits = 0;
+
+
+  (propfectaWagers || []).forEach(row => {
+
+    if (row.result === "win") {
+      wins++;
+    }
+
+    else if (row.result === "loss") {
+      losses++;
+    }
+
+    else if (row.result === "push") {
+      pushes++;
+    }
+
+
+    totalUnits +=
+      Number(row.units || 0);
+
+  });
+
+
+  const gradedPicks =
+    wins + losses;
+
+
+  const winPercentage =
+    gradedPicks > 0
+      ? (wins / gradedPicks) * 100
+      : 0;
+
+
+  totalUnits =
+    Number(
+      totalUnits.toFixed(2)
+    );
+
+
+  const profileRecord =
+    document.getElementById(
+      "profile-record"
+    );
+
+
+  const profileWinPct =
+    document.getElementById(
+      "profile-win-pct"
+    );
+
+
+  const profileUnits =
+    document.getElementById(
+      "profile-units"
+    );
+
+
+  profileRecord.textContent =
+    `${wins}-${losses}-${pushes}`;
+
+
+  let winPercentageClass = "";
+
+
+  if (gradedPicks > 0) {
+
+    if (winPercentage > 50) {
+
+      winPercentageClass =
+        "win-percentage-positive";
+
+    }
+
+    else if (winPercentage < 50) {
+
+      winPercentageClass =
+        "win-percentage-negative";
+
+    }
+
+  }
+
+
+  profileWinPct.textContent =
+    gradedPicks > 0
+      ? `${winPercentage.toFixed(1)}%`
+      : "—";
+
+
+  profileWinPct.className =
+    `profile-stat-value ${winPercentageClass}`;
+
+
+  profileUnits.textContent =
+    formatUnits(totalUnits);
+
+
+  profileUnits.className =
+    totalUnits > 0
+      ? "profile-stat-value positive"
+      : totalUnits < 0
+        ? "profile-stat-value negative"
+        : "profile-stat-value";
+
+
+  await loadPlayerUnits(playerId);
+
+  await loadPlayerPicks(playerId);
+
+
+  return;
+
+}
+
+
+/*
  * STANDARD PICKS
  */
 
@@ -13074,7 +13253,6 @@ let picksQuery =
       "season_id",
       leagueSeasonIds
     );
-
 
   if (selectedProfileSeason !== "all") {
 
