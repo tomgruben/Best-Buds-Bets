@@ -14510,6 +14510,45 @@ let tdQuery =
   }
 
 
+  const allWeeklyUnitsAreZero =
+    weeklyValues.every(value =>
+      Number(value.units || 0) === 0
+    );
+
+
+  if (
+    isPropfecta &&
+    allWeeklyUnitsAreZero
+  ) {
+
+    const latestWeek =
+      weeklyValues[
+        weeklyValues.length - 1
+      ];
+
+
+    chart.innerHTML = `
+      <div class="empty">
+
+        <strong>
+          No gain or loss yet
+        </strong>
+
+        <div class="muted">
+          ${latestWeek.seasonYear}
+          Week ${latestWeek.weekNumber}:
+          ${formatUnits(0)}
+        </div>
+
+      </div>
+    `;
+
+
+    return;
+
+  }
+
+
   /*
    * ==========================================================
    * CUMULATIVE UNITS
