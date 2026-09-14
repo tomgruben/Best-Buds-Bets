@@ -3169,6 +3169,22 @@ async function loadPropfectaWeeklyForm() {
 
       </td>
 
+
+      <td>
+
+        <button
+          type="button"
+          class="back-button propfecta-row-delete"
+          onclick="deletePropfectaWager(
+            Number(this.closest('tr').dataset.wagerId)
+          )"
+          style="display:none;margin-bottom:0;"
+        >
+          Delete
+        </button>
+
+      </td>
+
     `;
 
 
