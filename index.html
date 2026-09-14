@@ -4251,19 +4251,6 @@ async function loadPropfectaManageSlot() {
       wager.result;
 
 
-    const unitsCell =
-      row.querySelector(
-        ".propfecta-manage-units"
-      );
-
-
-    unitsCell.textContent =
-      formatUnits(wager.units);
-
-
-    unitsCell.className =
-      `propfecta-manage-units ${unitsClass(wager.units)}`;
-
 
     body.appendChild(row);
 
