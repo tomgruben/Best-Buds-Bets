@@ -2748,6 +2748,12 @@ if (pageId === "bets") {
     );
 
 
+  const propfectaManagePanel =
+    document.getElementById(
+      "propfecta-manage-panel"
+    );
+
+
   const adminSubnav =
     document.querySelector(
       ".admin-subnav"
@@ -2762,19 +2768,11 @@ if (pageId === "bets") {
 
   if (isPropfecta) {
 
-  const adminSubnav =
-    document.querySelector(
-      ".admin-subnav"
-    );
+    propfectaAdminSubnav.style.display =
+      "flex";
 
-
-  const propfectaAdminSubnav =
-    document.getElementById(
-      "propfecta-admin-subnav"
-    );
-
-
-  if (isPropfecta) {
+    adminSubnav.style.display =
+      "none";
 
 
     document
@@ -2789,12 +2787,29 @@ if (pageId === "bets") {
       });
 
 
+    const weeklyButton =
+      document.querySelector(
+        `#propfecta-admin-subnav
+         .weekly-subnav-button`
+      );
+
+
+    showPropfectaAdminSection(
+      "weekly",
+      weeklyButton
+    );
+
+
     loadPropfectaWeeklyForm();
 
   }
+
   else {
 
     propfectaPanel.style.display =
+      "none";
+
+    propfectaManagePanel.style.display =
       "none";
 
     propfectaAdminSubnav.style.display =
