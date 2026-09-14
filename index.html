@@ -2662,46 +2662,85 @@ if (pageId === "bets") {
     );
 
 
+  const weeklyButton =
+    document.querySelector(
+      `.admin-subnav-button[onclick*="'weekly'"]`
+    );
+
+
+  const manageButton =
+    document.querySelector(
+      `.admin-subnav-button[onclick*="'manage'"]`
+    );
+
+
+  const setupButton =
+    document.querySelector(
+      `.admin-subnav-button[onclick*="'setup'"]`
+    );
+
+
+  adminSubnav.style.display =
+    "flex";
+
+
   if (isPropfecta) {
 
-    propfectaPanel.style.display =
-      "block";
+    if (weeklyButton) {
+
+      weeklyButton.textContent =
+        "Weekly Props";
+
+    }
 
 
-    adminSubnav.style.display =
-      "none";
+    if (manageButton) {
+
+      manageButton.style.display =
+        "none";
+
+    }
 
 
-    document
-      .querySelectorAll(
-        "#bets .admin-section"
-      )
-      .forEach(section => {
+    if (setupButton) {
 
-        section.style.display =
-          "none";
+      setupButton.style.display =
+        "inline-block";
 
-      });
+    }
 
 
-    loadPropfectaWeeklyForm();
+    showAdminSection(
+      "weekly",
+      weeklyButton
+    );
 
   }
 
   else {
 
-    propfectaPanel.style.display =
-      "none";
+    if (weeklyButton) {
+
+      weeklyButton.textContent =
+        "Weekly Picks";
+
+    }
 
 
-    adminSubnav.style.display =
-      "flex";
+    if (manageButton) {
+
+      manageButton.style.display =
+        "inline-block";
+
+    }
 
 
-    const weeklyButton =
-      document.querySelector(
-        `.admin-subnav-button[onclick*="'weekly'"]`
-      );
+    if (setupButton) {
+
+      setupButton.style.display =
+        "inline-block";
+
+    }
 
 
     showAdminSection(
