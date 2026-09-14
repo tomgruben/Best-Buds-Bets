@@ -2754,13 +2754,27 @@ if (pageId === "bets") {
     );
 
 
+  const propfectaAdminSubnav =
+    document.getElementById(
+      "propfecta-admin-subnav"
+    );
+
+
   if (isPropfecta) {
 
-    propfectaPanel.style.display =
-      "block";
+  const adminSubnav =
+    document.querySelector(
+      ".admin-subnav"
+    );
 
-    adminSubnav.style.display =
-      "none";
+
+  const propfectaAdminSubnav =
+    document.getElementById(
+      "propfecta-admin-subnav"
+    );
+
+
+  if (isPropfecta) {
 
 
     document
@@ -2781,6 +2795,9 @@ if (pageId === "bets") {
   else {
 
     propfectaPanel.style.display =
+      "none";
+
+    propfectaAdminSubnav.style.display =
       "none";
 
     adminSubnav.style.display =
