@@ -3245,6 +3245,7 @@ async function loadPropfectaSlot() {
     await supabaseClient
       .from("league_wagers")
       .select(`
+        id,
         player_id,
         wager_type,
         athlete_name,
@@ -3303,6 +3304,32 @@ async function loadPropfectaSlot() {
 
       const wager =
         wagerMap.get(playerId);
+
+
+      const deleteButton =
+        row.querySelector(
+          ".propfecta-row-delete"
+        );
+
+
+      if (wager) {
+
+        row.dataset.wagerId =
+          wager.id;
+
+        deleteButton.style.display =
+          "inline-block";
+
+      }
+
+      else {
+
+        delete row.dataset.wagerId;
+
+        deleteButton.style.display =
+          "none";
+
+      }
 
 
       row.querySelector(
