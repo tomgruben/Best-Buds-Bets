@@ -1153,7 +1153,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             Week
           </label>
 
-          <select id="propfecta-week">
+          <select
+            id="propfecta-week"
+            onchange="loadPropfectaSlot()"
+          >
             <option value="">
               Select Week
             </option>
@@ -1166,7 +1169,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             Wager Slot
           </label>
 
-          <select id="propfecta-slot">
+          <select
+            id="propfecta-slot"
+            onchange="loadPropfectaSlot()"
+          >
 
             <option value="1">Slot 1</option>
             <option value="2">Slot 2</option>
