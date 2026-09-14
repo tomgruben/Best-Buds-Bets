@@ -3882,6 +3882,227 @@ seasonSelect.appendChild(allOption);
 
 }
 
+async function savePropfectaChanges() {
+
+  if (
+    !isAdmin ||
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+
+    showMessage(
+      "bet-message",
+      "Admin access is required.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const rows =
+    Array.from(
+      document.querySelectorAll(
+        "#propfecta-manage-body tr[data-wager-id]"
+      )
+    );
+
+
+  if (rows.length === 0) {
+
+    showMessage(
+      "bet-message",
+      "There are no wagers to update.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const updates = [];
+
+
+  for (const row of rows) {
+
+    const wagerId =
+      Number(row.dataset.wagerId);
+
+
+    const wagerType =
+      row.querySelector(
+        ".propfecta-manage-type"
+      ).value;
+
+
+    const athleteName =
+      row.querySelector(
+        ".propfecta-manage-athlete"
+      ).value.trim();
+
+
+    const pick =
+      row.querySelector(
+        ".propfecta-manage-pick"
+      ).value.trim();
+
+
+    const odds =
+      Number(
+        row.querySelector(
+          ".propfecta-manage-odds"
+        ).value
+      );
+
+
+    const result =
+      row.querySelector(
+        ".propfecta-manage-result"
+      ).value;
+
+
+    if (
+      !wagerType ||
+      !athleteName ||
+      !pick ||
+      !Number.isInteger(odds) ||
+      odds === 0
+    ) {
+
+      showMessage(
+        "bet-message",
+        "Complete Type, Athlete, Pick, and valid Odds for every wager.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    updates.push({
+
+      id:
+        wagerId,
+
+      wager_type:
+        wagerType,
+
+      athlete_name:
+        athleteName,
+
+      pick:
+        pick,
+
+      odds:
+        odds,
+
+      result:
+        result
+
+    });
+
+  }
+
+
+  const saveButton =
+    document.getElementById(
+      "save-propfecta-changes-button"
+    );
+
+
+  saveButton.disabled = true;
+
+  saveButton.textContent =
+    "Saving...";
+
+
+  const responses =
+    await Promise.all(
+      updates.map(update =>
+        supabaseClient
+          .from("league_wagers")
+          .update({
+
+            wager_type:
+              update.wager_type,
+
+            athlete_name:
+              update.athlete_name,
+
+            pick:
+              update.pick,
+
+            odds:
+              update.odds,
+
+            result:
+              update.result
+
+          })
+          .eq(
+            "id",
+            update.id
+          )
+          .eq(
+            "league_id",
+            currentLeague.id
+          )
+          .eq(
+            "season_id",
+            currentSeason.id
+          )
+      )
+    );
+
+
+  saveButton.disabled = false;
+
+  saveButton.textContent =
+    "Save All Changes";
+
+
+  const saveError =
+    responses.find(
+      response => response.error
+    )?.error;
+
+
+  if (saveError) {
+
+    console.error(
+      "Save Propfecta changes error:",
+      saveError
+    );
+
+
+    showMessage(
+      "bet-message",
+      saveError.message,
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "bet-message",
+    "Propfecta wagers updated successfully.",
+    "success"
+  );
+
+
+  await loadPropfectaManageSlot();
+
+  await loadStandings();
+
+}
+
+
 async function deletePropfectaWager(
   wagerId
 ) {
