@@ -6095,6 +6095,15 @@ if (decisions > 0) {
 
 
       <td>
+        ${
+          unitsBehind === null
+            ? "—"
+            : unitsBehind.toFixed(2)
+        }
+      </td>
+
+
+      <td>
         ${row.wins}
       </td>
 
