@@ -12513,6 +12513,10 @@ const leagueSeasonIds =
   );
 
 
+const isPropfecta =
+  currentLeague?.slug === "propfecta";
+
+
 let standingsRows = [];
 let standingsError = null;
 
@@ -12523,9 +12527,15 @@ if (
   )
 ) {
 
+  const standingsView =
+    isPropfecta
+      ? "propfecta_standings"
+      : "season_standings";
+
+
   const response =
     await supabaseClient
-      .from("season_standings")
+      .from(standingsView)
       .select("*")
       .in(
         "season_id",
@@ -12541,7 +12551,6 @@ if (
     response.error;
 
 }
-
 
   if (standingsError) {
 
