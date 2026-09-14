@@ -4732,10 +4732,22 @@ const leaderElement =
   );
 
 
-if (eligibleLeaders.length === 0) {
+const allPropfectaUnitsAreZero =
+  isPropfecta &&
+  data.every(row =>
+    Number(row.units || 0) === 0
+  );
+
+
+if (
+  eligibleLeaders.length === 0 ||
+  allPropfectaUnitsAreZero
+) {
 
   /*
-   * Nobody has a finalized decision.
+   * Nobody has a finalized wager,
+   * or every Propfecta player is
+   * tied at exactly zero Units.
    */
 
   leaderElement.textContent = "—";
