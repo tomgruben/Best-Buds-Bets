@@ -3892,6 +3892,47 @@ seasonSelect.appendChild(allOption);
 
 }
 
+async function loadPropfectaManageForm() {
+
+  if (
+    currentLeague?.slug !== "propfecta" ||
+    !currentSeason
+  ) {
+    return;
+  }
+
+
+  const weeklyWeekSelect =
+    document.getElementById(
+      "propfecta-week"
+    );
+
+
+  const manageWeekSelect =
+    document.getElementById(
+      "propfecta-manage-week"
+    );
+
+
+  if (
+    weeklyWeekSelect.options.length <= 1
+  ) {
+
+    await loadPropfectaWeeklyForm();
+
+  }
+
+
+  manageWeekSelect.innerHTML =
+    weeklyWeekSelect.innerHTML;
+
+
+  manageWeekSelect.value =
+    weeklyWeekSelect.value;
+
+}
+
+
 function showPropfectaAdminSection(
   sectionName,
   button
